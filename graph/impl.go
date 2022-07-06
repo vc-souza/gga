@@ -54,21 +54,6 @@ func (g *Graph[T]) VertexExists(v *T) bool {
 }
 
 // TODO: docs
-func (g *Graph[T]) AddVertex(v ...*T) {
-	for _, ver := range v {
-		if ver == nil {
-			continue
-		}
-
-		if g.VertexExists(ver) {
-			continue
-		}
-
-		g.Adj[ver] = nil
-	}
-}
-
-// TODO: docs
 func (g *Graph[T]) EdgeExists(src *T, dst *T, wt float64) bool {
 	if src == nil || dst == nil {
 		return false
@@ -94,6 +79,21 @@ func (g *Graph[T]) EdgeExists(src *T, dst *T, wt float64) bool {
 }
 
 // TODO: docs
+func (g *Graph[T]) AddVertex(v ...*T) {
+	for _, ver := range v {
+		if ver == nil {
+			continue
+		}
+
+		if g.VertexExists(ver) {
+			continue
+		}
+
+		g.Adj[ver] = nil
+	}
+}
+
+// TODO: docs
 func (g *Graph[T]) AddWeightedEdge(src, dst *T, wt float64) {
 	if src == nil || dst == nil {
 		return
@@ -114,12 +114,12 @@ func (g *Graph[T]) AddEdge(src, dst *T) {
 }
 
 // TODO: docs
-func (g *Graph[T]) CountVertices() int {
+func (g *Graph[T]) VertexCount() int {
 	return len(g.Adj)
 }
 
 // TODO: docs
-func (g *Graph[T]) CountEdges() int {
+func (g *Graph[T]) EdgeCount() int {
 	res := 0
 
 	for _, es := range g.Adj {

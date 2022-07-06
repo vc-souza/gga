@@ -39,6 +39,77 @@ func TestNewUndirectedGraph(t *testing.T) {
 	}
 }
 
+func TestVertexCount(t *testing.T) {
+	a := tu.ID("a")
+
+	cases := []struct {
+		desc   string
+		verts  []*tu.ID
+		expect int
+	}{
+		{
+			desc:   "no vertices",
+			verts:  []*tu.ID{},
+			expect: 0,
+		},
+		{
+			desc:   "one vertex",
+			verts:  []*tu.ID{&a},
+			expect: 1,
+		},
+	}
+
+	for _, tc := range cases {
+		for _, f := range GraphGenFuncs {
+			t.Run(tc.desc, func(t *testing.T) {
+				g := f()
+
+				g.AddVertex(tc.verts...)
+
+				tu.AssertEqual(t, tc.expect, g.VertexCount())
+			})
+		}
+	}
+}
+
+func TestEdgeCount(t *testing.T) {
+	a := tu.ID("a")
+	b := tu.ID("b")
+
+	a2b := Edge[tu.ID]{Src: &a, Dst: &b}
+
+	cases := []struct {
+		desc   string
+		edges  []Edge[tu.ID]
+		expect int
+	}{
+		{
+			desc:   "zero edges",
+			edges:  []Edge[tu.ID]{},
+			expect: 0,
+		},
+		{
+			desc:   "one edge",
+			edges:  []Edge[tu.ID]{a2b},
+			expect: 1,
+		},
+	}
+
+	for _, tc := range cases {
+		for _, f := range GraphGenFuncs {
+			t.Run(tc.desc, func(t *testing.T) {
+				g := f()
+
+				for _, e := range tc.edges {
+					g.AddWeightedEdge(e.Src, e.Dst, e.Wt)
+				}
+
+				tu.AssertEqual(t, tc.expect, g.EdgeCount())
+			})
+		}
+	}
+}
+
 func TestVertexExists(t *testing.T) {
 	a := tu.ID("a")
 	b := tu.ID("b")
@@ -77,6 +148,82 @@ func TestVertexExists(t *testing.T) {
 				g.AddVertex(tc.verts...)
 
 				tu.AssertEqual(t, tc.expect, g.VertexExists(tc.vert))
+			})
+		}
+	}
+}
+
+func TestEdgeExists(t *testing.T) {
+	a := tu.ID("a")
+	b := tu.ID("b")
+	c := tu.ID("c")
+
+	wt := 1.
+	a2b := Edge[tu.ID]{&a, &b, wt}
+
+	cases := []struct {
+		desc   string
+		verts  []*tu.ID
+		edges  []Edge[tu.ID]
+		edge   Edge[tu.ID]
+		expect bool
+	}{
+		{
+			desc:   "exists",
+			verts:  []*tu.ID{&a, &b},
+			edges:  []Edge[tu.ID]{a2b},
+			edge:   Edge[tu.ID]{&a, &b, wt},
+			expect: true,
+		},
+		{
+			desc:   "does not exist (src)",
+			verts:  []*tu.ID{&a, &b},
+			edges:  []Edge[tu.ID]{a2b},
+			edge:   Edge[tu.ID]{&c, &b, wt},
+			expect: false,
+		},
+		{
+			desc:   "does not exist (nil src)",
+			verts:  []*tu.ID{&a, &b},
+			edges:  []Edge[tu.ID]{a2b},
+			edge:   Edge[tu.ID]{nil, &b, wt},
+			expect: false,
+		},
+		{
+			desc:   "does not exist (dst)",
+			verts:  []*tu.ID{&a, &b},
+			edges:  []Edge[tu.ID]{a2b},
+			edge:   Edge[tu.ID]{&a, &c, wt},
+			expect: false,
+		},
+		{
+			desc:   "does not exist (nil dst)",
+			verts:  []*tu.ID{&a, &b},
+			edges:  []Edge[tu.ID]{a2b},
+			edge:   Edge[tu.ID]{&a, nil, wt},
+			expect: false,
+		},
+		{
+			desc:   "does not exist (wt)",
+			verts:  []*tu.ID{&a, &b},
+			edges:  []Edge[tu.ID]{a2b},
+			edge:   Edge[tu.ID]{&a, &b, wt + 1},
+			expect: false,
+		},
+	}
+
+	for _, tc := range cases {
+		for _, f := range GraphGenFuncs {
+			t.Run(tc.desc, func(t *testing.T) {
+				g := f()
+
+				g.AddVertex(tc.verts...)
+
+				for _, e := range tc.edges {
+					g.AddWeightedEdge(e.Src, e.Dst, e.Wt)
+				}
+
+				tu.AssertEqual(t, tc.expect, g.EdgeExists(tc.edge.Src, tc.edge.Dst, tc.edge.Wt))
 			})
 		}
 	}
@@ -121,83 +268,7 @@ func TestAddVertex(t *testing.T) {
 
 				g.AddVertex(tc.verts...)
 
-				tu.AssertEqual(t, tc.expect, g.CountVertices())
-			})
-		}
-	}
-}
-
-func TestEdgeExists(t *testing.T) {
-	a := tu.ID("a")
-	b := tu.ID("b")
-	c := tu.ID("c")
-
-	wt := 1.
-	aToB := Edge[tu.ID]{&a, &b, wt}
-
-	cases := []struct {
-		desc   string
-		verts  []*tu.ID
-		edges  []Edge[tu.ID]
-		edge   Edge[tu.ID]
-		expect bool
-	}{
-		{
-			desc:   "exists",
-			verts:  []*tu.ID{&a, &b},
-			edges:  []Edge[tu.ID]{aToB},
-			edge:   Edge[tu.ID]{&a, &b, wt},
-			expect: true,
-		},
-		{
-			desc:   "does not exist (src)",
-			verts:  []*tu.ID{&a, &b},
-			edges:  []Edge[tu.ID]{aToB},
-			edge:   Edge[tu.ID]{&c, &b, wt},
-			expect: false,
-		},
-		{
-			desc:   "does not exist (nil src)",
-			verts:  []*tu.ID{&a, &b},
-			edges:  []Edge[tu.ID]{aToB},
-			edge:   Edge[tu.ID]{nil, &b, wt},
-			expect: false,
-		},
-		{
-			desc:   "does not exist (dst)",
-			verts:  []*tu.ID{&a, &b},
-			edges:  []Edge[tu.ID]{aToB},
-			edge:   Edge[tu.ID]{&a, &c, wt},
-			expect: false,
-		},
-		{
-			desc:   "does not exist (nil dst)",
-			verts:  []*tu.ID{&a, &b},
-			edges:  []Edge[tu.ID]{aToB},
-			edge:   Edge[tu.ID]{&a, nil, wt},
-			expect: false,
-		},
-		{
-			desc:   "does not exist (wt)",
-			verts:  []*tu.ID{&a, &b},
-			edges:  []Edge[tu.ID]{aToB},
-			edge:   Edge[tu.ID]{&a, &b, wt + 1},
-			expect: false,
-		},
-	}
-
-	for _, tc := range cases {
-		for _, f := range GraphGenFuncs {
-			t.Run(tc.desc, func(t *testing.T) {
-				g := f()
-
-				g.AddVertex(tc.verts...)
-
-				for _, e := range tc.edges {
-					g.AddWeightedEdge(e.Src, e.Dst, e.Wt)
-				}
-
-				tu.AssertEqual(t, tc.expect, g.EdgeExists(tc.edge.Src, tc.edge.Dst, tc.edge.Wt))
+				tu.AssertEqual(t, tc.expect, g.VertexCount())
 			})
 		}
 	}
@@ -208,7 +279,7 @@ func TestAddWeightedEdge(t *testing.T) {
 	b := tu.ID("b")
 
 	wt := 1.
-	aToB := Edge[tu.ID]{&a, &b, wt}
+	a2b := Edge[tu.ID]{&a, &b, wt}
 
 	cases := []struct {
 		desc        string
@@ -229,7 +300,7 @@ func TestAddWeightedEdge(t *testing.T) {
 		{
 			desc:        "existing edge, same wt",
 			verts:       []*tu.ID{&a, &b},
-			edges:       []Edge[tu.ID]{aToB},
+			edges:       []Edge[tu.ID]{a2b},
 			edge:        Edge[tu.ID]{&a, &b, wt},
 			expectEdges: true,
 			expectCount: 1,
@@ -237,7 +308,7 @@ func TestAddWeightedEdge(t *testing.T) {
 		{
 			desc:        "existing edge, different wt",
 			verts:       []*tu.ID{&a, &b},
-			edges:       []Edge[tu.ID]{aToB},
+			edges:       []Edge[tu.ID]{a2b},
 			edge:        Edge[tu.ID]{&a, &b, wt + 1},
 			expectEdges: true,
 			expectCount: 2,
@@ -281,7 +352,7 @@ func TestAddWeightedEdge(t *testing.T) {
 					}
 				}
 
-				tu.AssertEqual(t, tc.expectCount, g.CountEdges())
+				tu.AssertEqual(t, tc.expectCount, g.EdgeCount())
 			})
 		}
 	}
