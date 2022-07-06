@@ -6,4 +6,5 @@
 [![Coverage](https://coveralls.io/repos/github/vc-souza/gga/badge.svg?branch=main)](https://coveralls.io/github/vc-souza/gga?branch=main)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-Graph algorithms implemented in go, for my own reference. Feel free to use or fork!
+Graph algorithms implemented in go, for my own reference.
+Feel free to use or fork!
