@@ -1,6 +1,6 @@
 package graph
 
-// An Identifiable
+// TODO: docs
 type Identifiable interface {
 	Id() string
 }
