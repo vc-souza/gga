@@ -1,9 +1,3 @@
-# Ignore files without an extension
-# https://stackoverflow.com/a/19023985/1634525
-*
-!/**/
-!*.*
-
 # Binaries for programs and plugins
 *.exe
 *.exe~
