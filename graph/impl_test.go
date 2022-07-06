@@ -3,18 +3,18 @@ package graph
 import (
 	"testing"
 
-	tu "github.com/vc-souza/gga/internal/testutils"
+	ut "github.com/vc-souza/gga/internal/testutils"
 )
 
-type GraphGen func() *Graph[tu.ID]
+type GraphGen func() *Graph[ut.ID]
 
 var GraphGenFuncs = []GraphGen{
-	NewDirectedGraph[tu.ID],
-	NewUndirectedGraph[tu.ID],
+	NewDirectedGraph[ut.ID],
+	NewUndirectedGraph[ut.ID],
 }
 
 func TestNewDirectedGraph(t *testing.T) {
-	g := NewDirectedGraph[tu.ID]()
+	g := NewDirectedGraph[ut.ID]()
 
 	if g == nil {
 		t.Log("got a nil graph")
@@ -27,7 +27,7 @@ func TestNewDirectedGraph(t *testing.T) {
 }
 
 func TestNewUndirectedGraph(t *testing.T) {
-	g := NewDirectedGraph[tu.ID]()
+	g := NewDirectedGraph[ut.ID]()
 
 	if g == nil {
 		t.Log("got a nil graph")
@@ -40,21 +40,21 @@ func TestNewUndirectedGraph(t *testing.T) {
 }
 
 func TestVertexCount(t *testing.T) {
-	a := tu.ID("a")
+	a := ut.ID("a")
 
 	cases := []struct {
 		desc   string
-		verts  []*tu.ID
+		verts  []*ut.ID
 		expect int
 	}{
 		{
 			desc:   "no vertices",
-			verts:  []*tu.ID{},
+			verts:  []*ut.ID{},
 			expect: 0,
 		},
 		{
 			desc:   "one vertex",
-			verts:  []*tu.ID{&a},
+			verts:  []*ut.ID{&a},
 			expect: 1,
 		},
 	}
@@ -66,31 +66,31 @@ func TestVertexCount(t *testing.T) {
 
 				g.AddVertex(tc.verts...)
 
-				tu.AssertEqual(t, tc.expect, g.VertexCount())
+				ut.AssertEqual(t, tc.expect, g.VertexCount())
 			})
 		}
 	}
 }
 
 func TestEdgeCount(t *testing.T) {
-	a := tu.ID("a")
-	b := tu.ID("b")
+	a := ut.ID("a")
+	b := ut.ID("b")
 
-	a2b := Edge[tu.ID]{Src: &a, Dst: &b}
+	a2b := Edge[ut.ID]{Src: &a, Dst: &b}
 
 	cases := []struct {
 		desc   string
-		edges  []Edge[tu.ID]
+		edges  []Edge[ut.ID]
 		expect int
 	}{
 		{
 			desc:   "zero edges",
-			edges:  []Edge[tu.ID]{},
+			edges:  []Edge[ut.ID]{},
 			expect: 0,
 		},
 		{
 			desc:   "one edge",
-			edges:  []Edge[tu.ID]{a2b},
+			edges:  []Edge[ut.ID]{a2b},
 			expect: 1,
 		},
 	}
@@ -104,37 +104,37 @@ func TestEdgeCount(t *testing.T) {
 					g.AddWeightedEdge(e.Src, e.Dst, e.Wt)
 				}
 
-				tu.AssertEqual(t, tc.expect, g.EdgeCount())
+				ut.AssertEqual(t, tc.expect, g.EdgeCount())
 			})
 		}
 	}
 }
 
 func TestVertexExists(t *testing.T) {
-	a := tu.ID("a")
-	b := tu.ID("b")
+	a := ut.ID("a")
+	b := ut.ID("b")
 
 	cases := []struct {
 		desc   string
-		verts  []*tu.ID
-		vert   *tu.ID
+		verts  []*ut.ID
+		vert   *ut.ID
 		expect bool
 	}{
 		{
 			desc:   "exists",
-			verts:  []*tu.ID{&a},
+			verts:  []*ut.ID{&a},
 			vert:   &a,
 			expect: true,
 		},
 		{
 			desc:   "does not exist",
-			verts:  []*tu.ID{&a},
+			verts:  []*ut.ID{&a},
 			vert:   &b,
 			expect: false,
 		},
 		{
 			desc:   "nil vertex",
-			verts:  []*tu.ID{&a},
+			verts:  []*ut.ID{&a},
 			vert:   nil,
 			expect: false,
 		},
@@ -147,67 +147,67 @@ func TestVertexExists(t *testing.T) {
 
 				g.AddVertex(tc.verts...)
 
-				tu.AssertEqual(t, tc.expect, g.VertexExists(tc.vert))
+				ut.AssertEqual(t, tc.expect, g.VertexExists(tc.vert))
 			})
 		}
 	}
 }
 
 func TestEdgeExists(t *testing.T) {
-	a := tu.ID("a")
-	b := tu.ID("b")
-	c := tu.ID("c")
+	a := ut.ID("a")
+	b := ut.ID("b")
+	c := ut.ID("c")
 
 	wt := 1.
-	a2b := Edge[tu.ID]{&a, &b, wt}
+	a2b := Edge[ut.ID]{&a, &b, wt}
 
 	cases := []struct {
 		desc   string
-		verts  []*tu.ID
-		edges  []Edge[tu.ID]
-		edge   Edge[tu.ID]
+		verts  []*ut.ID
+		edges  []Edge[ut.ID]
+		edge   Edge[ut.ID]
 		expect bool
 	}{
 		{
 			desc:   "exists",
-			verts:  []*tu.ID{&a, &b},
-			edges:  []Edge[tu.ID]{a2b},
-			edge:   Edge[tu.ID]{&a, &b, wt},
+			verts:  []*ut.ID{&a, &b},
+			edges:  []Edge[ut.ID]{a2b},
+			edge:   Edge[ut.ID]{&a, &b, wt},
 			expect: true,
 		},
 		{
 			desc:   "does not exist (src)",
-			verts:  []*tu.ID{&a, &b},
-			edges:  []Edge[tu.ID]{a2b},
-			edge:   Edge[tu.ID]{&c, &b, wt},
+			verts:  []*ut.ID{&a, &b},
+			edges:  []Edge[ut.ID]{a2b},
+			edge:   Edge[ut.ID]{&c, &b, wt},
 			expect: false,
 		},
 		{
 			desc:   "does not exist (nil src)",
-			verts:  []*tu.ID{&a, &b},
-			edges:  []Edge[tu.ID]{a2b},
-			edge:   Edge[tu.ID]{nil, &b, wt},
+			verts:  []*ut.ID{&a, &b},
+			edges:  []Edge[ut.ID]{a2b},
+			edge:   Edge[ut.ID]{nil, &b, wt},
 			expect: false,
 		},
 		{
 			desc:   "does not exist (dst)",
-			verts:  []*tu.ID{&a, &b},
-			edges:  []Edge[tu.ID]{a2b},
-			edge:   Edge[tu.ID]{&a, &c, wt},
+			verts:  []*ut.ID{&a, &b},
+			edges:  []Edge[ut.ID]{a2b},
+			edge:   Edge[ut.ID]{&a, &c, wt},
 			expect: false,
 		},
 		{
 			desc:   "does not exist (nil dst)",
-			verts:  []*tu.ID{&a, &b},
-			edges:  []Edge[tu.ID]{a2b},
-			edge:   Edge[tu.ID]{&a, nil, wt},
+			verts:  []*ut.ID{&a, &b},
+			edges:  []Edge[ut.ID]{a2b},
+			edge:   Edge[ut.ID]{&a, nil, wt},
 			expect: false,
 		},
 		{
 			desc:   "does not exist (wt)",
-			verts:  []*tu.ID{&a, &b},
-			edges:  []Edge[tu.ID]{a2b},
-			edge:   Edge[tu.ID]{&a, &b, wt + 1},
+			verts:  []*ut.ID{&a, &b},
+			edges:  []Edge[ut.ID]{a2b},
+			edge:   Edge[ut.ID]{&a, &b, wt + 1},
 			expect: false,
 		},
 	}
@@ -223,40 +223,40 @@ func TestEdgeExists(t *testing.T) {
 					g.AddWeightedEdge(e.Src, e.Dst, e.Wt)
 				}
 
-				tu.AssertEqual(t, tc.expect, g.EdgeExists(tc.edge.Src, tc.edge.Dst, tc.edge.Wt))
+				ut.AssertEqual(t, tc.expect, g.EdgeExists(tc.edge.Src, tc.edge.Dst, tc.edge.Wt))
 			})
 		}
 	}
 }
 
 func TestAddVertex(t *testing.T) {
-	a := tu.ID("a")
-	b := tu.ID("b")
-	c := tu.ID("c")
+	a := ut.ID("a")
+	b := ut.ID("b")
+	c := ut.ID("c")
 
 	cases := []struct {
 		desc   string
-		verts  []*tu.ID
+		verts  []*ut.ID
 		expect int
 	}{
 		{
 			desc:   "no vertices",
-			verts:  []*tu.ID{},
+			verts:  []*ut.ID{},
 			expect: 0,
 		},
 		{
 			desc:   "nil vertex",
-			verts:  []*tu.ID{nil},
+			verts:  []*ut.ID{nil},
 			expect: 0,
 		},
 		{
 			desc:   "unique calls",
-			verts:  []*tu.ID{&a, &b, &c},
+			verts:  []*ut.ID{&a, &b, &c},
 			expect: 3,
 		},
 		{
 			desc:   "duplicated calls",
-			verts:  []*tu.ID{&a, &a, &b, &b, &b},
+			verts:  []*ut.ID{&a, &a, &b, &b, &b},
 			expect: 2,
 		},
 	}
@@ -268,64 +268,64 @@ func TestAddVertex(t *testing.T) {
 
 				g.AddVertex(tc.verts...)
 
-				tu.AssertEqual(t, tc.expect, g.VertexCount())
+				ut.AssertEqual(t, tc.expect, g.VertexCount())
 			})
 		}
 	}
 }
 
 func TestAddWeightedEdge(t *testing.T) {
-	a := tu.ID("a")
-	b := tu.ID("b")
+	a := ut.ID("a")
+	b := ut.ID("b")
 
 	wt := 1.
-	a2b := Edge[tu.ID]{&a, &b, wt}
+	a2b := Edge[ut.ID]{&a, &b, wt}
 
 	cases := []struct {
 		desc        string
-		verts       []*tu.ID
-		edges       []Edge[tu.ID]
-		edge        Edge[tu.ID]
+		verts       []*ut.ID
+		edges       []Edge[ut.ID]
+		edge        Edge[ut.ID]
 		expectEdges bool
 		expectCount int
 	}{
 		{
 			desc:        "new edge",
-			verts:       []*tu.ID{&a, &b},
-			edges:       []Edge[tu.ID]{},
-			edge:        Edge[tu.ID]{&a, &b, wt},
+			verts:       []*ut.ID{&a, &b},
+			edges:       []Edge[ut.ID]{},
+			edge:        Edge[ut.ID]{&a, &b, wt},
 			expectEdges: true,
 			expectCount: 1,
 		},
 		{
 			desc:        "existing edge, same wt",
-			verts:       []*tu.ID{&a, &b},
-			edges:       []Edge[tu.ID]{a2b},
-			edge:        Edge[tu.ID]{&a, &b, wt},
+			verts:       []*ut.ID{&a, &b},
+			edges:       []Edge[ut.ID]{a2b},
+			edge:        Edge[ut.ID]{&a, &b, wt},
 			expectEdges: true,
 			expectCount: 1,
 		},
 		{
 			desc:        "existing edge, different wt",
-			verts:       []*tu.ID{&a, &b},
-			edges:       []Edge[tu.ID]{a2b},
-			edge:        Edge[tu.ID]{&a, &b, wt + 1},
+			verts:       []*ut.ID{&a, &b},
+			edges:       []Edge[ut.ID]{a2b},
+			edge:        Edge[ut.ID]{&a, &b, wt + 1},
 			expectEdges: true,
 			expectCount: 2,
 		},
 		{
 			desc:        "nil src",
-			verts:       []*tu.ID{&a, &b},
-			edges:       []Edge[tu.ID]{},
-			edge:        Edge[tu.ID]{nil, &b, wt},
+			verts:       []*ut.ID{&a, &b},
+			edges:       []Edge[ut.ID]{},
+			edge:        Edge[ut.ID]{nil, &b, wt},
 			expectEdges: false,
 			expectCount: 0,
 		},
 		{
 			desc:        "nil dst",
-			verts:       []*tu.ID{&a, &b},
-			edges:       []Edge[tu.ID]{},
-			edge:        Edge[tu.ID]{&a, nil, wt},
+			verts:       []*ut.ID{&a, &b},
+			edges:       []Edge[ut.ID]{},
+			edge:        Edge[ut.ID]{&a, nil, wt},
 			expectEdges: false,
 			expectCount: 0,
 		},
@@ -345,44 +345,44 @@ func TestAddWeightedEdge(t *testing.T) {
 				g.AddWeightedEdge(tc.edge.Src, tc.edge.Dst, tc.edge.Wt)
 
 				if tc.expectEdges {
-					tu.AssertEqual(t, true, g.EdgeExists(tc.edge.Src, tc.edge.Dst, tc.edge.Wt))
+					ut.AssertEqual(t, true, g.EdgeExists(tc.edge.Src, tc.edge.Dst, tc.edge.Wt))
 
 					if !g.Directed() {
-						tu.AssertEqual(t, true, g.EdgeExists(tc.edge.Dst, tc.edge.Src, tc.edge.Wt))
+						ut.AssertEqual(t, true, g.EdgeExists(tc.edge.Dst, tc.edge.Src, tc.edge.Wt))
 					}
 				}
 
-				tu.AssertEqual(t, tc.expectCount, g.EdgeCount())
+				ut.AssertEqual(t, tc.expectCount, g.EdgeCount())
 			})
 		}
 	}
 }
 
 func TestAddEdge_directed(t *testing.T) {
-	a := tu.ID("a")
-	b := tu.ID("b")
+	a := ut.ID("a")
+	b := ut.ID("b")
 
 	src := &a
 	dst := &b
 
-	g := NewDirectedGraph[tu.ID]()
+	g := NewDirectedGraph[ut.ID]()
 
 	g.AddEdge(src, dst)
 
-	tu.AssertEqual(t, true, g.EdgeExists(src, dst, 0))
+	ut.AssertEqual(t, true, g.EdgeExists(src, dst, 0))
 }
 
 func TestAddEdge_undirected(t *testing.T) {
-	a := tu.ID("a")
-	b := tu.ID("b")
+	a := ut.ID("a")
+	b := ut.ID("b")
 
 	src := &a
 	dst := &b
 
-	g := NewUndirectedGraph[tu.ID]()
+	g := NewUndirectedGraph[ut.ID]()
 
 	g.AddEdge(src, dst)
 
-	tu.AssertEqual(t, true, g.EdgeExists(src, dst, 0))
-	tu.AssertEqual(t, true, g.EdgeExists(dst, src, 0))
+	ut.AssertEqual(t, true, g.EdgeExists(src, dst, 0))
+	ut.AssertEqual(t, true, g.EdgeExists(dst, src, 0))
 }
