@@ -21,7 +21,7 @@ func TestNewDirectedGraph(t *testing.T) {
 		t.FailNow()
 	}
 
-	if !g.Directed() {
+	if g.Undirected() {
 		t.Log("asked for a directed graph, got an undirected one")
 	}
 }
@@ -347,7 +347,7 @@ func TestAddWeightedEdge(t *testing.T) {
 				if tc.expectEdges {
 					ut.AssertEqual(t, true, g.EdgeExists(tc.edge.Src, tc.edge.Dst, tc.edge.Wt))
 
-					if !g.Directed() {
+					if g.Undirected() {
 						ut.AssertEqual(t, true, g.EdgeExists(tc.edge.Dst, tc.edge.Src, tc.edge.Wt))
 					}
 				}

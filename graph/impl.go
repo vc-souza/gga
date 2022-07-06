@@ -48,6 +48,11 @@ func (g *Graph[T]) Directed() bool {
 }
 
 // TODO: docs
+func (g *Graph[T]) Undirected() bool {
+	return !g.dir
+}
+
+// TODO: docs
 func (g *Graph[T]) VertexExists(v *T) bool {
 	_, ok := g.Adj[v]
 	return ok
@@ -103,7 +108,7 @@ func (g *Graph[T]) AddWeightedEdge(src, dst *T, wt float64) {
 		g.Adj[src] = append(g.Adj[src], Edge[T]{Src: src, Dst: dst, Wt: wt})
 	}
 
-	if !g.Directed() && !g.EdgeExists(dst, src, wt) {
+	if g.Undirected() && !g.EdgeExists(dst, src, wt) {
 		g.Adj[dst] = append(g.Adj[dst], Edge[T]{Src: dst, Dst: src, Wt: wt})
 	}
 }
@@ -132,7 +137,7 @@ func (g *Graph[T]) EdgeCount() int {
 		}
 	}
 
-	if !g.Directed() {
+	if g.Undirected() {
 		res = res / 2
 	}
 
