@@ -1,4 +1,4 @@
-package data
+package ds
 
 import (
 	"testing"
@@ -80,21 +80,21 @@ func TestEdgeCount(t *testing.T) {
 	a := ut.ID("a")
 	b := ut.ID("b")
 
-	a2b := Edge[ut.ID]{Src: &a, Dst: &b}
+	a2b := GraphEdge[ut.ID]{Src: &a, Dst: &b}
 
 	cases := []struct {
 		desc   string
-		edges  []Edge[ut.ID]
+		edges  []GraphEdge[ut.ID]
 		expect int
 	}{
 		{
 			desc:   "zero edges",
-			edges:  []Edge[ut.ID]{},
+			edges:  []GraphEdge[ut.ID]{},
 			expect: 0,
 		},
 		{
 			desc:   "one edge",
-			edges:  []Edge[ut.ID]{a2b},
+			edges:  []GraphEdge[ut.ID]{a2b},
 			expect: 1,
 		},
 	}
@@ -162,48 +162,48 @@ func TestGetEdge(t *testing.T) {
 	b := ut.ID("b")
 	c := ut.ID("c")
 
-	a2b := Edge[ut.ID]{Src: &a, Dst: &b}
+	a2b := GraphEdge[ut.ID]{Src: &a, Dst: &b}
 
 	cases := []struct {
 		desc   string
 		verts  []*ut.ID
-		edges  []Edge[ut.ID]
-		edge   Edge[ut.ID]
+		edges  []GraphEdge[ut.ID]
+		edge   GraphEdge[ut.ID]
 		expect bool
 	}{
 		{
 			desc:   "exists",
 			verts:  []*ut.ID{&a, &b},
-			edges:  []Edge[ut.ID]{a2b},
-			edge:   Edge[ut.ID]{Src: &a, Dst: &b},
+			edges:  []GraphEdge[ut.ID]{a2b},
+			edge:   GraphEdge[ut.ID]{Src: &a, Dst: &b},
 			expect: true,
 		},
 		{
 			desc:   "does not exist (src)",
 			verts:  []*ut.ID{&a, &b},
-			edges:  []Edge[ut.ID]{a2b},
-			edge:   Edge[ut.ID]{Src: &c, Dst: &b},
+			edges:  []GraphEdge[ut.ID]{a2b},
+			edge:   GraphEdge[ut.ID]{Src: &c, Dst: &b},
 			expect: false,
 		},
 		{
 			desc:   "does not exist (nil src)",
 			verts:  []*ut.ID{&a, &b},
-			edges:  []Edge[ut.ID]{a2b},
-			edge:   Edge[ut.ID]{Src: nil, Dst: &b},
+			edges:  []GraphEdge[ut.ID]{a2b},
+			edge:   GraphEdge[ut.ID]{Src: nil, Dst: &b},
 			expect: false,
 		},
 		{
 			desc:   "does not exist (dst)",
 			verts:  []*ut.ID{&a, &b},
-			edges:  []Edge[ut.ID]{a2b},
-			edge:   Edge[ut.ID]{Src: &a, Dst: &c},
+			edges:  []GraphEdge[ut.ID]{a2b},
+			edge:   GraphEdge[ut.ID]{Src: &a, Dst: &c},
 			expect: false,
 		},
 		{
 			desc:   "does not exist (nil dst)",
 			verts:  []*ut.ID{&a, &b},
-			edges:  []Edge[ut.ID]{a2b},
-			edge:   Edge[ut.ID]{Src: &a, Dst: nil},
+			edges:  []GraphEdge[ut.ID]{a2b},
+			edge:   GraphEdge[ut.ID]{Src: &a, Dst: nil},
 			expect: false,
 		},
 	}
@@ -276,45 +276,45 @@ func TestAddWeightedEdge(t *testing.T) {
 	a := ut.ID("a")
 	b := ut.ID("b")
 
-	a2b := Edge[ut.ID]{Src: &a, Dst: &b}
+	a2b := GraphEdge[ut.ID]{Src: &a, Dst: &b}
 
 	cases := []struct {
 		desc        string
 		verts       []*ut.ID
-		edges       []Edge[ut.ID]
-		edge        Edge[ut.ID]
+		edges       []GraphEdge[ut.ID]
+		edge        GraphEdge[ut.ID]
 		expectEdges bool
 		expectCount int
 	}{
 		{
 			desc:        "new edge",
 			verts:       []*ut.ID{&a, &b},
-			edges:       []Edge[ut.ID]{},
-			edge:        Edge[ut.ID]{Src: &a, Dst: &b},
+			edges:       []GraphEdge[ut.ID]{},
+			edge:        GraphEdge[ut.ID]{Src: &a, Dst: &b},
 			expectEdges: true,
 			expectCount: 1,
 		},
 		{
 			desc:        "existing edge",
 			verts:       []*ut.ID{&a, &b},
-			edges:       []Edge[ut.ID]{a2b},
-			edge:        Edge[ut.ID]{Src: &a, Dst: &b},
+			edges:       []GraphEdge[ut.ID]{a2b},
+			edge:        GraphEdge[ut.ID]{Src: &a, Dst: &b},
 			expectEdges: true,
 			expectCount: 1,
 		},
 		{
 			desc:        "nil src",
 			verts:       []*ut.ID{&a, &b},
-			edges:       []Edge[ut.ID]{},
-			edge:        Edge[ut.ID]{Src: nil, Dst: &b},
+			edges:       []GraphEdge[ut.ID]{},
+			edge:        GraphEdge[ut.ID]{Src: nil, Dst: &b},
 			expectEdges: false,
 			expectCount: 0,
 		},
 		{
 			desc:        "nil dst",
 			verts:       []*ut.ID{&a, &b},
-			edges:       []Edge[ut.ID]{},
-			edge:        Edge[ut.ID]{Src: &a, Dst: nil},
+			edges:       []GraphEdge[ut.ID]{},
+			edge:        GraphEdge[ut.ID]{Src: &a, Dst: nil},
 			expectEdges: false,
 			expectCount: 0,
 		},
