@@ -12,11 +12,6 @@ type Item interface {
 // FormattingAttrs holds flat formatting attributes for any type of item in a gga data structure.
 type FormattingAttrs map[string]string
 
-// Accept accepts a formatting visitor, and guides its execution using double-dispatching.
-func (f FormattingAttrs) Accept(v FormattingVisitor) {
-	v.VisitFormattingAttrs(f)
-}
-
 // A Formattable holds formatting attributes, and can accept them.
 type Formattable struct {
 	FmtAttrs FormattingAttrs

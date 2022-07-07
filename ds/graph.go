@@ -21,10 +21,6 @@ func (vert *GraphVertex[V]) Label() string {
 // Accept accepts a graph visitor, and guides its execution using double-dispatching.
 func (vert *GraphVertex[V]) Accept(v GraphVisitor[V]) {
 	v.VisitVertex(vert)
-
-	if vert.FmtAttrs != nil {
-		vert.FmtAttrs.Accept(v)
-	}
 }
 
 /*
@@ -53,10 +49,6 @@ type GraphEdge[V Item] struct {
 // Accept accepts a graph visitor, and guides its execution using double-dispatching.
 func (e *GraphEdge[V]) Accept(v GraphVisitor[V]) {
 	v.VisitEdge(e)
-
-	if e.FmtAttrs != nil {
-		e.FmtAttrs.Accept(v)
-	}
 }
 
 /*
@@ -232,10 +224,6 @@ func (g *Graph[V]) EdgeCount() int {
 // Accept accepts a graph visitor, and guides its execution using double-dispatching.
 func (g *Graph[V]) Accept(v GraphVisitor[V]) {
 	v.VisitGraphStart(g)
-
-	if g.FmtAttrs != nil {
-		g.FmtAttrs.Accept(v)
-	}
 
 	for vp, es := range g.adj {
 		g.verts[vp].Accept(v)
