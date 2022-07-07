@@ -262,7 +262,7 @@ func TestGetVertex(t *testing.T) {
 				ut.AssertEqual(t, tc.expect, ok)
 
 				if vert != nil {
-					ut.AssertEqual(t, tc.vert, vert.Satellite)
+					ut.AssertEqual(t, tc.vert, vert.Sat)
 				}
 			})
 		}

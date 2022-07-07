@@ -9,21 +9,20 @@ type Item interface {
 	Label() string
 }
 
-// TODO: attr
+// FormattingAttrs holds flat formatting attributes for any type of item in a gga data structure.
 type FormattingAttrs map[string]string
 
-// TODO: docs
+// Accept accepts a formatting visitor, and guides its execution using double-dispatching.
 func (f FormattingAttrs) Accept(v FormattingVisitor) {
 	v.VisitFormattingAttrs(f)
 }
 
-// TODO: docs
+// A Formattable holds formatting attributes, and can accept them.
 type Formattable struct {
-	// TODO: docs
 	FmtAttrs FormattingAttrs
 }
 
-// TODO: docs
+// SetFormatting sets the current formatting attributes of the Formattable.
 func (f *Formattable) SetFormatting(attrs map[string]string) {
 	f.FmtAttrs = attrs
 }

@@ -1,19 +1,24 @@
 package ds
 
 /*
-TODO: docs
+A GraphVertex represents a vertex in a graph.
 */
 type GraphVertex[V Item] struct {
 	Formattable
 
-	// TODO: docs
-	Satellite *V
+	/*
+		Sat holds satellite data for the vertex, which is data that should come along with the vertex everywhere it goes.
+		The actual value of a graph algorithm comes from looking at how satellite data was moved around and grouped after its execution.
+	*/
+	Sat *V
 }
 
+// Label provides a label for the vertex, straight from its satellite data.
 func (vert *GraphVertex[V]) Label() string {
-	return (*vert.Satellite).Label()
+	return (*vert.Sat).Label()
 }
 
+// Accept accepts a graph visitor, and guides its execution using double-dispatching.
 func (vert *GraphVertex[V]) Accept(v GraphVisitor[V]) {
 	v.VisitVertex(vert)
 
@@ -23,7 +28,7 @@ func (vert *GraphVertex[V]) Accept(v GraphVisitor[V]) {
 }
 
 /*
-A GraphEdge represents a connection between a two vertices, with an optional weight.
+A GraphEdge represents a connection between two vertices in a graph, with an optional weight.
 The directed/undirected nature of the edge is given by the graph that owns it.
 */
 type GraphEdge[V Item] struct {
@@ -45,7 +50,7 @@ type GraphEdge[V Item] struct {
 	Wt float64
 }
 
-// TODO: docs
+// Accept accepts a graph visitor, and guides its execution using double-dispatching.
 func (e *GraphEdge[V]) Accept(v GraphVisitor[V]) {
 	v.VisitEdge(e)
 
@@ -67,20 +72,16 @@ a better fit (O(1) time complexity), with the trade-off being a worse space comp
 type Graph[V Item] struct {
 	Formattable
 
-	dir bool
-
-	// TODO: docs
-	Verts map[*V]*GraphVertex[V]
-
-	// Adj holds the adjacency lists for all vertices currently in the graph.
-	Adj map[*V][]*GraphEdge[V]
+	verts map[*V]*GraphVertex[V]
+	adj   map[*V][]*GraphEdge[V]
+	dir   bool
 }
 
 func newGraph[V Item](dir bool) *Graph[V] {
 	g := Graph[V]{}
 
-	g.Verts = make(map[*V]*GraphVertex[V])
-	g.Adj = make(map[*V][]*GraphEdge[V])
+	g.verts = make(map[*V]*GraphVertex[V])
+	g.adj = make(map[*V][]*GraphEdge[V])
 	g.dir = dir
 
 	return &g
@@ -108,13 +109,13 @@ func (g *Graph[V]) Undirected() bool {
 
 // VertexExists checks whether or not a given vertex exists in the graph.
 func (g *Graph[V]) VertexExists(v *V) bool {
-	_, ok := g.Verts[v]
+	_, ok := g.verts[v]
 	return ok
 }
 
 // GetVertex fetches the vertex for the given data, if one exists in the graph.
 func (g *Graph[V]) GetVertex(v *V) (*GraphVertex[V], bool) {
-	vert, ok := g.Verts[v]
+	vert, ok := g.verts[v]
 	return vert, ok
 }
 
@@ -124,7 +125,7 @@ func (g *Graph[V]) GetEdge(src *V, dst *V) (*GraphEdge[V], bool) {
 		return nil, false
 	}
 
-	es, ok := g.Adj[src]
+	es, ok := g.adj[src]
 
 	if !ok {
 		return nil, false
@@ -144,8 +145,8 @@ func (g *Graph[V]) GetEdge(src *V, dst *V) (*GraphEdge[V], bool) {
 }
 
 func (g *Graph[V]) addVertex(v *V) {
-	g.Verts[v] = &GraphVertex[V]{Satellite: v}
-	g.Adj[v] = nil
+	g.verts[v] = &GraphVertex[V]{Sat: v}
+	g.adj[v] = nil
 }
 
 // AddVertex attempts to add whatever vertices are passed to the graph.
@@ -164,7 +165,7 @@ func (g *Graph[V]) AddVertex(v ...*V) {
 }
 
 func (g *Graph[V]) addWeightedEdge(src, dst *V, wt float64) {
-	g.Adj[src] = append(g.Adj[src], &GraphEdge[V]{Src: src, Dst: dst, Wt: wt})
+	g.adj[src] = append(g.adj[src], &GraphEdge[V]{Src: src, Dst: dst, Wt: wt})
 }
 
 /*
@@ -204,14 +205,14 @@ func (g *Graph[V]) AddEdge(src, dst *V) {
 
 // VertexCount calculates |V|, the number of vertices currently in the graph.
 func (g *Graph[V]) VertexCount() int {
-	return len(g.Verts)
+	return len(g.verts)
 }
 
 // EdgeCount calculates |E|, the number of edges currently in the graph.
 func (g *Graph[V]) EdgeCount() int {
 	res := 0
 
-	for _, es := range g.Adj {
+	for _, es := range g.adj {
 		if es == nil {
 			continue
 		}
@@ -228,7 +229,7 @@ func (g *Graph[V]) EdgeCount() int {
 	return res
 }
 
-// TODO: docs
+// Accept accepts a graph visitor, and guides its execution using double-dispatching.
 func (g *Graph[V]) Accept(v GraphVisitor[V]) {
 	v.VisitGraphStart(g)
 
@@ -236,8 +237,8 @@ func (g *Graph[V]) Accept(v GraphVisitor[V]) {
 		g.FmtAttrs.Accept(v)
 	}
 
-	for vp, es := range g.Adj {
-		g.Verts[vp].Accept(v)
+	for vp, es := range g.adj {
+		g.verts[vp].Accept(v)
 
 		if es == nil {
 			continue
