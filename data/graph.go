@@ -1,4 +1,4 @@
-package graph
+package data
 
 /*
 	A Vertex implementation can be used as a vertex in a gga graph.
