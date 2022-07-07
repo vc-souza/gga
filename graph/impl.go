@@ -106,7 +106,7 @@ func (g *Graph[V]) GetEdge(src *V, dst *V) (*Edge[V], bool) {
 	return nil, false
 }
 
-// TODO: d
+// AddVertex attempts to add whatever vertices are passed to the graph.
 func (g *Graph[V]) AddVertex(v ...*V) {
 	for _, ver := range v {
 		if ver == nil {
@@ -121,7 +121,10 @@ func (g *Graph[V]) AddVertex(v ...*V) {
 	}
 }
 
-// TODO: docs
+/*
+	AddWeightedEdge attempts to add a new weighted edge to the graph. If the graph is undirected,
+	the reverse edge is also added, if it does not already exist.
+*/
 func (g *Graph[V]) AddWeightedEdge(src, dst *V, wt float64) {
 	if src == nil || dst == nil {
 		return
@@ -131,24 +134,26 @@ func (g *Graph[V]) AddWeightedEdge(src, dst *V, wt float64) {
 		g.Adj[src] = append(g.Adj[src], Edge[V]{Src: src, Dst: dst, Wt: wt})
 	}
 
-	if g.Undirected() {
-		if _, ok := g.GetEdge(dst, src); !ok {
-			g.Adj[dst] = append(g.Adj[dst], Edge[V]{Src: dst, Dst: src, Wt: wt})
-		}
+	if g.Directed() {
+		return
+	}
+
+	if _, ok := g.GetEdge(dst, src); !ok {
+		g.Adj[dst] = append(g.Adj[dst], Edge[V]{Src: dst, Dst: src, Wt: wt})
 	}
 }
 
-// TODO: docs
+// AddEdge attempts to add a new unweighted edge to the graph.
 func (g *Graph[V]) AddEdge(src, dst *V) {
 	g.AddWeightedEdge(src, dst, 0)
 }
 
-// TODO: docs
+// VertexCount calculates |V|, the number of vertices currently in the graph.
 func (g *Graph[V]) VertexCount() int {
 	return len(g.Adj)
 }
 
-// TODO: docs
+// EdgeCount calculates |E|, the number of edges currently in the graph.
 func (g *Graph[V]) EdgeCount() int {
 	res := 0
 
