@@ -1,16 +1,16 @@
 package data
 
 /*
-	A Vertex implementation can be used as a vertex in a gga graph.
-	No changes are made to the struct that implements this interface.
+A Vertex implementation can be used as a vertex in a gga graph.
+No changes are made to the struct that implements this interface.
 */
 type Vertex interface {
 	VertexId() string
 }
 
 /*
-	An Edge represents a connection between a two vertices, with an optional weight.
-	The directed/undirected nature of the edge is given by the graph that owns it.
+An Edge represents a connection between a two vertices, with an optional weight.
+The directed/undirected nature of the edge is given by the graph that owns it.
 */
 type Edge[V Vertex] struct {
 	/*
@@ -30,14 +30,14 @@ type Edge[V Vertex] struct {
 }
 
 /*
-	Graph implements a directed or undirected graph G = (V, E), using an adjacency list.
+Graph implements a directed or undirected graph G = (V, E), using an adjacency list.
 
-	It has a space complexity of Θ(V + E), making use of pointers to prevent copying expensive
-	vertices during its operations, so the overall memory footprint should be bearable enough.
+It has a space complexity of Θ(V + E), making use of pointers to prevent copying expensive
+vertices during its operations, so the overall memory footprint should be bearable enough.
 
-	Due to the nature of adjacency lists, checking whether an edge (u, v) exists has O(E) time complexity.
-	For applications (and algorithms) that make heavy use of this operation, an adjacency matrix would be
-	a better fit (O(1) time complexity), with the trade-off being a worse space complexity of Θ(V²).
+Due to the nature of adjacency lists, checking whether an edge (u, v) exists has O(E) time complexity.
+For applications (and algorithms) that make heavy use of this operation, an adjacency matrix would be
+a better fit (O(1) time complexity), with the trade-off being a worse space complexity of Θ(V²).
 */
 type Graph[V Vertex] struct {
 	dir bool
@@ -122,8 +122,8 @@ func (g *Graph[V]) AddVertex(v ...*V) {
 }
 
 /*
-	AddWeightedEdge attempts to add a new weighted edge to the graph. If the graph is undirected,
-	the reverse edge is also added, if it does not already exist.
+AddWeightedEdge attempts to add a new weighted edge to the graph. If the graph is undirected,
+the reverse edge is also added, if it does not already exist.
 */
 func (g *Graph[V]) AddWeightedEdge(src, dst *V, wt float64) {
 	if src == nil || dst == nil {
