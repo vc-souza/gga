@@ -13,9 +13,14 @@ type Item interface {
 type FormattingAttrs map[string]string
 
 // TODO: docs
+func (f FormattingAttrs) Accept(v FormattingVisitor) {
+	v.VisitFormattingAttrs(f)
+}
+
+// TODO: docs
 type Formattable struct {
 	// TODO: docs
-	FmtAttrs map[string]string
+	FmtAttrs FormattingAttrs
 }
 
 // TODO: docs

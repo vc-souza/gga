@@ -10,9 +10,16 @@ type GraphVertex[V Item] struct {
 	Satellite *V
 }
 
+func (vert *GraphVertex[V]) Label() string {
+	return (*vert.Satellite).Label()
+}
+
 func (vert *GraphVertex[V]) Accept(v GraphVisitor[V]) {
 	v.VisitVertex(vert)
-	v.VisitFormattingAttrs(vert.FmtAttrs)
+
+	if vert.FmtAttrs != nil {
+		vert.FmtAttrs.Accept(v)
+	}
 }
 
 /*
@@ -41,7 +48,10 @@ type GraphEdge[V Item] struct {
 // TODO: docs
 func (e *GraphEdge[V]) Accept(v GraphVisitor[V]) {
 	v.VisitEdge(e)
-	v.VisitFormattingAttrs(e.FmtAttrs)
+
+	if e.FmtAttrs != nil {
+		e.FmtAttrs.Accept(v)
+	}
 }
 
 /*
@@ -102,7 +112,13 @@ func (g *Graph[V]) VertexExists(v *V) bool {
 	return ok
 }
 
-// GetEdge fetches an edge from src to dst, if one exists in the graph.
+// GetVertex fetches the vertex for the given data, if one exists in the graph.
+func (g *Graph[V]) GetVertex(v *V) (*GraphVertex[V], bool) {
+	vert, ok := g.Verts[v]
+	return vert, ok
+}
+
+// GetEdge fetches the edge from src to dst, if one exists in the graph.
 func (g *Graph[V]) GetEdge(src *V, dst *V) (*GraphEdge[V], bool) {
 	if src == nil || dst == nil {
 		return nil, false
@@ -148,10 +164,6 @@ func (g *Graph[V]) AddVertex(v ...*V) {
 }
 
 func (g *Graph[V]) addWeightedEdge(src, dst *V, wt float64) {
-	if !g.VertexExists(src) {
-		g.addVertex(src)
-	}
-
 	g.Adj[src] = append(g.Adj[src], &GraphEdge[V]{Src: src, Dst: dst, Wt: wt})
 }
 
@@ -162,6 +174,14 @@ the reverse edge is also added, if it does not already exist.
 func (g *Graph[V]) AddWeightedEdge(src, dst *V, wt float64) {
 	if src == nil || dst == nil {
 		return
+	}
+
+	if !g.VertexExists(src) {
+		g.addVertex(src)
+	}
+
+	if !g.VertexExists(dst) {
+		g.addVertex(dst)
 	}
 
 	if _, ok := g.GetEdge(src, dst); !ok {
@@ -208,20 +228,23 @@ func (g *Graph[V]) EdgeCount() int {
 	return res
 }
 
-// TODO: docs (no other accepts? no class hierarchy!)
+// TODO: docs
 func (g *Graph[V]) Accept(v GraphVisitor[V]) {
 	v.VisitGraphStart(g)
-	v.VisitFormattingAttrs(g.FmtAttrs)
+
+	if g.FmtAttrs != nil {
+		g.FmtAttrs.Accept(v)
+	}
 
 	for vp, es := range g.Adj {
-		v.VisitVertex(g.Verts[vp])
+		g.Verts[vp].Accept(v)
 
 		if es == nil {
 			continue
 		}
 
 		for _, e := range es {
-			v.VisitEdge(e)
+			e.Accept(v)
 		}
 	}
 

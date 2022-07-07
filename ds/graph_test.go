@@ -227,6 +227,48 @@ func TestGetEdge(t *testing.T) {
 	}
 }
 
+func TestGetVertex(t *testing.T) {
+	a := ut.ID("a")
+
+	cases := []struct {
+		desc   string
+		verts  []*ut.ID
+		vert   *ut.ID
+		expect bool
+	}{
+		{
+			desc:   "exists",
+			verts:  []*ut.ID{&a},
+			vert:   &a,
+			expect: true,
+		},
+		{
+			desc:   "does not exist",
+			verts:  []*ut.ID{},
+			vert:   &a,
+			expect: false,
+		},
+	}
+
+	for _, tc := range cases {
+		for gtype, f := range GraphGenFuncs {
+			t.Run(tag(gtype, tc.desc), func(t *testing.T) {
+				g := f()
+
+				g.AddVertex(tc.verts...)
+
+				vert, ok := g.GetVertex(tc.vert)
+
+				ut.AssertEqual(t, tc.expect, ok)
+
+				if vert != nil {
+					ut.AssertEqual(t, tc.vert, vert.Satellite)
+				}
+			})
+		}
+	}
+}
+
 func TestAddVertex(t *testing.T) {
 	a := ut.ID("a")
 	b := ut.ID("b")

@@ -1,7 +1,15 @@
 package ds
 
 // TODO: docs
+type FormattingVisitor interface {
+	// TODO: docs
+	VisitFormattingAttrs(fmt FormattingAttrs)
+}
+
+// TODO: docs
 type GraphVisitor[V Item] interface {
+	FormattingVisitor
+
 	// TODO: docs
 	VisitGraphStart(g *Graph[V])
 
@@ -13,7 +21,4 @@ type GraphVisitor[V Item] interface {
 
 	// TODO: docs
 	VisitEdge(e *GraphEdge[V])
-
-	// TODO: docs
-	VisitFormattingAttrs(fmt FormattingAttrs)
 }
