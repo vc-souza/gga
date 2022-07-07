@@ -8,9 +8,13 @@ import (
 
 type GraphGen func() *Graph[ut.ID]
 
-var GraphGenFuncs = []GraphGen{
-	NewDirectedGraph[ut.ID],
-	NewUndirectedGraph[ut.ID],
+var GraphGenFuncs = map[string]GraphGen{
+	"graph":   NewUndirectedGraph[ut.ID],
+	"digraph": NewDirectedGraph[ut.ID],
+}
+
+func tag(gtype, desc string) string {
+	return gtype + " " + desc
 }
 
 func TestNewDirectedGraph(t *testing.T) {
@@ -60,8 +64,8 @@ func TestVertexCount(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		for _, f := range GraphGenFuncs {
-			t.Run(tc.desc, func(t *testing.T) {
+		for gtype, f := range GraphGenFuncs {
+			t.Run(tag(gtype, tc.desc), func(t *testing.T) {
 				g := f()
 
 				g.AddVertex(tc.verts...)
@@ -96,8 +100,8 @@ func TestEdgeCount(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		for _, f := range GraphGenFuncs {
-			t.Run(tc.desc, func(t *testing.T) {
+		for gtype, f := range GraphGenFuncs {
+			t.Run(tag(gtype, tc.desc), func(t *testing.T) {
 				g := f()
 
 				for _, e := range tc.edges {
@@ -141,8 +145,8 @@ func TestVertexExists(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		for _, f := range GraphGenFuncs {
-			t.Run(tc.desc, func(t *testing.T) {
+		for gtype, f := range GraphGenFuncs {
+			t.Run(tag(gtype, tc.desc), func(t *testing.T) {
 				g := f()
 
 				g.AddVertex(tc.verts...)
@@ -153,13 +157,12 @@ func TestVertexExists(t *testing.T) {
 	}
 }
 
-func TestEdgeExists(t *testing.T) {
+func TestGetEdge(t *testing.T) {
 	a := ut.ID("a")
 	b := ut.ID("b")
 	c := ut.ID("c")
 
-	wt := 1.
-	a2b := Edge[ut.ID]{&a, &b, wt}
+	a2b := Edge[ut.ID]{Src: &a, Dst: &b}
 
 	cases := []struct {
 		desc   string
@@ -172,49 +175,42 @@ func TestEdgeExists(t *testing.T) {
 			desc:   "exists",
 			verts:  []*ut.ID{&a, &b},
 			edges:  []Edge[ut.ID]{a2b},
-			edge:   Edge[ut.ID]{&a, &b, wt},
+			edge:   Edge[ut.ID]{Src: &a, Dst: &b},
 			expect: true,
 		},
 		{
 			desc:   "does not exist (src)",
 			verts:  []*ut.ID{&a, &b},
 			edges:  []Edge[ut.ID]{a2b},
-			edge:   Edge[ut.ID]{&c, &b, wt},
+			edge:   Edge[ut.ID]{Src: &c, Dst: &b},
 			expect: false,
 		},
 		{
 			desc:   "does not exist (nil src)",
 			verts:  []*ut.ID{&a, &b},
 			edges:  []Edge[ut.ID]{a2b},
-			edge:   Edge[ut.ID]{nil, &b, wt},
+			edge:   Edge[ut.ID]{Src: nil, Dst: &b},
 			expect: false,
 		},
 		{
 			desc:   "does not exist (dst)",
 			verts:  []*ut.ID{&a, &b},
 			edges:  []Edge[ut.ID]{a2b},
-			edge:   Edge[ut.ID]{&a, &c, wt},
+			edge:   Edge[ut.ID]{Src: &a, Dst: &c},
 			expect: false,
 		},
 		{
 			desc:   "does not exist (nil dst)",
 			verts:  []*ut.ID{&a, &b},
 			edges:  []Edge[ut.ID]{a2b},
-			edge:   Edge[ut.ID]{&a, nil, wt},
-			expect: false,
-		},
-		{
-			desc:   "does not exist (wt)",
-			verts:  []*ut.ID{&a, &b},
-			edges:  []Edge[ut.ID]{a2b},
-			edge:   Edge[ut.ID]{&a, &b, wt + 1},
+			edge:   Edge[ut.ID]{Src: &a, Dst: nil},
 			expect: false,
 		},
 	}
 
 	for _, tc := range cases {
-		for _, f := range GraphGenFuncs {
-			t.Run(tc.desc, func(t *testing.T) {
+		for gtype, f := range GraphGenFuncs {
+			t.Run(tag(gtype, tc.desc), func(t *testing.T) {
 				g := f()
 
 				g.AddVertex(tc.verts...)
@@ -223,7 +219,9 @@ func TestEdgeExists(t *testing.T) {
 					g.AddWeightedEdge(e.Src, e.Dst, e.Wt)
 				}
 
-				ut.AssertEqual(t, tc.expect, g.EdgeExists(tc.edge.Src, tc.edge.Dst, tc.edge.Wt))
+				_, ok := g.GetEdge(tc.edge.Src, tc.edge.Dst)
+
+				ut.AssertEqual(t, tc.expect, ok)
 			})
 		}
 	}
@@ -262,8 +260,8 @@ func TestAddVertex(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		for _, f := range GraphGenFuncs {
-			t.Run(tc.desc, func(t *testing.T) {
+		for gtype, f := range GraphGenFuncs {
+			t.Run(tag(gtype, tc.desc), func(t *testing.T) {
 				g := f()
 
 				g.AddVertex(tc.verts...)
@@ -278,8 +276,7 @@ func TestAddWeightedEdge(t *testing.T) {
 	a := ut.ID("a")
 	b := ut.ID("b")
 
-	wt := 1.
-	a2b := Edge[ut.ID]{&a, &b, wt}
+	a2b := Edge[ut.ID]{Src: &a, Dst: &b}
 
 	cases := []struct {
 		desc        string
@@ -293,31 +290,23 @@ func TestAddWeightedEdge(t *testing.T) {
 			desc:        "new edge",
 			verts:       []*ut.ID{&a, &b},
 			edges:       []Edge[ut.ID]{},
-			edge:        Edge[ut.ID]{&a, &b, wt},
+			edge:        Edge[ut.ID]{Src: &a, Dst: &b},
 			expectEdges: true,
 			expectCount: 1,
 		},
 		{
-			desc:        "existing edge, same wt",
+			desc:        "existing edge",
 			verts:       []*ut.ID{&a, &b},
 			edges:       []Edge[ut.ID]{a2b},
-			edge:        Edge[ut.ID]{&a, &b, wt},
+			edge:        Edge[ut.ID]{Src: &a, Dst: &b},
 			expectEdges: true,
 			expectCount: 1,
-		},
-		{
-			desc:        "existing edge, different wt",
-			verts:       []*ut.ID{&a, &b},
-			edges:       []Edge[ut.ID]{a2b},
-			edge:        Edge[ut.ID]{&a, &b, wt + 1},
-			expectEdges: true,
-			expectCount: 2,
 		},
 		{
 			desc:        "nil src",
 			verts:       []*ut.ID{&a, &b},
 			edges:       []Edge[ut.ID]{},
-			edge:        Edge[ut.ID]{nil, &b, wt},
+			edge:        Edge[ut.ID]{Src: nil, Dst: &b},
 			expectEdges: false,
 			expectCount: 0,
 		},
@@ -325,15 +314,15 @@ func TestAddWeightedEdge(t *testing.T) {
 			desc:        "nil dst",
 			verts:       []*ut.ID{&a, &b},
 			edges:       []Edge[ut.ID]{},
-			edge:        Edge[ut.ID]{&a, nil, wt},
+			edge:        Edge[ut.ID]{Src: &a, Dst: nil},
 			expectEdges: false,
 			expectCount: 0,
 		},
 	}
 
 	for _, tc := range cases {
-		for _, f := range GraphGenFuncs {
-			t.Run(tc.desc, func(t *testing.T) {
+		for gtype, f := range GraphGenFuncs {
+			t.Run(tag(gtype, tc.desc), func(t *testing.T) {
 				g := f()
 
 				g.AddVertex(tc.verts...)
@@ -345,10 +334,14 @@ func TestAddWeightedEdge(t *testing.T) {
 				g.AddWeightedEdge(tc.edge.Src, tc.edge.Dst, tc.edge.Wt)
 
 				if tc.expectEdges {
-					ut.AssertEqual(t, true, g.EdgeExists(tc.edge.Src, tc.edge.Dst, tc.edge.Wt))
+					_, ok := g.GetEdge(tc.edge.Src, tc.edge.Dst)
+
+					ut.AssertEqual(t, true, ok)
 
 					if g.Undirected() {
-						ut.AssertEqual(t, true, g.EdgeExists(tc.edge.Dst, tc.edge.Src, tc.edge.Wt))
+						_, ok := g.GetEdge(tc.edge.Dst, tc.edge.Src)
+
+						ut.AssertEqual(t, true, ok)
 					}
 				}
 
@@ -358,31 +351,30 @@ func TestAddWeightedEdge(t *testing.T) {
 	}
 }
 
-func TestAddEdge_directed(t *testing.T) {
+func TestAddEdge(t *testing.T) {
 	a := ut.ID("a")
 	b := ut.ID("b")
 
 	src := &a
 	dst := &b
 
-	g := NewDirectedGraph[ut.ID]()
+	for gtype, f := range GraphGenFuncs {
+		t.Run(tag(gtype, "0 wt edge created"), func(t *testing.T) {
+			g := f()
 
-	g.AddEdge(src, dst)
+			g.AddEdge(src, dst)
 
-	ut.AssertEqual(t, true, g.EdgeExists(src, dst, 0))
-}
+			e, ok := g.GetEdge(src, dst)
 
-func TestAddEdge_undirected(t *testing.T) {
-	a := ut.ID("a")
-	b := ut.ID("b")
+			ut.AssertEqual(t, true, ok)
+			ut.AssertEqual(t, 0, e.Wt)
 
-	src := &a
-	dst := &b
+			if g.Undirected() {
+				e, ok := g.GetEdge(dst, src)
 
-	g := NewUndirectedGraph[ut.ID]()
-
-	g.AddEdge(src, dst)
-
-	ut.AssertEqual(t, true, g.EdgeExists(src, dst, 0))
-	ut.AssertEqual(t, true, g.EdgeExists(dst, src, 0))
+				ut.AssertEqual(t, true, ok)
+				ut.AssertEqual(t, 0, e.Wt)
+			}
+		})
+	}
 }
