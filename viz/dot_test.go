@@ -30,7 +30,6 @@ edge [ arrowhead="vee" ]
 "John" -- "Jane"
 "Jane"
 "Jane" -- "John"
-"Jane" -- "Jane"
 }
 `
 

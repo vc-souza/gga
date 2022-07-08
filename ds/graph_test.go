@@ -10,9 +10,14 @@ type GraphGen func() *Graph[ut.ID]
 type edgeList []GraphEdge[ut.ID]
 type vertList []*ut.ID
 
+const (
+	UndirectedGraphKey = "graph"
+	DirectedGraphKey   = "digraph"
+)
+
 var GraphGenFuncs = map[string]GraphGen{
-	"graph":   NewUndirectedGraph[ut.ID],
-	"digraph": NewDirectedGraph[ut.ID],
+	UndirectedGraphKey: NewUndirectedGraph[ut.ID],
+	DirectedGraphKey:   NewDirectedGraph[ut.ID],
 }
 
 var vA = ut.ID("a")
@@ -53,27 +58,17 @@ func edge(src, dst *ut.ID) GraphEdge[ut.ID] {
 func TestNewDirectedGraph(t *testing.T) {
 	g := NewDirectedGraph[ut.ID]()
 
-	if g == nil {
-		t.Log("got a nil graph")
-		t.FailNow()
-	}
-
-	if g.Undirected() {
-		t.Log("asked for a directed graph, got an undirected one")
-	}
+	ut.AssertEqual(t, true, g != nil)
+	ut.AssertEqual(t, true, g.Directed())
+	ut.AssertEqual(t, false, g.Undirected())
 }
 
 func TestNewUndirectedGraph(t *testing.T) {
-	g := NewDirectedGraph[ut.ID]()
+	g := NewUndirectedGraph[ut.ID]()
 
-	if g == nil {
-		t.Log("got a nil graph")
-		t.FailNow()
-	}
-
-	if g.Directed() {
-		t.Log("asked for an undirected graph, got a directed one")
-	}
+	ut.AssertEqual(t, true, g != nil)
+	ut.AssertEqual(t, true, g.Undirected())
+	ut.AssertEqual(t, false, g.Directed())
 }
 
 func TestEmptyCopy(t *testing.T) {
@@ -345,6 +340,9 @@ func TestAddWeightedEdge(t *testing.T) {
 		verts       vertList
 		edges       edgeList
 		edge        GraphEdge[ut.ID]
+		skipDir     bool
+		skipUndir   bool
+		expectErr   bool
 		expectEdges bool
 		expectCount int
 	}{
@@ -369,6 +367,7 @@ func TestAddWeightedEdge(t *testing.T) {
 			verts:       vertList{&vA, &vB},
 			edges:       edgeList{},
 			edge:        edge(nil, &vB),
+			expectErr:   true,
 			expectEdges: false,
 			expectCount: 0,
 		},
@@ -377,13 +376,41 @@ func TestAddWeightedEdge(t *testing.T) {
 			verts:       vertList{&vA, &vB},
 			edges:       edgeList{},
 			edge:        edge(&vA, nil),
+			expectErr:   true,
 			expectEdges: false,
 			expectCount: 0,
+		},
+		{
+			desc:        "self-loop",
+			verts:       vertList{&vA},
+			edges:       edgeList{},
+			edge:        edge(&vA, &vA),
+			skipDir:     true,
+			expectErr:   true,
+			expectEdges: false,
+			expectCount: 0,
+		},
+		{
+			desc:        "self-loop",
+			verts:       vertList{&vA},
+			edges:       edgeList{},
+			edge:        edge(&vA, &vA),
+			skipUndir:   true,
+			expectEdges: false,
+			expectCount: 1,
 		},
 	}
 
 	for _, tc := range cases {
 		for gtype, f := range GraphGenFuncs {
+			if tc.skipDir && gtype == DirectedGraphKey {
+				continue
+			}
+
+			if tc.skipUndir && gtype == UndirectedGraphKey {
+				continue
+			}
+
 			t.Run(tag(gtype, tc.desc), func(t *testing.T) {
 				g := f()
 
@@ -393,21 +420,24 @@ func TestAddWeightedEdge(t *testing.T) {
 					g.AddWeightedEdge(e.Src, e.Dst, e.Wt)
 				}
 
-				g.AddWeightedEdge(tc.edge.Src, tc.edge.Dst, tc.edge.Wt)
+				err := g.AddWeightedEdge(tc.edge.Src, tc.edge.Dst, tc.edge.Wt)
 
-				if tc.expectEdges {
-					_, ok := g.GetEdge(tc.edge.Src, tc.edge.Dst)
+				ut.AssertEqual(t, tc.expectErr, err != nil)
+				ut.AssertEqual(t, tc.expectCount, g.EdgeCount())
 
-					ut.AssertEqual(t, true, ok)
-
-					if g.Undirected() {
-						_, ok := g.GetEdge(tc.edge.Dst, tc.edge.Src)
-
-						ut.AssertEqual(t, true, ok)
-					}
+				if !tc.expectEdges {
+					return
 				}
 
-				ut.AssertEqual(t, tc.expectCount, g.EdgeCount())
+				_, ok := g.GetEdge(tc.edge.Src, tc.edge.Dst)
+
+				ut.AssertEqual(t, true, ok)
+
+				if g.Undirected() {
+					_, ok := g.GetEdge(tc.edge.Dst, tc.edge.Src)
+
+					ut.AssertEqual(t, true, ok)
+				}
 			})
 		}
 	}
@@ -421,7 +451,9 @@ func TestAddEdge(t *testing.T) {
 		t.Run(tag(gtype, "0 wt edge created"), func(t *testing.T) {
 			g := f()
 
-			g.AddEdge(src, dst)
+			err := g.AddEdge(src, dst)
+
+			ut.AssertEqual(t, true, err == nil)
 
 			e, ok := g.GetEdge(src, dst)
 
