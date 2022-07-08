@@ -448,11 +448,10 @@ func TestGraphVisitor(t *testing.T) {
 				edge(&vA, &vB),
 				edge(&vB, &vC),
 				edge(&vC, &vD),
-				edge(&vD, &vA),
 			},
 			expectG: 2,
 			expectV: 4,
-			expectE: 4,
+			expectE: 3,
 		},
 	}
 
@@ -473,7 +472,12 @@ func TestGraphVisitor(t *testing.T) {
 
 				ut.AssertEqual(t, tc.expectG, v.gCalls)
 				ut.AssertEqual(t, tc.expectV, v.vCalls)
-				ut.AssertEqual(t, tc.expectE, v.eCalls)
+
+				if g.Directed() {
+					ut.AssertEqual(t, tc.expectE, v.eCalls)
+				} else {
+					ut.AssertEqual(t, tc.expectE*2, v.eCalls)
+				}
 			})
 		}
 	}
