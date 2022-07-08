@@ -253,12 +253,12 @@ func (g *Graph[V]) AddEdge(src, dst *V) error {
 func (g *Graph[V]) removeEdge(src *V, idx int) {
 	slc := g.Adj[src]
 
-	// overwrite the element to delete
-	// now the last item is duplicate
+	// overwrite the element to delete;
+	// now the last item is duplicated
 	copy(slc[idx:], slc[idx+1:])
 
-	// avoiding memory leak
-	// by removing the dup
+	// avoiding possible memory leak
+	// by removing the duplicate
 	slc[len(slc)-1] = nil
 
 	// assign back the shorter slice
