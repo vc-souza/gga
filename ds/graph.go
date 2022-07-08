@@ -187,6 +187,24 @@ func (g *Graph[V]) AddVertex(v ...*V) {
 	}
 }
 
+// TODO: remove vertex from list index X
+// TODO: remove vertex from map key V
+
+// TODO: for every vertex, remove V from its adjacency list
+
+// func (g *Graph[V]) removeVertex(v *V, idx int) {
+
+// }
+
+// func (g *Graph[V]) RemoveVertex(v *V) error {
+// 	_, idx, ok := g.GetVertex(v)
+
+// 	if !ok {
+// 		return errors.New("vertex does not exist")
+// 	}
+
+// }
+
 func (g *Graph[V]) addWeightedEdge(src, dst *V, wt float64) {
 	g.Adj[src] = append(g.Adj[src], &GraphEdge[V]{Src: src, Dst: dst, Wt: wt})
 }
@@ -233,7 +251,18 @@ func (g *Graph[V]) AddEdge(src, dst *V) error {
 }
 
 func (g *Graph[V]) removeEdge(src *V, idx int) {
-	g.Adj[src] = append(g.Adj[src][:idx], g.Adj[src][idx+1:]...)
+	slc := g.Adj[src]
+
+	// overwrite the element to delete
+	// now the last item is duplicate
+	copy(slc[idx:], slc[idx+1:])
+
+	// avoiding memory leak
+	// by removing the dup
+	slc[len(slc)-1] = nil
+
+	// assign back the shorter slice
+	g.Adj[src] = slc[:len(slc)-1]
 }
 
 // RemoveEdge removes an existing edge from the graph, if it exists.
