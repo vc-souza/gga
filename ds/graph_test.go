@@ -24,6 +24,7 @@ var vA = ut.ID("a")
 var vB = ut.ID("b")
 var vC = ut.ID("c")
 var vD = ut.ID("d")
+var vE = ut.ID("e")
 
 type CounterGraphVisitor struct {
 	gCalls int
@@ -53,6 +54,12 @@ func tag(gtype, desc string) string {
 
 func edge(src, dst *ut.ID) GraphEdge[ut.ID] {
 	return GraphEdge[ut.ID]{Src: src, Dst: dst}
+}
+
+func assertEdge(t *testing.T, g *Graph[ut.ID], src, dst *ut.ID, wt float64) {
+	e, ok := g.GetEdge(src, dst)
+	ut.AssertEqual(t, true, ok)
+	ut.AssertEqual(t, wt, e.Wt)
 }
 
 func TestNewDirectedGraph(t *testing.T) {
@@ -527,4 +534,65 @@ func TestGraphVisitor(t *testing.T) {
 			})
 		}
 	}
+}
+
+func TestTranspose_directed(t *testing.T) {
+	//                     (loop)
+	// B -> C -> D -> E -> A
+	//      |---------^
+	g := NewDirectedGraph[ut.ID]()
+
+	g.AddWeightedEdge(&vA, &vA, 1)
+	g.AddWeightedEdge(&vB, &vC, 2)
+	g.AddWeightedEdge(&vC, &vD, 3)
+	g.AddWeightedEdge(&vC, &vE, 4)
+	g.AddWeightedEdge(&vD, &vE, 5)
+	g.AddWeightedEdge(&vE, &vA, 6)
+
+	//                     (loop)
+	// B <- C <- D <- E <- A
+	//      ^---------|
+	tp := g.Transpose()
+
+	ut.AssertEqual(t, g.VertexCount(), tp.VertexCount())
+	ut.AssertEqual(t, g.EdgeCount(), tp.EdgeCount())
+
+	ut.AssertEqual(t, true, tp.VertexExists(&vA))
+	ut.AssertEqual(t, true, tp.VertexExists(&vB))
+	ut.AssertEqual(t, true, tp.VertexExists(&vC))
+	ut.AssertEqual(t, true, tp.VertexExists(&vD))
+	ut.AssertEqual(t, true, tp.VertexExists(&vE))
+
+	assertEdge(t, tp, &vA, &vA, 1)
+	assertEdge(t, tp, &vC, &vB, 2)
+	assertEdge(t, tp, &vD, &vC, 3)
+	assertEdge(t, tp, &vE, &vC, 4)
+	assertEdge(t, tp, &vE, &vD, 5)
+	assertEdge(t, tp, &vA, &vE, 6)
+}
+
+func TestTranspose_undirected(t *testing.T) {
+	g := NewUndirectedGraph[ut.ID]()
+
+	g.AddWeightedEdge(&vA, &vB, 1)
+	g.AddWeightedEdge(&vB, &vC, 2)
+	g.AddWeightedEdge(&vC, &vD, 3)
+	g.AddWeightedEdge(&vD, &vE, 4)
+	g.AddWeightedEdge(&vE, &vA, 5)
+
+	tp := g.Transpose()
+
+	ut.AssertEqual(t, g.VertexCount(), tp.VertexCount())
+	ut.AssertEqual(t, g.EdgeCount(), tp.EdgeCount())
+
+	assertEdge(t, tp, &vA, &vB, 1)
+	assertEdge(t, tp, &vB, &vA, 1)
+	assertEdge(t, tp, &vB, &vC, 2)
+	assertEdge(t, tp, &vC, &vB, 2)
+	assertEdge(t, tp, &vC, &vD, 3)
+	assertEdge(t, tp, &vD, &vC, 3)
+	assertEdge(t, tp, &vD, &vE, 4)
+	assertEdge(t, tp, &vE, &vD, 4)
+	assertEdge(t, tp, &vE, &vA, 5)
+	assertEdge(t, tp, &vA, &vE, 5)
 }
