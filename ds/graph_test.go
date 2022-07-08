@@ -57,7 +57,7 @@ func edge(src, dst *ut.ID) GraphEdge[ut.ID] {
 }
 
 func assertEdge(t *testing.T, g *Graph[ut.ID], src, dst *ut.ID, wt float64) {
-	e, ok := g.GetEdge(src, dst)
+	e, _, ok := g.GetEdge(src, dst)
 	ut.AssertEqual(t, true, ok)
 	ut.AssertEqual(t, wt, e.Wt)
 }
@@ -252,7 +252,7 @@ func TestGetEdge(t *testing.T) {
 					g.AddWeightedEdge(e.Src, e.Dst, e.Wt)
 				}
 
-				_, ok := g.GetEdge(tc.edge.Src, tc.edge.Dst)
+				_, _, ok := g.GetEdge(tc.edge.Src, tc.edge.Dst)
 
 				ut.AssertEqual(t, tc.expect, ok)
 			})
@@ -288,7 +288,7 @@ func TestGetVertex(t *testing.T) {
 
 				g.AddVertex(tc.verts...)
 
-				vert, ok := g.GetVertex(tc.vert)
+				vert, _, ok := g.GetVertex(tc.vert)
 
 				ut.AssertEqual(t, tc.expect, ok)
 
@@ -436,12 +436,12 @@ func TestAddWeightedEdge(t *testing.T) {
 					return
 				}
 
-				_, ok := g.GetEdge(tc.edge.Src, tc.edge.Dst)
+				_, _, ok := g.GetEdge(tc.edge.Src, tc.edge.Dst)
 
 				ut.AssertEqual(t, true, ok)
 
 				if g.Undirected() {
-					_, ok := g.GetEdge(tc.edge.Dst, tc.edge.Src)
+					_, _, ok := g.GetEdge(tc.edge.Dst, tc.edge.Src)
 
 					ut.AssertEqual(t, true, ok)
 				}
@@ -462,18 +462,91 @@ func TestAddEdge(t *testing.T) {
 
 			ut.AssertEqual(t, true, err == nil)
 
-			e, ok := g.GetEdge(src, dst)
+			e, _, ok := g.GetEdge(src, dst)
 
 			ut.AssertEqual(t, true, ok)
 			ut.AssertEqual(t, 0, e.Wt)
 
 			if g.Undirected() {
-				e, ok := g.GetEdge(dst, src)
+				e, _, ok := g.GetEdge(dst, src)
 
 				ut.AssertEqual(t, true, ok)
 				ut.AssertEqual(t, 0, e.Wt)
 			}
 		})
+	}
+}
+
+func TestRemoveEdge(t *testing.T) {
+	cases := []struct {
+		desc        string
+		verts       vertList
+		edges       edgeList
+		edge        GraphEdge[ut.ID]
+		exists      bool
+		expectError bool
+		expectCount int
+	}{
+		{
+			desc:        "does not exist",
+			verts:       vertList{&vA, &vB},
+			edges:       edgeList{},
+			edge:        edge(&vA, &vB),
+			expectError: true,
+			expectCount: 0,
+		},
+		{
+			desc:        "last edge",
+			verts:       vertList{&vA, &vB},
+			edges:       edgeList{edge(&vA, &vB)},
+			edge:        edge(&vA, &vB),
+			exists:      true,
+			expectError: false,
+			expectCount: 0,
+		},
+		{
+			desc:        "common edge",
+			verts:       vertList{&vA, &vB, &vC},
+			edges:       edgeList{edge(&vA, &vB), edge(&vA, &vC), edge(&vB, &vC)},
+			edge:        edge(&vA, &vB),
+			exists:      true,
+			expectError: false,
+			expectCount: 2,
+		},
+	}
+
+	for _, tc := range cases {
+		for gtype, f := range GraphGenFuncs {
+			t.Run(tag(gtype, tc.desc), func(t *testing.T) {
+				g := f()
+
+				g.AddVertex(tc.verts...)
+
+				for _, e := range tc.edges {
+					g.AddWeightedEdge(e.Src, e.Dst, e.Wt)
+				}
+
+				if tc.exists {
+					_, _, ok := g.GetEdge(tc.edge.Src, tc.edge.Dst)
+					ut.AssertEqual(t, true, ok)
+				}
+
+				err := g.RemoveEdge(tc.edge.Src, tc.edge.Dst)
+
+				ut.AssertEqual(t, tc.expectError, err != nil)
+				ut.AssertEqual(t, tc.expectCount, g.EdgeCount())
+
+				_, _, ok := g.GetEdge(tc.edge.Src, tc.edge.Dst)
+				ut.AssertEqual(t, false, ok)
+
+				if g.Directed() {
+					return
+				}
+
+				_, _, ok = g.GetEdge(tc.edge.Dst, tc.edge.Src)
+				ut.AssertEqual(t, false, ok)
+			})
+		}
 	}
 }
 

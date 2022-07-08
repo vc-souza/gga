@@ -131,39 +131,39 @@ func (g *Graph[V]) VertexExists(v *V) bool {
 }
 
 // GetVertex fetches the vertex for the given data, if one exists in the graph.
-func (g *Graph[V]) GetVertex(v *V) (*GraphVertex[V], bool) {
+func (g *Graph[V]) GetVertex(v *V) (*GraphVertex[V], int, bool) {
 	idx, ok := g.VertMap[v]
 
 	if !ok {
-		return nil, false
+		return nil, -1, false
 	}
 
-	return g.Verts[idx], true
+	return g.Verts[idx], idx, true
 }
 
 // GetEdge fetches the edge from src to dst, if one exists in the graph.
-func (g *Graph[V]) GetEdge(src *V, dst *V) (*GraphEdge[V], bool) {
+func (g *Graph[V]) GetEdge(src *V, dst *V) (*GraphEdge[V], int, bool) {
 	if src == nil || dst == nil {
-		return nil, false
+		return nil, -1, false
 	}
 
 	es, ok := g.Adj[src]
 
 	if !ok {
-		return nil, false
+		return nil, -1, false
 	}
 
 	if es == nil {
-		return nil, false
+		return nil, -1, false
 	}
 
-	for _, e := range es {
+	for i, e := range es {
 		if e.Dst == dst {
-			return e, true
+			return e, i, true
 		}
 	}
 
-	return nil, false
+	return nil, -1, false
 }
 
 func (g *Graph[V]) addVertex(v *V) {
@@ -212,7 +212,7 @@ func (g *Graph[V]) AddWeightedEdge(src, dst *V, wt float64) error {
 		g.addVertex(dst)
 	}
 
-	if _, ok := g.GetEdge(src, dst); !ok {
+	if _, _, ok := g.GetEdge(src, dst); !ok {
 		g.addWeightedEdge(src, dst, wt)
 	}
 
@@ -220,7 +220,7 @@ func (g *Graph[V]) AddWeightedEdge(src, dst *V, wt float64) error {
 		return nil
 	}
 
-	if _, ok := g.GetEdge(dst, src); !ok {
+	if _, _, ok := g.GetEdge(dst, src); !ok {
 		g.addWeightedEdge(dst, src, wt)
 	}
 
@@ -230,6 +230,35 @@ func (g *Graph[V]) AddWeightedEdge(src, dst *V, wt float64) error {
 // AddEdge attempts to add a new unweighted edge to the graph.
 func (g *Graph[V]) AddEdge(src, dst *V) error {
 	return g.AddWeightedEdge(src, dst, 0)
+}
+
+func (g *Graph[V]) removeEdge(src *V, idx int) {
+	g.Adj[src] = append(g.Adj[src][:idx], g.Adj[src][idx+1:]...)
+}
+
+// RemoveEdge removes an existing edge from the graph, if it exists.
+func (g *Graph[V]) RemoveEdge(src, dst *V) error {
+	_, idx, ok := g.GetEdge(src, dst)
+
+	if !ok {
+		return errors.New("edge does not exist")
+	}
+
+	g.removeEdge(src, idx)
+
+	if g.Directed() {
+		return nil
+	}
+
+	_, idx, ok = g.GetEdge(dst, src)
+
+	if !ok {
+		return errors.New("reverse edge does not exist")
+	}
+
+	g.removeEdge(dst, idx)
+
+	return nil
 }
 
 // VertexCount calculates |V|, the number of vertices currently in the graph.

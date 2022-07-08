@@ -85,7 +85,7 @@ func TestGraphVisitor(t *testing.T) {
 			g.AddEdge(jane, john)
 			g.AddEdge(jane, jane)
 
-			johnV, ok := g.GetVertex(john)
+			johnV, _, ok := g.GetVertex(john)
 
 			ut.AssertEqual(t, true, ok)
 
