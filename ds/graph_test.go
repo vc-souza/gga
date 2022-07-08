@@ -76,6 +76,20 @@ func TestNewUndirectedGraph(t *testing.T) {
 	}
 }
 
+func TestEmptyCopy(t *testing.T) {
+	for gtype, f := range GraphGenFuncs {
+		t.Run(gtype, func(t *testing.T) {
+			g := f()
+			cp := g.EmptyCopy()
+
+			ut.AssertEqual(t, g.Directed(), cp.Directed())
+			ut.AssertEqual(t, g.Undirected(), cp.Undirected())
+			ut.AssertEqual(t, 0, cp.VertexCount())
+			ut.AssertEqual(t, 0, cp.EdgeCount())
+		})
+	}
+}
+
 func TestVertexCount(t *testing.T) {
 	cases := []struct {
 		desc   string

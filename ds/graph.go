@@ -88,6 +88,11 @@ func NewUndirectedGraph[V Item]() *Graph[V] {
 	return newGraph[V](false)
 }
 
+// EmptyCopy creates an empty graph of the same kind.
+func (g *Graph[V]) EmptyCopy() *Graph[V] {
+	return newGraph[V](g.dir)
+}
+
 // Directed checks whether or not the graph is directed.
 func (g *Graph[V]) Directed() bool {
 	return g.dir
