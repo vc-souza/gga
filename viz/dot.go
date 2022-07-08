@@ -24,6 +24,10 @@ const (
 type DotExporter[V ds.Item] struct {
 	Graph *ds.Graph[V]
 	Lines []string
+
+	DefaultGraphFmt  ds.FmtAttrs
+	DefaultVertexFmt ds.FmtAttrs
+	DefaultEdgeFmt   ds.FmtAttrs
 }
 
 // NewDotExporter creates an initialized DotExporter.
@@ -38,6 +42,20 @@ func NewDotExporter[V ds.Item](graph *ds.Graph[V]) *DotExporter[V] {
 
 func (d *DotExporter[V]) add(s string) {
 	d.Lines = append(d.Lines, s)
+}
+
+func (d *DotExporter[V]) addDefault(pfx string, attrs ds.FmtAttrs) {
+	if len(attrs) == 0 {
+		return
+	}
+
+	d.add(fmt.Sprintf("%s %s", pfx, DotAttrs(attrs)))
+}
+
+func (d *DotExporter[V]) addDefaults() {
+	d.addDefault("graph", d.DefaultGraphFmt)
+	d.addDefault("node", d.DefaultVertexFmt)
+	d.addDefault("edge", d.DefaultEdgeFmt)
 }
 
 // Export writes the data it has accumulated to an io.Writer.
@@ -55,12 +73,7 @@ func (d *DotExporter[V]) VisitGraphStart(g *ds.Graph[V]) {
 	}
 
 	d.add(start)
-
-	if len(g.Fmt) == 0 {
-		return
-	}
-
-	d.add(fmt.Sprintf("graph %s", DotAttrs(g.Fmt)))
+	d.addDefaults()
 }
 
 func (d *DotExporter[V]) VisitGraphEnd(g *ds.Graph[V]) {

@@ -61,8 +61,6 @@ For applications (and algorithms) that make heavy use of this operation, an adja
 a better fit (O(1) time complexity), with the trade-off being a worse space complexity of Θ(V²).
 */
 type Graph[V Item] struct {
-	Formattable
-
 	verts map[*V]*GraphVertex[V]
 	adj   map[*V][]*GraphEdge[V]
 	dir   bool
