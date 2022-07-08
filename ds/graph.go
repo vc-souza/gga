@@ -61,16 +61,18 @@ For applications (and algorithms) that make heavy use of this operation, an adja
 a better fit (O(1) time complexity), with the trade-off being a worse space complexity of Θ(V²).
 */
 type Graph[V Item] struct {
-	verts map[*V]*GraphVertex[V]
 	adj   map[*V][]*GraphEdge[V]
+	order []*GraphVertex[V]
+	verts map[*V]int
 	dir   bool
 }
 
 func newGraph[V Item](dir bool) *Graph[V] {
 	g := Graph[V]{}
 
-	g.verts = make(map[*V]*GraphVertex[V])
 	g.adj = make(map[*V][]*GraphEdge[V])
+	g.order = make([]*GraphVertex[V], 0)
+	g.verts = make(map[*V]int)
 	g.dir = dir
 
 	return &g
@@ -104,8 +106,13 @@ func (g *Graph[V]) VertexExists(v *V) bool {
 
 // GetVertex fetches the vertex for the given data, if one exists in the graph.
 func (g *Graph[V]) GetVertex(v *V) (*GraphVertex[V], bool) {
-	vert, ok := g.verts[v]
-	return vert, ok
+	idx, ok := g.verts[v]
+
+	if !ok {
+		return nil, false
+	}
+
+	return g.order[idx], true
 }
 
 // GetEdge fetches the edge from src to dst, if one exists in the graph.
@@ -134,7 +141,8 @@ func (g *Graph[V]) GetEdge(src *V, dst *V) (*GraphEdge[V], bool) {
 }
 
 func (g *Graph[V]) addVertex(v *V) {
-	g.verts[v] = &GraphVertex[V]{Sat: v}
+	g.order = append(g.order, &GraphVertex[V]{Sat: v})
+	g.verts[v] = len(g.order) - 1
 	g.adj[v] = nil
 }
 
@@ -222,8 +230,14 @@ func (g *Graph[V]) EdgeCount() int {
 func (g *Graph[V]) Accept(v GraphVisitor[V]) {
 	v.VisitGraphStart(g)
 
-	for vp, es := range g.adj {
-		g.verts[vp].Accept(v)
+	for _, vert := range g.order {
+		vert.Accept(v)
+
+		es, ok := g.adj[vert.Sat]
+
+		if !ok {
+			continue
+		}
 
 		if es == nil {
 			continue
