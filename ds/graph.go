@@ -1,5 +1,7 @@
 package ds
 
+import "errors"
+
 /*
 A GraphVertex represents a vertex in a graph.
 */
@@ -61,16 +63,37 @@ For applications (and algorithms) that make heavy use of this operation, an adja
 a better fit (O(1) time complexity), with the trade-off being a worse space complexity of Θ(V²).
 */
 type Graph[V Item] struct {
-	verts map[*V]*GraphVertex[V]
-	adj   map[*V][]*GraphEdge[V]
-	dir   bool
+	/*
+		VertMap maps items to the position of their vertex in the vertex list.
+		Usually, it would be enough to map items to vertices directly, but
+		since it is desireable for the graph to be traversed in the same order
+		the vertices were inserted (for consistency  and presentation purposes),
+		we map the item to the position of their vertex in the ordered list instead.
+	*/
+	VertMap map[*V]int
+
+	/*
+		Verts is the list of vertices in the graph. The list is ordered by insertion time,
+		and the ordering that it provides is respected during internal traversals.
+	*/
+	Verts []*GraphVertex[V]
+
+	/*
+		Adj holds the adjacency lists (composed of edges) for the vertices in the graph.
+		Note that traversing this map does not guarantee any particular ordering of the
+		vertices; if insertion order is desired, iterate over Verts instead.
+	*/
+	Adj map[*V][]*GraphEdge[V]
+
+	dir bool
 }
 
 func newGraph[V Item](dir bool) *Graph[V] {
 	g := Graph[V]{}
 
-	g.verts = make(map[*V]*GraphVertex[V])
-	g.adj = make(map[*V][]*GraphEdge[V])
+	g.Verts = make([]*GraphVertex[V], 0)
+	g.VertMap = make(map[*V]int)
+	g.Adj = make(map[*V][]*GraphEdge[V])
 	g.dir = dir
 
 	return &g
@@ -86,6 +109,11 @@ func NewUndirectedGraph[V Item]() *Graph[V] {
 	return newGraph[V](false)
 }
 
+// EmptyCopy creates an empty graph of the same kind.
+func (g *Graph[V]) EmptyCopy() *Graph[V] {
+	return newGraph[V](g.dir)
+}
+
 // Directed checks whether or not the graph is directed.
 func (g *Graph[V]) Directed() bool {
 	return g.dir
@@ -98,14 +126,19 @@ func (g *Graph[V]) Undirected() bool {
 
 // VertexExists checks whether or not a given vertex exists in the graph.
 func (g *Graph[V]) VertexExists(v *V) bool {
-	_, ok := g.verts[v]
+	_, ok := g.VertMap[v]
 	return ok
 }
 
 // GetVertex fetches the vertex for the given data, if one exists in the graph.
 func (g *Graph[V]) GetVertex(v *V) (*GraphVertex[V], bool) {
-	vert, ok := g.verts[v]
-	return vert, ok
+	idx, ok := g.VertMap[v]
+
+	if !ok {
+		return nil, false
+	}
+
+	return g.Verts[idx], true
 }
 
 // GetEdge fetches the edge from src to dst, if one exists in the graph.
@@ -114,7 +147,7 @@ func (g *Graph[V]) GetEdge(src *V, dst *V) (*GraphEdge[V], bool) {
 		return nil, false
 	}
 
-	es, ok := g.adj[src]
+	es, ok := g.Adj[src]
 
 	if !ok {
 		return nil, false
@@ -134,8 +167,9 @@ func (g *Graph[V]) GetEdge(src *V, dst *V) (*GraphEdge[V], bool) {
 }
 
 func (g *Graph[V]) addVertex(v *V) {
-	g.verts[v] = &GraphVertex[V]{Sat: v}
-	g.adj[v] = nil
+	g.Verts = append(g.Verts, &GraphVertex[V]{Sat: v})
+	g.VertMap[v] = len(g.Verts) - 1
+	g.Adj[v] = nil
 }
 
 // AddVertex attempts to add whatever vertices are passed to the graph.
@@ -154,16 +188,20 @@ func (g *Graph[V]) AddVertex(v ...*V) {
 }
 
 func (g *Graph[V]) addWeightedEdge(src, dst *V, wt float64) {
-	g.adj[src] = append(g.adj[src], &GraphEdge[V]{Src: src, Dst: dst, Wt: wt})
+	g.Adj[src] = append(g.Adj[src], &GraphEdge[V]{Src: src, Dst: dst, Wt: wt})
 }
 
 /*
 AddWeightedEdge attempts to add a new weighted edge to the graph. If the graph is undirected,
 the reverse edge is also added, if it does not already exist.
 */
-func (g *Graph[V]) AddWeightedEdge(src, dst *V, wt float64) {
+func (g *Graph[V]) AddWeightedEdge(src, dst *V, wt float64) error {
 	if src == nil || dst == nil {
-		return
+		return errors.New("edge has nil components")
+	}
+
+	if g.Undirected() && src == dst {
+		return errors.New("adding self-loop to undirected graph")
 	}
 
 	if !g.VertexExists(src) {
@@ -179,29 +217,31 @@ func (g *Graph[V]) AddWeightedEdge(src, dst *V, wt float64) {
 	}
 
 	if g.Directed() {
-		return
+		return nil
 	}
 
 	if _, ok := g.GetEdge(dst, src); !ok {
 		g.addWeightedEdge(dst, src, wt)
 	}
+
+	return nil
 }
 
 // AddEdge attempts to add a new unweighted edge to the graph.
-func (g *Graph[V]) AddEdge(src, dst *V) {
-	g.AddWeightedEdge(src, dst, 0)
+func (g *Graph[V]) AddEdge(src, dst *V) error {
+	return g.AddWeightedEdge(src, dst, 0)
 }
 
 // VertexCount calculates |V|, the number of vertices currently in the graph.
 func (g *Graph[V]) VertexCount() int {
-	return len(g.verts)
+	return len(g.VertMap)
 }
 
 // EdgeCount calculates |E|, the number of edges currently in the graph.
 func (g *Graph[V]) EdgeCount() int {
 	res := 0
 
-	for _, es := range g.adj {
+	for _, es := range g.Adj {
 		if es == nil {
 			continue
 		}
@@ -222,8 +262,14 @@ func (g *Graph[V]) EdgeCount() int {
 func (g *Graph[V]) Accept(v GraphVisitor[V]) {
 	v.VisitGraphStart(g)
 
-	for vp, es := range g.adj {
-		g.verts[vp].Accept(v)
+	for _, vert := range g.Verts {
+		vert.Accept(v)
+
+		es, ok := g.Adj[vert.Sat]
+
+		if !ok {
+			continue
+		}
 
 		if es == nil {
 			continue
@@ -235,4 +281,30 @@ func (g *Graph[V]) Accept(v GraphVisitor[V]) {
 	}
 
 	v.VisitGraphEnd(g)
+}
+
+/*
+Transpose creates a transpose of the graph: a new graph where all edges are reversed.
+This is only true for directed graphs: undirected graphs will get a deep copy instead.
+*/
+func (g *Graph[V]) Transpose() *Graph[V] {
+	res := g.EmptyCopy()
+
+	// same order of insertion
+	for _, vert := range g.Verts {
+		res.AddVertex(vert.Sat)
+	}
+
+	// reverse the edges
+	for _, es := range g.Adj {
+		if es == nil {
+			continue
+		}
+
+		for _, e := range es {
+			res.AddWeightedEdge(e.Dst, e.Src, e.Wt)
+		}
+	}
+
+	return res
 }

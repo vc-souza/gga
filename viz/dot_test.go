@@ -2,39 +2,36 @@ package viz
 
 import (
 	"bytes"
-	"sort"
-	"strings"
 	"testing"
 
 	"github.com/vc-souza/gga/ds"
 	ut "github.com/vc-souza/gga/internal/testutils"
 )
 
-var ExpectedDirectedDOT = `
-strict digraph {
+var ExpectedDirectedDOT = `strict digraph {
 graph [ label="A Test" ]
 node [ shape="folder" ]
 edge [ arrowhead="vee" ]
-Jonas
-John [ shape="hexagon" ]
-John -> Jane
-Jane
-Jane -> John
-Jane -> Jane
-}`
+"Jonas"
+"John" [ shape="hexagon" ]
+"John" -> "Jane"
+"Jane"
+"Jane" -> "John"
+"Jane" -> "Jane"
+}
+`
 
-var ExpectedUndirectedDOT = `
-strict graph {
+var ExpectedUndirectedDOT = `strict graph {
 graph [ label="A Test" ]
 node [ shape="folder" ]
 edge [ arrowhead="vee" ]
-Jonas
-John [ shape="hexagon" ]
-John -- Jane
-Jane
-Jane -- John
-Jane -- Jane
-}`
+"Jonas"
+"John" [ shape="hexagon" ]
+"John" -- "Jane"
+"Jane"
+"Jane" -- "John"
+}
+`
 
 type Person struct {
 	Name string
@@ -42,12 +39,6 @@ type Person struct {
 
 func (p Person) Label() string {
 	return p.Name
-}
-
-func sortedString(s string) string {
-	ss := strings.Split(s, "")
-	sort.Strings(ss)
-	return strings.Join(ss, "")
 }
 
 func TestGraphVisitor(t *testing.T) {
@@ -106,7 +97,7 @@ func TestGraphVisitor(t *testing.T) {
 
 			de.Export(&buf)
 
-			ut.AssertEqual(t, sortedString(tc.expect), sortedString(buf.String()))
+			ut.AssertEqual(t, tc.expect, buf.String())
 		})
 	}
 }

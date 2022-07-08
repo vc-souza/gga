@@ -10,15 +10,21 @@ type GraphGen func() *Graph[ut.ID]
 type edgeList []GraphEdge[ut.ID]
 type vertList []*ut.ID
 
+const (
+	UndirectedGraphKey = "graph"
+	DirectedGraphKey   = "digraph"
+)
+
 var GraphGenFuncs = map[string]GraphGen{
-	"graph":   NewUndirectedGraph[ut.ID],
-	"digraph": NewDirectedGraph[ut.ID],
+	UndirectedGraphKey: NewUndirectedGraph[ut.ID],
+	DirectedGraphKey:   NewDirectedGraph[ut.ID],
 }
 
 var vA = ut.ID("a")
 var vB = ut.ID("b")
 var vC = ut.ID("c")
 var vD = ut.ID("d")
+var vE = ut.ID("e")
 
 type CounterGraphVisitor struct {
 	gCalls int
@@ -50,29 +56,39 @@ func edge(src, dst *ut.ID) GraphEdge[ut.ID] {
 	return GraphEdge[ut.ID]{Src: src, Dst: dst}
 }
 
+func assertEdge(t *testing.T, g *Graph[ut.ID], src, dst *ut.ID, wt float64) {
+	e, ok := g.GetEdge(src, dst)
+	ut.AssertEqual(t, true, ok)
+	ut.AssertEqual(t, wt, e.Wt)
+}
+
 func TestNewDirectedGraph(t *testing.T) {
 	g := NewDirectedGraph[ut.ID]()
 
-	if g == nil {
-		t.Log("got a nil graph")
-		t.FailNow()
-	}
-
-	if g.Undirected() {
-		t.Log("asked for a directed graph, got an undirected one")
-	}
+	ut.AssertEqual(t, true, g != nil)
+	ut.AssertEqual(t, true, g.Directed())
+	ut.AssertEqual(t, false, g.Undirected())
 }
 
 func TestNewUndirectedGraph(t *testing.T) {
-	g := NewDirectedGraph[ut.ID]()
+	g := NewUndirectedGraph[ut.ID]()
 
-	if g == nil {
-		t.Log("got a nil graph")
-		t.FailNow()
-	}
+	ut.AssertEqual(t, true, g != nil)
+	ut.AssertEqual(t, true, g.Undirected())
+	ut.AssertEqual(t, false, g.Directed())
+}
 
-	if g.Directed() {
-		t.Log("asked for an undirected graph, got a directed one")
+func TestEmptyCopy(t *testing.T) {
+	for gtype, f := range GraphGenFuncs {
+		t.Run(gtype, func(t *testing.T) {
+			g := f()
+			cp := g.EmptyCopy()
+
+			ut.AssertEqual(t, g.Directed(), cp.Directed())
+			ut.AssertEqual(t, g.Undirected(), cp.Undirected())
+			ut.AssertEqual(t, 0, cp.VertexCount())
+			ut.AssertEqual(t, 0, cp.EdgeCount())
+		})
 	}
 }
 
@@ -331,6 +347,9 @@ func TestAddWeightedEdge(t *testing.T) {
 		verts       vertList
 		edges       edgeList
 		edge        GraphEdge[ut.ID]
+		skipDir     bool
+		skipUndir   bool
+		expectErr   bool
 		expectEdges bool
 		expectCount int
 	}{
@@ -355,6 +374,7 @@ func TestAddWeightedEdge(t *testing.T) {
 			verts:       vertList{&vA, &vB},
 			edges:       edgeList{},
 			edge:        edge(nil, &vB),
+			expectErr:   true,
 			expectEdges: false,
 			expectCount: 0,
 		},
@@ -363,13 +383,41 @@ func TestAddWeightedEdge(t *testing.T) {
 			verts:       vertList{&vA, &vB},
 			edges:       edgeList{},
 			edge:        edge(&vA, nil),
+			expectErr:   true,
 			expectEdges: false,
 			expectCount: 0,
+		},
+		{
+			desc:        "self-loop",
+			verts:       vertList{&vA},
+			edges:       edgeList{},
+			edge:        edge(&vA, &vA),
+			skipDir:     true,
+			expectErr:   true,
+			expectEdges: false,
+			expectCount: 0,
+		},
+		{
+			desc:        "self-loop",
+			verts:       vertList{&vA},
+			edges:       edgeList{},
+			edge:        edge(&vA, &vA),
+			skipUndir:   true,
+			expectEdges: false,
+			expectCount: 1,
 		},
 	}
 
 	for _, tc := range cases {
 		for gtype, f := range GraphGenFuncs {
+			if tc.skipDir && gtype == DirectedGraphKey {
+				continue
+			}
+
+			if tc.skipUndir && gtype == UndirectedGraphKey {
+				continue
+			}
+
 			t.Run(tag(gtype, tc.desc), func(t *testing.T) {
 				g := f()
 
@@ -379,21 +427,24 @@ func TestAddWeightedEdge(t *testing.T) {
 					g.AddWeightedEdge(e.Src, e.Dst, e.Wt)
 				}
 
-				g.AddWeightedEdge(tc.edge.Src, tc.edge.Dst, tc.edge.Wt)
+				err := g.AddWeightedEdge(tc.edge.Src, tc.edge.Dst, tc.edge.Wt)
 
-				if tc.expectEdges {
-					_, ok := g.GetEdge(tc.edge.Src, tc.edge.Dst)
+				ut.AssertEqual(t, tc.expectErr, err != nil)
+				ut.AssertEqual(t, tc.expectCount, g.EdgeCount())
 
-					ut.AssertEqual(t, true, ok)
-
-					if g.Undirected() {
-						_, ok := g.GetEdge(tc.edge.Dst, tc.edge.Src)
-
-						ut.AssertEqual(t, true, ok)
-					}
+				if !tc.expectEdges {
+					return
 				}
 
-				ut.AssertEqual(t, tc.expectCount, g.EdgeCount())
+				_, ok := g.GetEdge(tc.edge.Src, tc.edge.Dst)
+
+				ut.AssertEqual(t, true, ok)
+
+				if g.Undirected() {
+					_, ok := g.GetEdge(tc.edge.Dst, tc.edge.Src)
+
+					ut.AssertEqual(t, true, ok)
+				}
 			})
 		}
 	}
@@ -407,7 +458,9 @@ func TestAddEdge(t *testing.T) {
 		t.Run(tag(gtype, "0 wt edge created"), func(t *testing.T) {
 			g := f()
 
-			g.AddEdge(src, dst)
+			err := g.AddEdge(src, dst)
+
+			ut.AssertEqual(t, true, err == nil)
 
 			e, ok := g.GetEdge(src, dst)
 
@@ -481,4 +534,65 @@ func TestGraphVisitor(t *testing.T) {
 			})
 		}
 	}
+}
+
+func TestTranspose_directed(t *testing.T) {
+	//                     (loop)
+	// B -> C -> D -> E -> A
+	//      |---------^
+	g := NewDirectedGraph[ut.ID]()
+
+	g.AddWeightedEdge(&vA, &vA, 1)
+	g.AddWeightedEdge(&vB, &vC, 2)
+	g.AddWeightedEdge(&vC, &vD, 3)
+	g.AddWeightedEdge(&vC, &vE, 4)
+	g.AddWeightedEdge(&vD, &vE, 5)
+	g.AddWeightedEdge(&vE, &vA, 6)
+
+	//                     (loop)
+	// B <- C <- D <- E <- A
+	//      ^---------|
+	tp := g.Transpose()
+
+	ut.AssertEqual(t, g.VertexCount(), tp.VertexCount())
+	ut.AssertEqual(t, g.EdgeCount(), tp.EdgeCount())
+
+	ut.AssertEqual(t, true, tp.VertexExists(&vA))
+	ut.AssertEqual(t, true, tp.VertexExists(&vB))
+	ut.AssertEqual(t, true, tp.VertexExists(&vC))
+	ut.AssertEqual(t, true, tp.VertexExists(&vD))
+	ut.AssertEqual(t, true, tp.VertexExists(&vE))
+
+	assertEdge(t, tp, &vA, &vA, 1)
+	assertEdge(t, tp, &vC, &vB, 2)
+	assertEdge(t, tp, &vD, &vC, 3)
+	assertEdge(t, tp, &vE, &vC, 4)
+	assertEdge(t, tp, &vE, &vD, 5)
+	assertEdge(t, tp, &vA, &vE, 6)
+}
+
+func TestTranspose_undirected(t *testing.T) {
+	g := NewUndirectedGraph[ut.ID]()
+
+	g.AddWeightedEdge(&vA, &vB, 1)
+	g.AddWeightedEdge(&vB, &vC, 2)
+	g.AddWeightedEdge(&vC, &vD, 3)
+	g.AddWeightedEdge(&vD, &vE, 4)
+	g.AddWeightedEdge(&vE, &vA, 5)
+
+	tp := g.Transpose()
+
+	ut.AssertEqual(t, g.VertexCount(), tp.VertexCount())
+	ut.AssertEqual(t, g.EdgeCount(), tp.EdgeCount())
+
+	assertEdge(t, tp, &vA, &vB, 1)
+	assertEdge(t, tp, &vB, &vA, 1)
+	assertEdge(t, tp, &vB, &vC, 2)
+	assertEdge(t, tp, &vC, &vB, 2)
+	assertEdge(t, tp, &vC, &vD, 3)
+	assertEdge(t, tp, &vD, &vC, 3)
+	assertEdge(t, tp, &vD, &vE, 4)
+	assertEdge(t, tp, &vE, &vD, 4)
+	assertEdge(t, tp, &vE, &vA, 5)
+	assertEdge(t, tp, &vA, &vE, 5)
 }

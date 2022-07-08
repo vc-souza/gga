@@ -84,9 +84,9 @@ func (d *DotExporter[V]) VisitVertex(v *ds.GraphVertex[V]) {
 	var line string
 
 	if len(v.Fmt) == 0 {
-		line = v.Label()
+		line = quote(v.Label())
 	} else {
-		line = fmt.Sprintf("%s %s", v.Label(), DotAttrs(v.Fmt))
+		line = fmt.Sprintf("%s %s", quote(v.Label()), DotAttrs(v.Fmt))
 	}
 
 	d.add(line)
@@ -102,7 +102,7 @@ func (d *DotExporter[V]) VisitEdge(e *ds.GraphEdge[V]) {
 		op = GraphArrow
 	}
 
-	rel := fmt.Sprintf("%s %s %s", (*e.Src).Label(), op, (*e.Dst).Label())
+	rel := fmt.Sprintf("%s %s %s", quote((*e.Src).Label()), op, quote((*e.Dst).Label()))
 
 	if len(e.Fmt) == 0 {
 		line = rel
@@ -131,4 +131,8 @@ func DotAttrs(f ds.FmtAttrs) string {
 	s = append(s, "]")
 
 	return strings.Join(s, " ")
+}
+
+func quote(s string) string {
+	return fmt.Sprintf(`"%s"`, s)
 }
