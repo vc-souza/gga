@@ -282,3 +282,29 @@ func (g *Graph[V]) Accept(v GraphVisitor[V]) {
 
 	v.VisitGraphEnd(g)
 }
+
+/*
+Transpose creates a transpose of the graph: a new graph where all edges are reversed.
+This is only true for directed graphs: undirected graphs will get a deep copy instead.
+*/
+func (g *Graph[V]) Transpose() *Graph[V] {
+	res := g.EmptyCopy()
+
+	// same order of insertion
+	for _, vert := range g.Verts {
+		res.AddVertex(vert.Sat)
+	}
+
+	// reverse the edges
+	for _, es := range g.Adj {
+		if es == nil {
+			continue
+		}
+
+		for _, e := range es {
+			res.AddWeightedEdge(e.Dst, e.Src, e.Wt)
+		}
+	}
+
+	return res
+}
