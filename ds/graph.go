@@ -8,7 +8,6 @@ type GraphVertex[V Item] struct {
 
 	/*
 		Sat holds satellite data for the vertex, which is data that should come along with the vertex everywhere it goes.
-		The actual value of a graph algorithm comes from looking at how satellite data was moved around and grouped after its execution.
 	*/
 	Sat *V
 }

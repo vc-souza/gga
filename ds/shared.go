@@ -9,15 +9,19 @@ type Item interface {
 	Label() string
 }
 
-// FormattingAttrs holds flat formatting attributes for any type of item in a gga data structure.
-type FormattingAttrs map[string]string
+// FmtAttrs holds flat formatting attributes for any type of item in a gga data structure.
+type FmtAttrs map[string]string
 
 // A Formattable holds formatting attributes, and can accept them.
 type Formattable struct {
-	FmtAttrs FormattingAttrs
+	Fmt FmtAttrs
 }
 
-// SetFormatting sets the current formatting attributes of the Formattable.
-func (f *Formattable) SetFormatting(attrs map[string]string) {
-	f.FmtAttrs = attrs
+// SetFmtAttr records the formatting (attribute, value) pair.
+func (f *Formattable) SetFmtAttr(k, v string) {
+	if f.Fmt == nil {
+		f.Fmt = make(FmtAttrs)
+	}
+
+	f.Fmt[k] = v
 }

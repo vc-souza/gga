@@ -8,6 +8,19 @@ import (
 	"github.com/vc-souza/gga/ds"
 )
 
+const (
+	DigraphArrow = "->"
+	GraphArrow   = "--"
+)
+
+/*
+	DotExporter implements the ds.GraphVisitor interface in order to traverse a ds.Graph
+	and build a sequence of lines in the DOT language. After a successful visit, these
+	lines can then be exported to an io.Writer by calling its Export method.
+
+	Full specification of the DOT language, by Graphviz can be found here:
+	https://graphviz.org/doc/info/lang.html
+*/
 type DotExporter[V ds.Item] struct {
 	Graph *ds.Graph[V]
 	Lines []string
@@ -23,23 +36,11 @@ func NewDotExporter[V ds.Item](graph *ds.Graph[V]) *DotExporter[V] {
 	return &res
 }
 
-// Attrs serializes a ds.FormattingAttrs value into a string.
-func (d *DotExporter[V]) Attrs(f ds.FormattingAttrs) string {
-	if len(f) == 0 {
-		return ""
-	}
-
-	s := []string{"["}
-
-	for k, v := range f {
-		s = append(s, fmt.Sprintf(`%s="%s"`, k, v))
-	}
-
-	s = append(s, "]")
-
-	return strings.Join(s, " ")
+func (d *DotExporter[V]) add(s string) {
+	d.Lines = append(d.Lines, s)
 }
 
+// Export writes the data it has accumulated to an io.Writer.
 func (d *DotExporter[V]) Export(w io.Writer) {
 	io.Copy(w, strings.NewReader(strings.Join(d.Lines, "\n")))
 }
@@ -53,48 +54,68 @@ func (d *DotExporter[V]) VisitGraphStart(g *ds.Graph[V]) {
 		start = "strict graph {"
 	}
 
-	d.Lines = append(d.Lines, start)
+	d.add(start)
 
-	if len(g.FmtAttrs) == 0 {
+	if len(g.Fmt) == 0 {
 		return
 	}
 
-	d.Lines = append(d.Lines, fmt.Sprintf("graph %s", d.Attrs(g.FmtAttrs)))
+	d.add(fmt.Sprintf("graph %s", DotAttrs(g.Fmt)))
 }
 
 func (d *DotExporter[V]) VisitGraphEnd(g *ds.Graph[V]) {
-	d.Lines = append(d.Lines, "}\n")
+	d.add("}\n")
 }
 
 func (d *DotExporter[V]) VisitVertex(v *ds.GraphVertex[V]) {
 	var line string
 
-	if len(v.FmtAttrs) == 0 {
+	if len(v.Fmt) == 0 {
 		line = v.Label()
 	} else {
-		line = fmt.Sprintf("%s %s", v.Label(), d.Attrs(v.FmtAttrs))
+		line = fmt.Sprintf("%s %s", v.Label(), DotAttrs(v.Fmt))
 	}
 
-	d.Lines = append(d.Lines, line)
+	d.add(line)
 }
 
 func (d *DotExporter[V]) VisitEdge(e *ds.GraphEdge[V]) {
-	var op string
 	var line string
+	var op string
 
 	if d.Graph.Directed() {
-		op = "->"
+		op = DigraphArrow
 	} else {
-		op = "--"
+		op = GraphArrow
 	}
 
 	rel := fmt.Sprintf("%s %s %s", (*e.Src).Label(), op, (*e.Dst).Label())
 
-	if len(e.FmtAttrs) == 0 {
+	if len(e.Fmt) == 0 {
 		line = rel
 	} else {
-		line = fmt.Sprintf("%s %s", rel, d.Attrs(e.FmtAttrs))
+		line = fmt.Sprintf("%s %s", rel, DotAttrs(e.Fmt))
 	}
 
-	d.Lines = append(d.Lines, line)
+	d.add(line)
+}
+
+/*
+DotAttrs converts an object holding formatting attributes to its DOT language equivalent.
+Full list of DOT attributes can be found here: https://graphviz.org/doc/info/attrs.html.
+*/
+func DotAttrs(f ds.FmtAttrs) string {
+	if len(f) == 0 {
+		return ""
+	}
+
+	s := []string{"["}
+
+	for k, v := range f {
+		s = append(s, fmt.Sprintf(`%s="%s"`, k, v))
+	}
+
+	s = append(s, "]")
+
+	return strings.Join(s, " ")
 }
