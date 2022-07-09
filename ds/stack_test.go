@@ -63,6 +63,15 @@ func TestStackPeek(t *testing.T) {
 	ut.AssertEqual(t, 3, item)
 }
 
+func TestStackPeek_empty(t *testing.T) {
+	var s Stack[int] = &SliceStack[int]{}
+
+	ut.AssertEqual(t, true, s.Empty())
+
+	_, ok := s.Peek()
+	ut.AssertEqual(t, false, ok)
+}
+
 func TestStackPop(t *testing.T) {
 	var s Stack[int] = &SliceStack[int]{}
 	var item int
@@ -87,4 +96,20 @@ func TestStackPop(t *testing.T) {
 	ut.AssertEqual(t, 1, item)
 
 	ut.AssertEqual(t, true, s.Empty())
+}
+
+func TestStackPop_empty(t *testing.T) {
+	var s Stack[int] = &SliceStack[int]{}
+
+	ut.AssertEqual(t, true, s.Empty())
+
+	_, ok := s.Pop()
+	ut.AssertEqual(t, false, ok)
+}
+
+func TestStackGet_invalid(t *testing.T) {
+	var s Stack[int] = &SliceStack[int]{}
+
+	_, ok := s.Get(-1)
+	ut.AssertEqual(t, false, ok)
 }
