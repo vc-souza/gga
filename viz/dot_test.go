@@ -85,7 +85,7 @@ func TestGraphVisitor(t *testing.T) {
 			g.AddEdge(jane, john)
 			g.AddEdge(jane, jane)
 
-			johnV, ok := g.GetVertex(john)
+			johnV, _, ok := g.GetVertex(john)
 
 			ut.AssertEqual(t, true, ok)
 
@@ -98,6 +98,31 @@ func TestGraphVisitor(t *testing.T) {
 			de.Export(&buf)
 
 			ut.AssertEqual(t, tc.expect, buf.String())
+		})
+	}
+}
+
+func TestDotAttrs(t *testing.T) {
+	cases := []struct {
+		desc   string
+		attrs  ds.FmtAttrs
+		expect string
+	}{
+		{
+			desc:   "empty",
+			attrs:  ds.FmtAttrs{},
+			expect: "",
+		},
+		{
+			desc:   "empty",
+			attrs:  ds.FmtAttrs{"a": "b"},
+			expect: `[ a="b" ]`,
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.desc, func(t *testing.T) {
+			ut.AssertEqual(t, tc.expect, DotAttrs(tc.attrs))
 		})
 	}
 }

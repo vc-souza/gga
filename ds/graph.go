@@ -67,7 +67,7 @@ type Graph[V Item] struct {
 		VertMap maps items to the position of their vertex in the vertex list.
 		Usually, it would be enough to map items to vertices directly, but
 		since it is desireable for the graph to be traversed in the same order
-		the vertices were inserted (for consistency  and presentation purposes),
+		the vertices were inserted (for consistency and presentation purposes),
 		we map the item to the position of their vertex in the ordered list instead.
 	*/
 	VertMap map[*V]int
@@ -91,8 +91,8 @@ type Graph[V Item] struct {
 func newGraph[V Item](dir bool) *Graph[V] {
 	g := Graph[V]{}
 
-	g.Verts = make([]*GraphVertex[V], 0)
 	g.VertMap = make(map[*V]int)
+	g.Verts = make([]*GraphVertex[V], 0)
 	g.Adj = make(map[*V][]*GraphEdge[V])
 	g.dir = dir
 
@@ -131,39 +131,39 @@ func (g *Graph[V]) VertexExists(v *V) bool {
 }
 
 // GetVertex fetches the vertex for the given data, if one exists in the graph.
-func (g *Graph[V]) GetVertex(v *V) (*GraphVertex[V], bool) {
+func (g *Graph[V]) GetVertex(v *V) (*GraphVertex[V], int, bool) {
 	idx, ok := g.VertMap[v]
 
 	if !ok {
-		return nil, false
+		return nil, -1, false
 	}
 
-	return g.Verts[idx], true
+	return g.Verts[idx], idx, true
 }
 
 // GetEdge fetches the edge from src to dst, if one exists in the graph.
-func (g *Graph[V]) GetEdge(src *V, dst *V) (*GraphEdge[V], bool) {
+func (g *Graph[V]) GetEdge(src *V, dst *V) (*GraphEdge[V], int, bool) {
 	if src == nil || dst == nil {
-		return nil, false
+		return nil, -1, false
 	}
 
 	es, ok := g.Adj[src]
 
 	if !ok {
-		return nil, false
+		return nil, -1, false
 	}
 
 	if es == nil {
-		return nil, false
+		return nil, -1, false
 	}
 
-	for _, e := range es {
+	for i, e := range es {
 		if e.Dst == dst {
-			return e, true
+			return e, i, true
 		}
 	}
 
-	return nil, false
+	return nil, -1, false
 }
 
 func (g *Graph[V]) addVertex(v *V) {
@@ -185,6 +185,63 @@ func (g *Graph[V]) AddVertex(v ...*V) {
 
 		g.addVertex(ver)
 	}
+}
+
+func (g *Graph[V]) removeVertex(v *V, idx int) {
+	// remove the mapping
+	delete(g.VertMap, v)
+
+	// remove the actual vertex
+	g.Verts = RemoveFromPointersSlice(g.Verts, idx)
+
+	// update the index of all copied vertices
+	for i := idx; i < len(g.Verts); i++ {
+		item := g.Verts[i].Sat
+		g.VertMap[item] = i
+	}
+}
+
+func (g *Graph[V]) removeVertexEdges(v *V) {
+	// remove every edge coming out of the vertex
+	delete(g.Adj, v)
+
+	// remove every edge arriving at the vertex
+	for vert, es := range g.Adj {
+		if es == nil {
+			continue
+		}
+
+		eIdx := -1
+
+		for i, e := range es {
+			// only one possible edge:
+			// no multigraph support
+			if e.Dst == v {
+				eIdx = i
+				break
+			}
+		}
+
+		if eIdx == -1 {
+			continue
+		}
+
+		g.removeEdge(vert, eIdx)
+	}
+}
+
+// RemoveVertex removes a vertex from the graph, if it exists.
+func (g *Graph[V]) RemoveVertex(v *V) error {
+	_, idx, ok := g.GetVertex(v)
+
+	if !ok {
+		return errors.New("vertex does not exist")
+	}
+
+	g.removeVertexEdges(v)
+	g.removeVertex(v, idx)
+
+	return nil
 }
 
 func (g *Graph[V]) addWeightedEdge(src, dst *V, wt float64) {
@@ -212,7 +269,7 @@ func (g *Graph[V]) AddWeightedEdge(src, dst *V, wt float64) error {
 		g.addVertex(dst)
 	}
 
-	if _, ok := g.GetEdge(src, dst); !ok {
+	if _, _, ok := g.GetEdge(src, dst); !ok {
 		g.addWeightedEdge(src, dst, wt)
 	}
 
@@ -220,7 +277,7 @@ func (g *Graph[V]) AddWeightedEdge(src, dst *V, wt float64) error {
 		return nil
 	}
 
-	if _, ok := g.GetEdge(dst, src); !ok {
+	if _, _, ok := g.GetEdge(dst, src); !ok {
 		g.addWeightedEdge(dst, src, wt)
 	}
 
@@ -230,6 +287,35 @@ func (g *Graph[V]) AddWeightedEdge(src, dst *V, wt float64) error {
 // AddEdge attempts to add a new unweighted edge to the graph.
 func (g *Graph[V]) AddEdge(src, dst *V) error {
 	return g.AddWeightedEdge(src, dst, 0)
+}
+
+func (g *Graph[V]) removeEdge(src *V, idx int) {
+	g.Adj[src] = RemoveFromPointersSlice(g.Adj[src], idx)
+}
+
+// RemoveEdge removes an edge from the graph, if it exists.
+func (g *Graph[V]) RemoveEdge(src, dst *V) error {
+	_, idx, ok := g.GetEdge(src, dst)
+
+	if !ok {
+		return errors.New("edge does not exist")
+	}
+
+	g.removeEdge(src, idx)
+
+	if g.Directed() {
+		return nil
+	}
+
+	_, idx, ok = g.GetEdge(dst, src)
+
+	if !ok {
+		return errors.New("reverse edge does not exist")
+	}
+
+	g.removeEdge(dst, idx)
+
+	return nil
 }
 
 // VertexCount calculates |V|, the number of vertices currently in the graph.
@@ -265,11 +351,7 @@ func (g *Graph[V]) Accept(v GraphVisitor[V]) {
 	for _, vert := range g.Verts {
 		vert.Accept(v)
 
-		es, ok := g.Adj[vert.Sat]
-
-		if !ok {
-			continue
-		}
+		es := g.Adj[vert.Sat]
 
 		if es == nil {
 			continue

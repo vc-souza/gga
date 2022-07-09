@@ -9,19 +9,35 @@ type Item interface {
 	Label() string
 }
 
-// FmtAttrs holds flat formatting attributes for any type of item in a gga data structure.
-type FmtAttrs map[string]string
+/*
+RemoveFromPointersSlice removes the element at a given index, from a slice of pointers.
+If an element from a slice of pointers is removed using the usual way of deleting an
+element from a slice:
 
-// A Formattable holds formatting attributes, and can accept them.
-type Formattable struct {
-	Fmt FmtAttrs
-}
+	s = append(s[:idx], s[id+1:]...)
 
-// SetFmtAttr records the formatting (attribute, value) pair.
-func (f *Formattable) SetFmtAttr(k, v string) {
-	if f.Fmt == nil {
-		f.Fmt = make(FmtAttrs)
+then we risk a memory leak, from the now unreachable reference that sits in
+the underlying array used by the slice, preventing garbage collection.
+
+Source: https://github.com/golang/go/wiki/SliceTricks
+*/
+func RemoveFromPointersSlice[T any](s []*T, idx int) []*T {
+	if idx < 0 || idx >= len(s) {
+		return s
 	}
 
-	f.Fmt[k] = v
+	// Overwrite the element to be deleted by copying the remainder of
+	// the slice over it. Now the last element of the slice is duplicated:
+	// the same pointer exists both in the old position and in the position
+	// that needed to be deleted.
+	copy(s[idx:], s[idx+1:])
+
+	// Delete the extra reference to the pointer by assigning nil to
+	// its old position.
+	s[len(s)-1] = nil
+
+	// Shrink the slice by slicing it again and then return the new, shorter
+	// slice to the caller. Just like with 'append', the caller needs to store
+	// the new slice reference where its old slice used to be stored.
+	return s[:len(s)-1]
 }

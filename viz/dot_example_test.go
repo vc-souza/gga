@@ -41,19 +41,19 @@ func ExampleDotExporter() {
 		"arrowhead": "open",
 	}
 
-	if v, ok := g.GetVertex(pwag); ok {
+	if v, _, ok := g.GetVertex(pwag); ok {
 		v.SetFmtAttr("shape", "square")
 	}
 
-	if e, ok := g.GetEdge(pwag, pwl); ok {
+	if e, _, ok := g.GetEdge(pwag, pwl); ok {
 		e.SetFmtAttr("label", "Level 25")
 	}
 
-	if e, ok := g.GetEdge(pwl, pot); ok {
+	if e, _, ok := g.GetEdge(pwl, pot); ok {
 		e.SetFmtAttr("label", "Trade holding King's Rock")
 	}
 
-	if e, ok := g.GetEdge(pwl, pow); ok {
+	if e, _, ok := g.GetEdge(pwl, pow); ok {
 		e.SetFmtAttr("label", "Water Stone")
 	}
 
