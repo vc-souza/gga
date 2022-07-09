@@ -6,7 +6,7 @@ import (
 	ut "github.com/vc-souza/gga/internal/testutils"
 )
 
-func TestPush(t *testing.T) {
+func TestStackPush(t *testing.T) {
 	var s Stack[int] = &SliceStack[int]{}
 	var item int
 	var ok bool
@@ -36,7 +36,7 @@ func TestEmpty(t *testing.T) {
 	ut.AssertEqual(t, false, s.Empty())
 }
 
-func TestPeek(t *testing.T) {
+func TestStackPeek(t *testing.T) {
 	var s Stack[int] = &SliceStack[int]{}
 	var item int
 	var ok bool
@@ -63,16 +63,24 @@ func TestPeek(t *testing.T) {
 	ut.AssertEqual(t, 3, item)
 }
 
-func TestPop(t *testing.T) {
+func TestStackPop(t *testing.T) {
 	var s Stack[int] = &SliceStack[int]{}
 	var item int
 	var ok bool
 
 	ut.AssertEqual(t, true, s.Empty())
 
-	s.Push(1)
+	s.Push(1, 2, 3)
 
 	ut.AssertEqual(t, false, s.Empty())
+
+	item, ok = s.Pop()
+	ut.AssertEqual(t, true, ok)
+	ut.AssertEqual(t, 3, item)
+
+	item, ok = s.Pop()
+	ut.AssertEqual(t, true, ok)
+	ut.AssertEqual(t, 2, item)
 
 	item, ok = s.Pop()
 	ut.AssertEqual(t, true, ok)
