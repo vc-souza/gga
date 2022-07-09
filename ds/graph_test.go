@@ -78,7 +78,7 @@ func TestNewUndirectedGraph(t *testing.T) {
 	ut.AssertEqual(t, false, g.Directed())
 }
 
-func TestEmptyCopy(t *testing.T) {
+func TestGraphEmptyCopy(t *testing.T) {
 	for gtype, f := range GraphGenFuncs {
 		t.Run(gtype, func(t *testing.T) {
 			g := f()
@@ -92,7 +92,7 @@ func TestEmptyCopy(t *testing.T) {
 	}
 }
 
-func TestVertexCount(t *testing.T) {
+func TestGraphVertexCount(t *testing.T) {
 	cases := []struct {
 		desc   string
 		verts  vertList
@@ -123,7 +123,7 @@ func TestVertexCount(t *testing.T) {
 	}
 }
 
-func TestEdgeCount(t *testing.T) {
+func TestGraphEdgeCount(t *testing.T) {
 	cases := []struct {
 		desc   string
 		edges  edgeList
@@ -156,7 +156,7 @@ func TestEdgeCount(t *testing.T) {
 	}
 }
 
-func TestVertexExists(t *testing.T) {
+func TestGraphVertexExists(t *testing.T) {
 	cases := []struct {
 		desc   string
 		verts  vertList
@@ -196,7 +196,7 @@ func TestVertexExists(t *testing.T) {
 	}
 }
 
-func TestGetEdge(t *testing.T) {
+func TestGraphGetEdge(t *testing.T) {
 	cases := []struct {
 		desc   string
 		verts  vertList
@@ -260,7 +260,7 @@ func TestGetEdge(t *testing.T) {
 	}
 }
 
-func TestGetVertex(t *testing.T) {
+func TestGraphGetVertex(t *testing.T) {
 	cases := []struct {
 		desc   string
 		verts  vertList
@@ -300,7 +300,7 @@ func TestGetVertex(t *testing.T) {
 	}
 }
 
-func TestAddVertex(t *testing.T) {
+func TestGraphAddVertex(t *testing.T) {
 	cases := []struct {
 		desc   string
 		verts  vertList
@@ -341,7 +341,7 @@ func TestAddVertex(t *testing.T) {
 	}
 }
 
-func TestAddWeightedEdge(t *testing.T) {
+func TestGraphAddWeightedEdge(t *testing.T) {
 	cases := []struct {
 		desc        string
 		verts       vertList
@@ -450,7 +450,7 @@ func TestAddWeightedEdge(t *testing.T) {
 	}
 }
 
-func TestAddEdge(t *testing.T) {
+func TestGraphAddEdge(t *testing.T) {
 	src := &vA
 	dst := &vB
 
@@ -477,7 +477,7 @@ func TestAddEdge(t *testing.T) {
 	}
 }
 
-func TestRemoveVertex(t *testing.T) {
+func TestGraphRemoveVertex(t *testing.T) {
 	cases := []struct {
 		desc        string
 		verts       vertList
@@ -584,7 +584,7 @@ func TestRemoveVertex(t *testing.T) {
 	}
 }
 
-func TestRemoveEdge(t *testing.T) {
+func TestGraphRemoveEdge(t *testing.T) {
 	cases := []struct {
 		desc        string
 		verts       vertList
@@ -716,7 +716,7 @@ func TestGraphVisitor(t *testing.T) {
 	}
 }
 
-func TestTranspose_directed(t *testing.T) {
+func TestGraphTranspose_directed(t *testing.T) {
 	//                     (loop)
 	// B -> C -> D -> E -> A
 	//      |---------^
@@ -751,7 +751,7 @@ func TestTranspose_directed(t *testing.T) {
 	assertEdge(t, tp, &vA, &vE, 6)
 }
 
-func TestTranspose_undirected(t *testing.T) {
+func TestGraphTranspose_undirected(t *testing.T) {
 	g := NewUndirectedGraph[ut.ID]()
 
 	g.AddWeightedEdge(&vA, &vB, 1)

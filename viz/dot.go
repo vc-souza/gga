@@ -8,11 +8,6 @@ import (
 	"github.com/vc-souza/gga/ds"
 )
 
-const (
-	DigraphArrow = "->"
-	GraphArrow   = "--"
-)
-
 /*
 	DotExporter implements the ds.GraphVisitor interface in order to traverse a ds.Graph
 	and build a sequence of lines in the DOT language. After a successful visit, these
@@ -28,6 +23,9 @@ type DotExporter[V ds.Item] struct {
 	DefaultGraphFmt  ds.FmtAttrs
 	DefaultVertexFmt ds.FmtAttrs
 	DefaultEdgeFmt   ds.FmtAttrs
+
+	UndirectedArrow string
+	DirectedArrow   string
 }
 
 // NewDotExporter creates an initialized DotExporter.
@@ -36,6 +34,9 @@ func NewDotExporter[V ds.Item](graph *ds.Graph[V]) *DotExporter[V] {
 
 	res.Graph = graph
 	res.Lines = []string{}
+
+	res.UndirectedArrow = "--"
+	res.DirectedArrow = "->"
 
 	return &res
 }
@@ -97,9 +98,9 @@ func (d *DotExporter[V]) VisitEdge(e *ds.GraphEdge[V]) {
 	var op string
 
 	if d.Graph.Directed() {
-		op = DigraphArrow
+		op = d.DirectedArrow
 	} else {
-		op = GraphArrow
+		op = d.UndirectedArrow
 	}
 
 	rel := fmt.Sprintf("%s %s %s", quote((*e.Src).Label()), op, quote((*e.Dst).Label()))
