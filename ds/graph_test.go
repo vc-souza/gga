@@ -477,6 +477,113 @@ func TestAddEdge(t *testing.T) {
 	}
 }
 
+func TestRemoveVertex(t *testing.T) {
+	cases := []struct {
+		desc        string
+		verts       vertList
+		edges       edgeList
+		vert        *ut.ID
+		expectError bool
+		expectVerts vertList
+		expectEdges edgeList
+	}{
+		{
+			desc:        "does not exist",
+			verts:       vertList{&vA, &vC},
+			edges:       edgeList{edge(&vA, &vC)},
+			vert:        &vB,
+			expectError: true,
+			expectVerts: vertList{&vA, &vC},
+			expectEdges: edgeList{edge(&vA, &vC)},
+		},
+		{
+			desc:  "vertex at the start",
+			verts: vertList{&vA, &vB, &vC},
+			edges: edgeList{
+				edge(&vA, &vC),
+				edge(&vB, &vA),
+				edge(&vB, &vC),
+			},
+			vert:        &vA,
+			expectVerts: vertList{&vB, &vC},
+			expectEdges: edgeList{edge(&vB, &vC)},
+		},
+		{
+			desc:  "vertex at the middle",
+			verts: vertList{&vA, &vB, &vC},
+			edges: edgeList{
+				edge(&vA, &vC),
+				edge(&vB, &vA),
+				edge(&vC, &vB),
+			},
+			vert:        &vB,
+			expectVerts: vertList{&vA, &vC},
+			expectEdges: edgeList{edge(&vA, &vC)},
+		},
+		{
+			desc:  "vertex at the end",
+			verts: vertList{&vA, &vB, &vC},
+			edges: edgeList{
+				edge(&vA, &vB),
+				edge(&vB, &vC),
+				edge(&vC, &vA),
+			},
+			vert:        &vC,
+			expectVerts: vertList{&vA, &vB},
+			expectEdges: edgeList{edge(&vA, &vB)},
+		},
+	}
+
+	for _, tc := range cases {
+		for gtype, f := range GraphGenFuncs {
+			t.Run(tag(gtype, tc.desc), func(t *testing.T) {
+				var ok bool
+
+				g := f()
+
+				g.AddVertex(tc.verts...)
+
+				for _, e := range tc.edges {
+					g.AddWeightedEdge(e.Src, e.Dst, e.Wt)
+				}
+
+				err := g.RemoveVertex(tc.vert)
+
+				ut.AssertEqual(t, tc.expectError, err != nil)
+
+				// adjacency list removed
+				_, ok = g.Adj[tc.vert]
+				ut.AssertEqual(t, false, ok)
+
+				// vert mapping removed
+				_, ok = g.VertMap[tc.vert]
+				ut.AssertEqual(t, false, ok)
+
+				ut.AssertEqual(t, len(tc.expectVerts), g.VertexCount())
+				ut.AssertEqual(t, len(tc.expectEdges), g.EdgeCount())
+
+				// vertices correctly rearranged, indexes updated
+				for i := 0; i < len(tc.expectVerts); i++ {
+					expected := tc.expectVerts[i]
+					actual := g.Verts[i]
+
+					// correct item at the correct position
+					ut.AssertEqual(t, expected, actual.Sat)
+
+					// correct mapping for the item
+					ut.AssertEqual(t, i, g.VertMap[actual.Sat])
+				}
+
+				// correct edges still in place
+				for _, e := range tc.expectEdges {
+					_, _, ok := g.GetEdge(e.Src, e.Dst)
+					ut.AssertEqual(t, true, ok)
+				}
+			})
+		}
+	}
+}
+
 func TestRemoveEdge(t *testing.T) {
 	cases := []struct {
 		desc        string
