@@ -101,3 +101,28 @@ func TestGraphVisitor(t *testing.T) {
 		})
 	}
 }
+
+func TestDotAttrs(t *testing.T) {
+	cases := []struct {
+		desc   string
+		attrs  ds.FmtAttrs
+		expect string
+	}{
+		{
+			desc:   "empty",
+			attrs:  ds.FmtAttrs{},
+			expect: "",
+		},
+		{
+			desc:   "empty",
+			attrs:  ds.FmtAttrs{"a": "b"},
+			expect: `[ a="b" ]`,
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.desc, func(t *testing.T) {
+			ut.AssertEqual(t, tc.expect, DotAttrs(tc.attrs))
+		})
+	}
+}

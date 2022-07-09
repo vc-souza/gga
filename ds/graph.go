@@ -351,11 +351,7 @@ func (g *Graph[V]) Accept(v GraphVisitor[V]) {
 	for _, vert := range g.Verts {
 		vert.Accept(v)
 
-		es, ok := g.Adj[vert.Sat]
-
-		if !ok {
-			continue
-		}
+		es := g.Adj[vert.Sat]
 
 		if es == nil {
 			continue
