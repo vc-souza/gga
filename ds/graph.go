@@ -67,7 +67,7 @@ type Graph[V Item] struct {
 		VertMap maps items to the position of their vertex in the vertex list.
 		Usually, it would be enough to map items to vertices directly, but
 		since it is desireable for the graph to be traversed in the same order
-		the vertices were inserted (for consistency  and presentation purposes),
+		the vertices were inserted (for consistency and presentation purposes),
 		we map the item to the position of their vertex in the ordered list instead.
 	*/
 	VertMap map[*V]int
@@ -91,8 +91,8 @@ type Graph[V Item] struct {
 func newGraph[V Item](dir bool) *Graph[V] {
 	g := Graph[V]{}
 
-	g.Verts = make([]*GraphVertex[V], 0)
 	g.VertMap = make(map[*V]int)
+	g.Verts = make([]*GraphVertex[V], 0)
 	g.Adj = make(map[*V][]*GraphEdge[V])
 	g.dir = dir
 
@@ -251,18 +251,7 @@ func (g *Graph[V]) AddEdge(src, dst *V) error {
 }
 
 func (g *Graph[V]) removeEdge(src *V, idx int) {
-	slc := g.Adj[src]
-
-	// overwrite the element to delete;
-	// now the last item is duplicated
-	copy(slc[idx:], slc[idx+1:])
-
-	// avoiding possible memory leak
-	// by removing the duplicate
-	slc[len(slc)-1] = nil
-
-	// assign back the shorter slice
-	g.Adj[src] = slc[:len(slc)-1]
+	g.Adj[src] = RemoveFromPointersSlice(g.Adj[src], idx)
 }
 
 // RemoveEdge removes an existing edge from the graph, if it exists.
