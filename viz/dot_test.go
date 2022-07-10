@@ -10,7 +10,6 @@ import (
 
 var ExpectedDirectedDOT = `strict digraph {
 graph [ label="A Test" ]
-node [ shape="folder" ]
 edge [ arrowhead="vee" ]
 "Jonas"
 "John" [ shape="hexagon" ]
@@ -23,7 +22,6 @@ edge [ arrowhead="vee" ]
 
 var ExpectedUndirectedDOT = `strict graph {
 graph [ label="A Test" ]
-node [ shape="folder" ]
 edge [ arrowhead="vee" ]
 "Jonas"
 "John" [ shape="hexagon" ]
@@ -70,10 +68,6 @@ func TestGraphVisitor(t *testing.T) {
 
 			de.DefaultGraphFmt = ds.FmtAttrs{
 				"label": "A Test",
-			}
-
-			de.DefaultVertexFmt = ds.FmtAttrs{
-				"shape": "folder",
 			}
 
 			de.DefaultEdgeFmt = ds.FmtAttrs{

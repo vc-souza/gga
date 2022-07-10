@@ -151,10 +151,6 @@ func (g *Graph[V]) GetEdge(src *V, dst *V) (*GraphEdge[V], int, bool) {
 		return nil, -1, false
 	}
 
-	if es == nil {
-		return nil, -1, false
-	}
-
 	for i, e := range es {
 		if e.Dst == dst {
 			return e, i, true
@@ -225,10 +221,6 @@ func (g *Graph[V]) removeVertexEdges(v *V) {
 
 	// remove every edge arriving at the vertex
 	for vert, es := range g.Adj {
-		if es == nil {
-			continue
-		}
-
 		eIdx := -1
 
 		for i, e := range es {
@@ -296,7 +288,6 @@ Several validity checks are performed, and extra work, like adding
 a vertex that does not exist yet, is going to be performed for
 the sake of ease of use.
 
-// TODO: use other method?
 In undirected graphs, if two vertices 'u' and 'v' are connected,
 two edges need to be manually added: (u -> v) and (v -> u).
 
@@ -372,10 +363,6 @@ func (g *Graph[V]) EdgeCount() int {
 	res := 0
 
 	for _, es := range g.Adj {
-		if es == nil {
-			continue
-		}
-
 		for range es {
 			res++
 		}
@@ -396,10 +383,6 @@ func (g *Graph[V]) Accept(v GraphVisitor[V]) {
 		vert.Accept(v)
 
 		es := g.Adj[vert.Sat]
-
-		if es == nil {
-			continue
-		}
 
 		for _, e := range es {
 			e.Accept(v)
@@ -427,10 +410,6 @@ func (g *Graph[V]) Transpose() (*Graph[V], error) {
 
 	// reverse the edges
 	for _, es := range g.Adj {
-		if es == nil {
-			continue
-		}
-
 		for _, e := range es {
 			res.AddWeightedEdge(e.Dst, e.Src, e.Wt)
 		}

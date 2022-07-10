@@ -101,7 +101,7 @@ func BenchmarkGraphAddingEdges(b *testing.B) {
 		return verts
 	}
 
-	// the worst-case scenario: one vertex v has len(Adj[v]) = O(|E|)
+	// the worst-case scenario: one vertex v has len(Adj[v]) = O(E)
 	addEdges := func(g *Graph[idx], verts []idx) {
 		for i := 1; i < len(verts)-1; i++ {
 			g.UnsafeAddWeightedEdge(&verts[0], &verts[i], 0)
