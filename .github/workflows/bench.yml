@@ -1,6 +1,16 @@
 name: Benchmarks
 
-on: workflow_dispatch
+on:
+  workflow_dispatch:
+    inputs:
+      benchtime:
+        description: "Iterations (-benchtime)"
+        default: "5000x"
+        required: true
+      timeout:
+        description: "Timeout (-timeout)"
+        default: "0"
+        required: true
 
 jobs:
   bench:
@@ -23,7 +33,7 @@ jobs:
         check-latest: true
 
     - name: Benchmark
-      run: make bench PKG=${{ matrix.pkg }}
+      run: go test -benchmem -memprofile mem.out -cpuprofile cpu.out -benchtime ${{ inputs.benchtime }} -timeout ${{ inputs.timeout }} -bench . ./${{ matrix.pkg }}
 
     - name: Upload Memory Profile
       uses: actions/upload-artifact@v3
