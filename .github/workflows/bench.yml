@@ -1,11 +1,25 @@
 name: Benchmarks
 
-on: workflow_dispatch
+on:
+  workflow_dispatch:
+    inputs:
+      benchtime:
+        description: "Iterations (-benchtime)"
+        default: "5000x"
+        required: true
+      timeout:
+        description: "Timeout (-timeout)"
+        default: "0"
+        required: true
 
 jobs:
   bench:
     name: Run Benchmarks
     runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        pkg: [ds, algo]
 
     steps:
 
@@ -19,4 +33,16 @@ jobs:
         check-latest: true
 
     - name: Benchmark
-      run: make bench
+      run: go test -benchmem -memprofile mem.out -cpuprofile cpu.out -benchtime ${{ inputs.benchtime }} -timeout ${{ inputs.timeout }} -bench . ./${{ matrix.pkg }}
+
+    - name: Upload Memory Profile
+      uses: actions/upload-artifact@v3
+      with:
+        name: ${{ matrix.pkg }}-mem-profile
+        path: mem.out
+
+    - name: Upload CPU Profile
+      uses: actions/upload-artifact@v3
+      with:
+        name: ${{ matrix.pkg }}-cpu-profile
+        path: cpu.out

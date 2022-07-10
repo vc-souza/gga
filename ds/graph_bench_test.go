@@ -56,7 +56,6 @@ func BenchmarkGraphAddingVertex(b *testing.B) {
 		for _, size := range sizes {
 			b.Run(tagGraphBench(gen.name, "safe", size), func(b *testing.B) {
 				for i := 0; i < b.N; i++ {
-					// pausing for setup
 					b.StopTimer()
 
 					g := gen.f()
@@ -64,7 +63,6 @@ func BenchmarkGraphAddingVertex(b *testing.B) {
 
 					addVerts(g, size)
 
-					// resuming
 					b.StartTimer()
 
 					// has an extra map lookup
@@ -74,7 +72,6 @@ func BenchmarkGraphAddingVertex(b *testing.B) {
 
 			b.Run(tagGraphBench(gen.name, "unsafe", size), func(b *testing.B) {
 				for i := 0; i < b.N; i++ {
-					// pausing for setup
 					b.StopTimer()
 
 					g := gen.f()
@@ -82,7 +79,6 @@ func BenchmarkGraphAddingVertex(b *testing.B) {
 
 					addVerts(g, size)
 
-					// resuming
 					b.StartTimer()
 
 					g.UnsafeAddVertex(&v)
@@ -116,7 +112,6 @@ func BenchmarkGraphAddingEdges(b *testing.B) {
 		for _, size := range sizes {
 			b.Run(tagGraphBench(gen.name, "safe", size), func(b *testing.B) {
 				for i := 0; i < b.N; i++ {
-					// pausing for setup
 					b.StopTimer()
 
 					g := gen.f()
@@ -124,7 +119,6 @@ func BenchmarkGraphAddingEdges(b *testing.B) {
 					verts := addVerts(g, size)
 					addEdges(g, verts)
 
-					// resuming
 					b.StartTimer()
 
 					// O(E) checks
@@ -134,7 +128,6 @@ func BenchmarkGraphAddingEdges(b *testing.B) {
 
 			b.Run(tagGraphBench(gen.name, "unsafe", size), func(b *testing.B) {
 				for i := 0; i < b.N; i++ {
-					// pausing for setup
 					b.StopTimer()
 
 					g := gen.f()
@@ -142,7 +135,6 @@ func BenchmarkGraphAddingEdges(b *testing.B) {
 					verts := addVerts(g, size)
 					addEdges(g, verts)
 
-					// resuming
 					b.StartTimer()
 
 					g.UnsafeAddWeightedEdge(&verts[0], &verts[len(verts)-1], 0)
