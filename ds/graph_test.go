@@ -6,18 +6,18 @@ import (
 	ut "github.com/vc-souza/gga/internal/testutils"
 )
 
-type GraphGen func() *Graph[ut.ID]
+type graphGen func() *Graph[ut.ID]
 type edgeList []GraphEdge[ut.ID]
 type vertList []*ut.ID
 
 const (
-	UndirectedGraphKey = "graph"
-	DirectedGraphKey   = "digraph"
+	undirectedGraphKey = "graph"
+	directedGraphKey   = "digraph"
 )
 
-var GraphGenFuncs = map[string]GraphGen{
-	UndirectedGraphKey: NewUndirectedGraph[ut.ID],
-	DirectedGraphKey:   NewDirectedGraph[ut.ID],
+var graphGenFuncs = map[string]graphGen{
+	undirectedGraphKey: NewUndirectedGraph[ut.ID],
+	directedGraphKey:   NewDirectedGraph[ut.ID],
 }
 
 var vA = ut.ID("a")
@@ -26,30 +26,30 @@ var vC = ut.ID("c")
 var vD = ut.ID("d")
 var vE = ut.ID("e")
 
-type CounterGraphVisitor struct {
+type counterGraphVisitor struct {
 	gCalls int
 	vCalls int
 	eCalls int
 }
 
-func (c *CounterGraphVisitor) VisitGraphStart(g *Graph[ut.ID]) {
+func (c *counterGraphVisitor) VisitGraphStart(g *Graph[ut.ID]) {
 	c.gCalls++
 }
 
-func (c *CounterGraphVisitor) VisitGraphEnd(g *Graph[ut.ID]) {
+func (c *counterGraphVisitor) VisitGraphEnd(g *Graph[ut.ID]) {
 	c.gCalls++
 }
 
-func (c *CounterGraphVisitor) VisitVertex(v *GraphVertex[ut.ID]) {
+func (c *counterGraphVisitor) VisitVertex(v *GraphVertex[ut.ID]) {
 	c.vCalls++
 }
 
-func (c *CounterGraphVisitor) VisitEdge(e *GraphEdge[ut.ID]) {
+func (c *counterGraphVisitor) VisitEdge(e *GraphEdge[ut.ID]) {
 	c.eCalls++
 }
 
-func tag(gtype, desc string) string {
-	return gtype + " " + desc
+func tagGraphTest(gType, desc string) string {
+	return gType + " " + desc
 }
 
 func edge(src, dst *ut.ID) GraphEdge[ut.ID] {
@@ -79,8 +79,8 @@ func TestNewUndirectedGraph(t *testing.T) {
 }
 
 func TestGraphEmptyCopy(t *testing.T) {
-	for gtype, f := range GraphGenFuncs {
-		t.Run(gtype, func(t *testing.T) {
+	for gType, f := range graphGenFuncs {
+		t.Run(gType, func(t *testing.T) {
 			g := f()
 			cp := g.EmptyCopy()
 
@@ -111,8 +111,8 @@ func TestGraphVertexCount(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		for gtype, f := range GraphGenFuncs {
-			t.Run(tag(gtype, tc.desc), func(t *testing.T) {
+		for gType, f := range graphGenFuncs {
+			t.Run(tagGraphTest(gType, tc.desc), func(t *testing.T) {
 				g := f()
 
 				g.AddVertex(tc.verts...)
@@ -142,8 +142,8 @@ func TestGraphEdgeCount(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		for gtype, f := range GraphGenFuncs {
-			t.Run(tag(gtype, tc.desc), func(t *testing.T) {
+		for gType, f := range graphGenFuncs {
+			t.Run(tagGraphTest(gType, tc.desc), func(t *testing.T) {
 				g := f()
 
 				for _, e := range tc.edges {
@@ -184,8 +184,8 @@ func TestGraphVertexExists(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		for gtype, f := range GraphGenFuncs {
-			t.Run(tag(gtype, tc.desc), func(t *testing.T) {
+		for gType, f := range graphGenFuncs {
+			t.Run(tagGraphTest(gType, tc.desc), func(t *testing.T) {
 				g := f()
 
 				g.AddVertex(tc.verts...)
@@ -242,8 +242,8 @@ func TestGraphGetEdge(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		for gtype, f := range GraphGenFuncs {
-			t.Run(tag(gtype, tc.desc), func(t *testing.T) {
+		for gType, f := range graphGenFuncs {
+			t.Run(tagGraphTest(gType, tc.desc), func(t *testing.T) {
 				g := f()
 
 				g.AddVertex(tc.verts...)
@@ -282,8 +282,8 @@ func TestGraphGetVertex(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		for gtype, f := range GraphGenFuncs {
-			t.Run(tag(gtype, tc.desc), func(t *testing.T) {
+		for gType, f := range graphGenFuncs {
+			t.Run(tagGraphTest(gType, tc.desc), func(t *testing.T) {
 				g := f()
 
 				g.AddVertex(tc.verts...)
@@ -329,8 +329,8 @@ func TestGraphAddVertex(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		for gtype, f := range GraphGenFuncs {
-			t.Run(tag(gtype, tc.desc), func(t *testing.T) {
+		for gType, f := range graphGenFuncs {
+			t.Run(tagGraphTest(gType, tc.desc), func(t *testing.T) {
 				g := f()
 
 				g.AddVertex(tc.verts...)
@@ -409,16 +409,16 @@ func TestGraphAddWeightedEdge(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		for gtype, f := range GraphGenFuncs {
-			if tc.skipDir && gtype == DirectedGraphKey {
+		for gType, f := range graphGenFuncs {
+			if tc.skipDir && gType == directedGraphKey {
 				continue
 			}
 
-			if tc.skipUndir && gtype == UndirectedGraphKey {
+			if tc.skipUndir && gType == undirectedGraphKey {
 				continue
 			}
 
-			t.Run(tag(gtype, tc.desc), func(t *testing.T) {
+			t.Run(tagGraphTest(gType, tc.desc), func(t *testing.T) {
 				g := f()
 
 				g.AddVertex(tc.verts...)
@@ -454,8 +454,8 @@ func TestGraphAddEdge(t *testing.T) {
 	src := &vA
 	dst := &vB
 
-	for gtype, f := range GraphGenFuncs {
-		t.Run(tag(gtype, "0 wt edge created"), func(t *testing.T) {
+	for gType, f := range graphGenFuncs {
+		t.Run(tagGraphTest(gType, "0 wt edge created"), func(t *testing.T) {
 			g := f()
 
 			err := g.AddEdge(src, dst)
@@ -535,8 +535,8 @@ func TestGraphRemoveVertex(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		for gtype, f := range GraphGenFuncs {
-			t.Run(tag(gtype, tc.desc), func(t *testing.T) {
+		for gType, f := range graphGenFuncs {
+			t.Run(tagGraphTest(gType, tc.desc), func(t *testing.T) {
 				var ok bool
 
 				g := f()
@@ -623,8 +623,8 @@ func TestGraphRemoveEdge(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		for gtype, f := range GraphGenFuncs {
-			t.Run(tag(gtype, tc.desc), func(t *testing.T) {
+		for gType, f := range graphGenFuncs {
+			t.Run(tagGraphTest(gType, tc.desc), func(t *testing.T) {
 				g := f()
 
 				g.AddVertex(tc.verts...)
@@ -689,8 +689,8 @@ func TestGraphVisitor(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		for gtype, f := range GraphGenFuncs {
-			t.Run(tag(gtype, tc.desc), func(t *testing.T) {
+		for gType, f := range graphGenFuncs {
+			t.Run(tagGraphTest(gType, tc.desc), func(t *testing.T) {
 				g := f()
 
 				g.AddVertex(tc.verts...)
@@ -699,7 +699,7 @@ func TestGraphVisitor(t *testing.T) {
 					g.AddWeightedEdge(e.Src, e.Dst, e.Wt)
 				}
 
-				v := CounterGraphVisitor{}
+				v := counterGraphVisitor{}
 
 				g.Accept(&v)
 

@@ -20,3 +20,9 @@ coverage.html
 
 # just a lib
 main.go
+
+# images
+*.svg
+*.png
+*.jpg
+*.jpeg
