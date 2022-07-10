@@ -1,6 +1,7 @@
 package ds
 
 import (
+	"errors"
 	"testing"
 
 	ut "github.com/vc-souza/gga/internal/testutils"
@@ -732,8 +733,9 @@ func TestGraphTranspose_directed(t *testing.T) {
 	//                     (loop)
 	// B <- C <- D <- E <- A
 	//      ^---------|
-	tp := g.Transpose()
+	tp, err := g.Transpose()
 
+	ut.AssertEqual(t, true, err == nil)
 	ut.AssertEqual(t, g.VertexCount(), tp.VertexCount())
 	ut.AssertEqual(t, g.EdgeCount(), tp.EdgeCount())
 
@@ -753,26 +755,8 @@ func TestGraphTranspose_directed(t *testing.T) {
 
 func TestGraphTranspose_undirected(t *testing.T) {
 	g := NewUndirectedGraph[ut.ID]()
+	_, err := g.Transpose()
 
-	g.AddWeightedEdge(&vA, &vB, 1)
-	g.AddWeightedEdge(&vB, &vC, 2)
-	g.AddWeightedEdge(&vC, &vD, 3)
-	g.AddWeightedEdge(&vD, &vE, 4)
-	g.AddWeightedEdge(&vE, &vA, 5)
-
-	tp := g.Transpose()
-
-	ut.AssertEqual(t, g.VertexCount(), tp.VertexCount())
-	ut.AssertEqual(t, g.EdgeCount(), tp.EdgeCount())
-
-	assertEdge(t, tp, &vA, &vB, 1)
-	assertEdge(t, tp, &vB, &vA, 1)
-	assertEdge(t, tp, &vB, &vC, 2)
-	assertEdge(t, tp, &vC, &vB, 2)
-	assertEdge(t, tp, &vC, &vD, 3)
-	assertEdge(t, tp, &vD, &vC, 3)
-	assertEdge(t, tp, &vD, &vE, 4)
-	assertEdge(t, tp, &vE, &vD, 4)
-	assertEdge(t, tp, &vE, &vA, 5)
-	assertEdge(t, tp, &vA, &vE, 5)
+	ut.AssertEqual(t, true, err != nil)
+	ut.AssertEqual(t, true, errors.Is(err, ErrUndefOp))
 }

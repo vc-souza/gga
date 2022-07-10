@@ -1,7 +1,5 @@
 package ds
 
-import "errors"
-
 /*
 A GraphVertex represents a vertex in a graph.
 */
@@ -253,7 +251,7 @@ func (g *Graph[V]) RemoveVertex(v *V) error {
 	_, idx, ok := g.GetVertex(v)
 
 	if !ok {
-		return errors.New("vertex does not exist")
+		return ErrNotExists
 	}
 
 	g.removeVertexEdges(v)
@@ -299,11 +297,11 @@ using the UnsafeAddWeightedEdge method directly.
 */
 func (g *Graph[V]) AddWeightedEdge(src, dst *V, wt float64) error {
 	if src == nil || dst == nil {
-		return errors.New("edge has nil components")
+		return ErrNilArg
 	}
 
 	if g.Undirected() && src == dst {
-		return errors.New("adding self-loop to undirected graph")
+		return ErrLoop
 	}
 
 	if !g.VertexExists(src) {
@@ -349,7 +347,7 @@ func (g *Graph[V]) RemoveEdge(src, dst *V) error {
 	_, idx, ok := g.GetEdge(src, dst)
 
 	if !ok {
-		return errors.New("edge does not exist")
+		return ErrNotExists
 	}
 
 	g.removeEdge(src, idx)
@@ -358,13 +356,10 @@ func (g *Graph[V]) RemoveEdge(src, dst *V) error {
 		return nil
 	}
 
-	_, idx, ok = g.GetEdge(dst, src)
-
-	if !ok {
-		return errors.New("reverse edge does not exist")
+	// reverse edge, in undirected graphs
+	if _, idx, ok := g.GetEdge(dst, src); ok {
+		g.removeEdge(dst, idx)
 	}
-
-	g.removeEdge(dst, idx)
 
 	return nil
 }
@@ -420,7 +415,11 @@ func (g *Graph[V]) Accept(v GraphVisitor[V]) {
 Transpose creates a transpose of the graph: a new graph where all edges are reversed.
 This is only true for directed graphs: undirected graphs will get a deep copy instead.
 */
-func (g *Graph[V]) Transpose() *Graph[V] {
+func (g *Graph[V]) Transpose() (*Graph[V], error) {
+	if g.Undirected() {
+		return nil, ErrUndefOp
+	}
+
 	res := g.EmptyCopy()
 
 	// same order of insertion
@@ -439,5 +438,5 @@ func (g *Graph[V]) Transpose() *Graph[V] {
 		}
 	}
 
-	return res
+	return res, nil
 }
