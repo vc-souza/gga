@@ -7,6 +7,10 @@ jobs:
     name: Run Benchmarks
     runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        pkg: [ds, algo]
+
     steps:
 
     - name: Checkout
@@ -19,4 +23,16 @@ jobs:
         check-latest: true
 
     - name: Benchmark
-      run: make bench
+      run: make bench PKG=${{ matrix.pkg }}
+
+    - name: Upload Memory Profile
+      uses: actions/upload-artifact@v3
+      with:
+        name: ${{ matrix.pkg }}-mem-profile
+        path: mem.out
+
+    - name: Upload CPU Profile
+      uses: actions/upload-artifact@v3
+      with:
+        name: ${{ matrix.pkg }}-cpu-profile
+        path: cpu.out

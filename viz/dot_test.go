@@ -114,7 +114,7 @@ func TestDotAttrs(t *testing.T) {
 			expect: "",
 		},
 		{
-			desc:   "empty",
+			desc:   "single pair",
 			attrs:  ds.FmtAttrs{"a": "b"},
 			expect: `[ a="b" ]`,
 		},
