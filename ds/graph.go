@@ -1,7 +1,5 @@
 package ds
 
-import "errors"
-
 /*
 A GraphVertex represents a vertex in a graph.
 */
@@ -166,7 +164,25 @@ func (g *Graph[V]) GetEdge(src *V, dst *V) (*GraphEdge[V], int, bool) {
 	return nil, -1, false
 }
 
-func (g *Graph[V]) addVertex(v *V) {
+/*
+UnsafeAddVertex is the unsafe version of AddVertex, used by it after its validity checks.
+
+Unlike the safe versions, no validation is performed, and a graph could easily become invalid:
+- The same vertex could be added multiple times.
+- A nil vertex could be added.
+
+This method should only be called directly by a client if:
+- They fully understand its possible negative implications
+- They are positive that the graph being built is correct
+- They need optimal performance while building the graph
+
+Vertex checks are not nearly as bad as edge checks (just an additional O(1) check),
+but if you're trying to squeeze every ounce of performance out of the graph building
+process, this might help a bit.
+
+If you have any doubts about using this version, use the safe one.
+*/
+func (g *Graph[V]) UnsafeAddVertex(v *V) {
 	g.Verts = append(g.Verts, &GraphVertex[V]{Sat: v})
 	g.VertMap[v] = len(g.Verts) - 1
 	g.Adj[v] = nil
@@ -183,7 +199,7 @@ func (g *Graph[V]) AddVertex(v ...*V) {
 			continue
 		}
 
-		g.addVertex(ver)
+		g.UnsafeAddVertex(ver)
 	}
 }
 
@@ -235,7 +251,7 @@ func (g *Graph[V]) RemoveVertex(v *V) error {
 	_, idx, ok := g.GetVertex(v)
 
 	if !ok {
-		return errors.New("vertex does not exist")
+		return ErrNotExists
 	}
 
 	g.removeVertexEdges(v)
@@ -244,33 +260,60 @@ func (g *Graph[V]) RemoveVertex(v *V) error {
 	return nil
 }
 
-func (g *Graph[V]) addWeightedEdge(src, dst *V, wt float64) {
+/*
+UnsafeAddWeightedEdge is the unsafe version of AddWeightedEdge/AddEdge, used by them after their validity checks.
+
+Unlike the safe versions, no validation is performed, and a graph could easily become invalid:
+- Two vertices could have multiple edges connecting them (multigraphs are not supported).
+- The src and dst vertices might not exist yet in the graph.
+- Undirected edges would not have their counterpart added.
+- Self-loops could be added to undirected graphs.
+- Either src or dst (or both) could be nil.
+
+This method should only be called directly by a client if:
+- They fully understand its possible negative implications
+- They are positive that the graph being built is correct
+- They need optimal performance while building the graph
+
+Since edge checks have O(E) time complexity, a very large graph that is also very dense could
+cause performance issues while being built. If this is your use case and you have a valid
+sequence of steps to build a graph, UnsafeAddWeightedEdge might be the method for you.
+
+If you have any doubts about using this version, use the safe ones.
+*/
+func (g *Graph[V]) UnsafeAddWeightedEdge(src, dst *V, wt float64) {
 	g.Adj[src] = append(g.Adj[src], &GraphEdge[V]{Src: src, Dst: dst, Wt: wt})
 }
 
 /*
-AddWeightedEdge attempts to add a new weighted edge to the graph. If the graph is undirected,
-the reverse edge is also added, if it does not already exist.
+AddWeightedEdge attempts to add a new weighted edge to the graph.
+Several validity checks are performed, and extra work, like adding
+the reverse edge for an undirected graph, or adding a vertex that
+does not exist yet, is going to be performed for convenience's sake.
+
+If you are trying to build a large, dense graph, have a sequence of operations
+that creates a valid graph, and is running into performance issues, consider
+using the UnsafeAddWeightedEdge method directly.
 */
 func (g *Graph[V]) AddWeightedEdge(src, dst *V, wt float64) error {
 	if src == nil || dst == nil {
-		return errors.New("edge has nil components")
+		return ErrNilArg
 	}
 
 	if g.Undirected() && src == dst {
-		return errors.New("adding self-loop to undirected graph")
+		return ErrLoop
 	}
 
 	if !g.VertexExists(src) {
-		g.addVertex(src)
+		g.UnsafeAddVertex(src)
 	}
 
 	if !g.VertexExists(dst) {
-		g.addVertex(dst)
+		g.UnsafeAddVertex(dst)
 	}
 
 	if _, _, ok := g.GetEdge(src, dst); !ok {
-		g.addWeightedEdge(src, dst, wt)
+		g.UnsafeAddWeightedEdge(src, dst, wt)
 	}
 
 	if g.Directed() {
@@ -278,13 +321,19 @@ func (g *Graph[V]) AddWeightedEdge(src, dst *V, wt float64) error {
 	}
 
 	if _, _, ok := g.GetEdge(dst, src); !ok {
-		g.addWeightedEdge(dst, src, wt)
+		g.UnsafeAddWeightedEdge(dst, src, wt)
 	}
 
 	return nil
 }
 
-// AddEdge attempts to add a new unweighted edge to the graph.
+/*
+AddWeightedEdge attempts to add a new edge to the graph with weight 0.
+
+If you are trying to build a large, dense graph, have a sequence of operations
+that creates a valid graph, and is running into performance issues, consider
+using the UnsafeAddWeightedEdge method directly.
+*/
 func (g *Graph[V]) AddEdge(src, dst *V) error {
 	return g.AddWeightedEdge(src, dst, 0)
 }
@@ -298,7 +347,7 @@ func (g *Graph[V]) RemoveEdge(src, dst *V) error {
 	_, idx, ok := g.GetEdge(src, dst)
 
 	if !ok {
-		return errors.New("edge does not exist")
+		return ErrNotExists
 	}
 
 	g.removeEdge(src, idx)
@@ -307,13 +356,10 @@ func (g *Graph[V]) RemoveEdge(src, dst *V) error {
 		return nil
 	}
 
-	_, idx, ok = g.GetEdge(dst, src)
-
-	if !ok {
-		return errors.New("reverse edge does not exist")
+	// reverse edge, in undirected graphs
+	if _, idx, ok := g.GetEdge(dst, src); ok {
+		g.removeEdge(dst, idx)
 	}
-
-	g.removeEdge(dst, idx)
 
 	return nil
 }
@@ -369,7 +415,11 @@ func (g *Graph[V]) Accept(v GraphVisitor[V]) {
 Transpose creates a transpose of the graph: a new graph where all edges are reversed.
 This is only true for directed graphs: undirected graphs will get a deep copy instead.
 */
-func (g *Graph[V]) Transpose() *Graph[V] {
+func (g *Graph[V]) Transpose() (*Graph[V], error) {
+	if g.Undirected() {
+		return nil, ErrUndefOp
+	}
+
 	res := g.EmptyCopy()
 
 	// same order of insertion
@@ -388,5 +438,5 @@ func (g *Graph[V]) Transpose() *Graph[V] {
 		}
 	}
 
-	return res
+	return res, nil
 }

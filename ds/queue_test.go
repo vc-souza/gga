@@ -71,8 +71,32 @@ func TestQueueDequeue_empty(t *testing.T) {
 	ut.AssertEqual(t, false, ok)
 }
 
+func TestQueueDequeue_wrong_type(t *testing.T) {
+	var q Queue[int] = new(LLQueue[int])
+
+	// forcefully adding an item with wrong type
+	if llq, ok := q.(*LLQueue[int]); ok {
+		llq.PushBack("wrong")
+	}
+
+	_, ok := q.Dequeue()
+	ut.AssertEqual(t, false, ok)
+}
+
 func TestQueueGet_invalid(t *testing.T) {
 	var q Queue[int] = new(LLQueue[int])
+
+	_, ok := q.Get(0)
+	ut.AssertEqual(t, false, ok)
+}
+
+func TestQueueGet_wrong_type(t *testing.T) {
+	var q Queue[int] = new(LLQueue[int])
+
+	// forcefully adding an item with wrong type
+	if llq, ok := q.(*LLQueue[int]); ok {
+		llq.PushBack("wrong")
+	}
 
 	_, ok := q.Get(0)
 	ut.AssertEqual(t, false, ok)
