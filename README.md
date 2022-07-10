@@ -1,7 +1,7 @@
 # Go Graph Algorithms (gga)
 
 [![GitHub Version](https://badge.fury.io/gh/vc-souza%2Fgga.svg)](https://badge.fury.io/gh/vc-souza%2Fgga)
-[![CI](https://github.com/vc-souza/gga/actions/workflows/go.yml/badge.svg?branch=main)](https://github.com/vc-souza/gga/actions/workflows/go.yml)
+[![CI](https://github.com/vc-souza/gga/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/vc-souza/gga/actions/workflows/ci.yml)
 [![Coverage](https://coveralls.io/repos/github/vc-souza/gga/badge.svg?branch=main)](https://coveralls.io/github/vc-souza/gga?branch=main)
 [![Go Reference](https://pkg.go.dev/badge/github.com/vc-souza/gga.svg)](https://pkg.go.dev/github.com/vc-souza/gga)
 [![Go Report Card](https://goreportcard.com/badge/github.com/vc-souza/gga)](https://goreportcard.com/report/github.com/vc-souza/gga)
