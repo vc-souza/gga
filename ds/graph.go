@@ -263,7 +263,7 @@ func (g *Graph[V]) RemoveVertex(v *V) error {
 }
 
 /*
-UnsafeAddWeightedEdge is the unsafe version of AddWeightedEdge/AddEdge, used by them after their validity checks.
+UnsafeAddWeightedEdge is the unsafe version of AddWeightedEdge/AddUnweightedEdge, used by them after their validity checks.
 
 Unlike the safe versions, no validation is performed, and a graph could easily become invalid:
 - Two vertices could have multiple edges connecting them (multigraphs are not supported).
@@ -296,8 +296,9 @@ Several validity checks are performed, and extra work, like adding
 a vertex that does not exist yet, is going to be performed for
 the sake of ease of use.
 
+// TODO: use other method?
 In undirected graphs, if two vertices 'u' and 'v' are connected,
-two edges need to be manually added: (u, v) and (v, u).
+two edges need to be manually added: (u -> v) and (v -> u).
 
 If you are trying to build a large, dense graph, have a sequence of operations
 that creates a valid graph, and is running into performance issues, consider
@@ -331,7 +332,7 @@ If you are trying to build a large, dense graph, have a sequence of operations
 that creates a valid graph, and is running into performance issues, consider
 using the UnsafeAddWeightedEdge method directly.
 */
-func (g *Graph[V]) AddEdge(src, dst *V) (*GraphEdge[V], error) {
+func (g *Graph[V]) AddUnweightedEdge(src, dst *V) (*GraphEdge[V], error) {
 	return g.AddWeightedEdge(src, dst, 0)
 }
 

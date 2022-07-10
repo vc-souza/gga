@@ -81,15 +81,16 @@ func TestGraphVisitor(t *testing.T) {
 			}
 
 			g.AddVertex(jonas)
-			g.AddEdge(john, jane)
-			g.AddEdge(jane, john)
-			g.AddEdge(jane, jane)
 
-			johnV, _, ok := g.GetVertex(john)
+			vJohn, err := g.AddVertex(john)
 
-			ut.AssertEqual(t, true, ok)
+			ut.AssertEqual(t, true, err == nil)
 
-			johnV.SetFmtAttr("shape", "hexagon")
+			vJohn.SetFmtAttr("shape", "hexagon")
+
+			g.AddUnweightedEdge(john, jane)
+			g.AddUnweightedEdge(jane, john)
+			g.AddUnweightedEdge(jane, jane)
 
 			g.Accept(de)
 

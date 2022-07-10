@@ -25,9 +25,9 @@ func ExampleDotExporter() {
 	g := ds.NewDirectedGraph[pokemon]()
 	e := NewDotExporter(g)
 
-	g.AddEdge(pwag, pwl)
-	g.AddEdge(pwl, pot)
-	g.AddEdge(pwl, pow)
+	g.AddUnweightedEdge(pwag, pwl)
+	g.AddUnweightedEdge(pwl, pot)
+	g.AddUnweightedEdge(pwl, pow)
 
 	e.DefaultGraphFmt = ds.FmtAttrs{
 		"rankdir": "LR",

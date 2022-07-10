@@ -23,14 +23,14 @@ func ExampleGraph_undirected() {
 
 	// vertices that are part of an edge do not have to be added explicitly
 	// since this is an undirected graph, reverse edges have to be added
-	g.AddEdge(wt, dt)
-	g.AddEdge(dt, wt)
+	g.AddUnweightedEdge(wt, dt)
+	g.AddUnweightedEdge(dt, wt)
 
-	g.AddEdge(wt, mt)
-	g.AddEdge(mt, wt)
+	g.AddUnweightedEdge(wt, mt)
+	g.AddUnweightedEdge(mt, wt)
 
-	g.AddEdge(dt, mt)
-	g.AddEdge(mt, dt)
+	g.AddUnweightedEdge(dt, mt)
+	g.AddUnweightedEdge(mt, dt)
 
 	fmt.Println(g.VertexCount())
 

@@ -451,7 +451,7 @@ func TestGraphAddWeightedEdge(t *testing.T) {
 	}
 }
 
-func TestGraphAddEdge(t *testing.T) {
+func TestGraphAddUnweightedEdge(t *testing.T) {
 	src := &vA
 	dst := &vB
 
@@ -459,7 +459,7 @@ func TestGraphAddEdge(t *testing.T) {
 		t.Run(tagGraphTest(gType, "0 wt edge created"), func(t *testing.T) {
 			g := f()
 
-			_, err := g.AddEdge(src, dst)
+			_, err := g.AddUnweightedEdge(src, dst)
 
 			ut.AssertEqual(t, true, err == nil)
 

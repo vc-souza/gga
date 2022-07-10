@@ -22,9 +22,9 @@ func ExampleGraph_directed() {
 	g.AddVertex(u1)
 	g.AddVertex(u2)
 
-	g.AddEdge(si, sm)
-	g.AddEdge(sm, sm)
-	g.AddEdge(sm, st)
+	g.AddUnweightedEdge(si, sm)
+	g.AddUnweightedEdge(sm, sm)
+	g.AddUnweightedEdge(sm, st)
 
 	fmt.Println(g.VertexCount())
 
