@@ -182,25 +182,27 @@ process, this might help a bit.
 
 If you have any doubts about using this version, use the safe one.
 */
-func (g *Graph[V]) UnsafeAddVertex(v *V) {
-	g.Verts = append(g.Verts, &GraphVertex[V]{Sat: v})
+func (g *Graph[V]) UnsafeAddVertex(v *V) *GraphVertex[V] {
+	res := &GraphVertex[V]{Sat: v}
+
+	g.Verts = append(g.Verts, res)
 	g.VertMap[v] = len(g.Verts) - 1
 	g.Adj[v] = nil
+
+	return res
 }
 
 // AddVertex attempts to add whatever vertices are passed to the graph.
-func (g *Graph[V]) AddVertex(v ...*V) {
-	for _, ver := range v {
-		if ver == nil {
-			continue
-		}
-
-		if g.VertexExists(ver) {
-			continue
-		}
-
-		g.UnsafeAddVertex(ver)
+func (g *Graph[V]) AddVertex(v *V) (*GraphVertex[V], error) {
+	if v == nil {
+		return nil, ErrNilArg
 	}
+
+	if g.VertexExists(v) {
+		return nil, ErrExists
+	}
+
+	return g.UnsafeAddVertex(v), nil
 }
 
 func (g *Graph[V]) removeVertex(v *V, idx int) {
@@ -266,7 +268,6 @@ UnsafeAddWeightedEdge is the unsafe version of AddWeightedEdge/AddEdge, used by 
 Unlike the safe versions, no validation is performed, and a graph could easily become invalid:
 - Two vertices could have multiple edges connecting them (multigraphs are not supported).
 - The src and dst vertices might not exist yet in the graph.
-- Undirected edges would not have their counterpart added.
 - Self-loops could be added to undirected graphs.
 - Either src or dst (or both) could be nil.
 
@@ -281,50 +282,46 @@ sequence of steps to build a graph, UnsafeAddWeightedEdge might be the method fo
 
 If you have any doubts about using this version, use the safe ones.
 */
-func (g *Graph[V]) UnsafeAddWeightedEdge(src, dst *V, wt float64) {
-	g.Adj[src] = append(g.Adj[src], &GraphEdge[V]{Src: src, Dst: dst, Wt: wt})
+func (g *Graph[V]) UnsafeAddWeightedEdge(src, dst *V, wt float64) *GraphEdge[V] {
+	res := &GraphEdge[V]{Src: src, Dst: dst, Wt: wt}
+
+	g.Adj[src] = append(g.Adj[src], res)
+
+	return res
 }
 
 /*
 AddWeightedEdge attempts to add a new weighted edge to the graph.
 Several validity checks are performed, and extra work, like adding
-the reverse edge for an undirected graph, or adding a vertex that
-does not exist yet, is going to be performed for convenience's sake.
+a vertex that does not exist yet, is going to be performed for
+the sake of ease of use.
+
+In undirected graphs, if two vertices 'u' and 'v' are connected,
+two edges need to be manually added: (u, v) and (v, u).
 
 If you are trying to build a large, dense graph, have a sequence of operations
 that creates a valid graph, and is running into performance issues, consider
 using the UnsafeAddWeightedEdge method directly.
 */
-func (g *Graph[V]) AddWeightedEdge(src, dst *V, wt float64) error {
+func (g *Graph[V]) AddWeightedEdge(src, dst *V, wt float64) (*GraphEdge[V], error) {
 	if src == nil || dst == nil {
-		return ErrNilArg
+		return nil, ErrNilArg
 	}
 
 	if g.Undirected() && src == dst {
-		return ErrLoop
+		return nil, ErrLoop
 	}
 
-	if !g.VertexExists(src) {
-		g.UnsafeAddVertex(src)
+	g.AddVertex(src)
+	g.AddVertex(dst)
+
+	_, _, ok := g.GetEdge(src, dst)
+
+	if ok {
+		return nil, ErrExists
 	}
 
-	if !g.VertexExists(dst) {
-		g.UnsafeAddVertex(dst)
-	}
-
-	if _, _, ok := g.GetEdge(src, dst); !ok {
-		g.UnsafeAddWeightedEdge(src, dst, wt)
-	}
-
-	if g.Directed() {
-		return nil
-	}
-
-	if _, _, ok := g.GetEdge(dst, src); !ok {
-		g.UnsafeAddWeightedEdge(dst, src, wt)
-	}
-
-	return nil
+	return g.UnsafeAddWeightedEdge(src, dst, wt), nil
 }
 
 /*
@@ -334,7 +331,7 @@ If you are trying to build a large, dense graph, have a sequence of operations
 that creates a valid graph, and is running into performance issues, consider
 using the UnsafeAddWeightedEdge method directly.
 */
-func (g *Graph[V]) AddEdge(src, dst *V) error {
+func (g *Graph[V]) AddEdge(src, dst *V) (*GraphEdge[V], error) {
 	return g.AddWeightedEdge(src, dst, 0)
 }
 

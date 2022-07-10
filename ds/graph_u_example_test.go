@@ -22,10 +22,15 @@ func ExampleGraph_undirected() {
 	g.AddVertex(rt)
 
 	// vertices that are part of an edge do not have to be added explicitly
-	// the reverse edge does not have to be added explicitly
+	// since this is an undirected graph, reverse edges have to be added
 	g.AddEdge(wt, dt)
+	g.AddEdge(dt, wt)
+
 	g.AddEdge(wt, mt)
+	g.AddEdge(mt, wt)
+
 	g.AddEdge(dt, mt)
+	g.AddEdge(mt, dt)
 
 	fmt.Println(g.VertexCount())
 

@@ -19,10 +19,9 @@ func ExampleGraph_directed() {
 
 	g := NewDirectedGraph[state]()
 
-	// multiple vertices can be added at once
-	g.AddVertex(u1, u2)
+	g.AddVertex(u1)
+	g.AddVertex(u2)
 
-	// only the given edge is added
 	g.AddEdge(si, sm)
 	g.AddEdge(sm, sm)
 	g.AddEdge(sm, st)
