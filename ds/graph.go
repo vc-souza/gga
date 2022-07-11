@@ -301,7 +301,7 @@ func (g *Graph[V]) AddWeightedEdge(src, dst *V, wt float64) (*GraphEdge[V], erro
 	}
 
 	if g.Undirected() && src == dst {
-		return nil, ErrLoop
+		return nil, ErrInvalidLoop
 	}
 
 	g.AddVertex(src)

@@ -84,7 +84,7 @@ func BFS[V ds.Item](g *ds.Graph[V], src *V) (BFSTree[V], error) {
 	tree[src].Distance = 0
 
 	// only using the ds.Queue interface
-	queue := ds.Queue[*V](new(ds.LLQueue[*V]))
+	queue := ds.Queue[*V](new(ds.Deque[*V]))
 
 	queue.Enqueue(src)
 

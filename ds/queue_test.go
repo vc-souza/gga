@@ -7,7 +7,7 @@ import (
 )
 
 func TestQueueEnqueue(t *testing.T) {
-	var q Queue[int] = new(LLQueue[int])
+	var q Queue[int] = new(Deque[int])
 	var item int
 	var ok bool
 
@@ -27,7 +27,7 @@ func TestQueueEnqueue(t *testing.T) {
 }
 
 func TestQueueEmpty(t *testing.T) {
-	var q Queue[int] = new(LLQueue[int])
+	var q Queue[int] = new(Deque[int])
 
 	ut.AssertEqual(t, true, q.Empty())
 
@@ -37,7 +37,7 @@ func TestQueueEmpty(t *testing.T) {
 }
 
 func TestQueueDequeue(t *testing.T) {
-	var q Queue[int] = new(LLQueue[int])
+	var q Queue[int] = new(Deque[int])
 	var item int
 	var ok bool
 
@@ -63,7 +63,7 @@ func TestQueueDequeue(t *testing.T) {
 }
 
 func TestQueueDequeue_empty(t *testing.T) {
-	var q Queue[int] = new(LLQueue[int])
+	var q Queue[int] = new(Deque[int])
 
 	ut.AssertEqual(t, true, q.Empty())
 
@@ -72,11 +72,11 @@ func TestQueueDequeue_empty(t *testing.T) {
 }
 
 func TestQueueDequeue_wrong_type(t *testing.T) {
-	var q Queue[int] = new(LLQueue[int])
+	var q Queue[int] = new(Deque[int])
 
 	// forcefully adding an item with wrong type
-	if llq, ok := q.(*LLQueue[int]); ok {
-		llq.PushBack("wrong")
+	if d, ok := q.(*Deque[int]); ok {
+		d.PushBack("wrong")
 	}
 
 	_, ok := q.Dequeue()
@@ -84,18 +84,18 @@ func TestQueueDequeue_wrong_type(t *testing.T) {
 }
 
 func TestQueueGet_invalid(t *testing.T) {
-	var q Queue[int] = new(LLQueue[int])
+	var q Queue[int] = new(Deque[int])
 
 	_, ok := q.Get(0)
 	ut.AssertEqual(t, false, ok)
 }
 
 func TestQueueGet_wrong_type(t *testing.T) {
-	var q Queue[int] = new(LLQueue[int])
+	var q Queue[int] = new(Deque[int])
 
 	// forcefully adding an item with wrong type
-	if llq, ok := q.(*LLQueue[int]); ok {
-		llq.PushBack("wrong")
+	if d, ok := q.(*Deque[int]); ok {
+		d.PushBack("wrong")
 	}
 
 	_, ok := q.Get(0)

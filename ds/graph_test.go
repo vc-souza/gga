@@ -404,7 +404,7 @@ func TestGraphAddWeightedEdge(t *testing.T) {
 			edges:       edgeList{},
 			edge:        edge(&vA, &vA),
 			skipDir:     true,
-			expectErr:   ErrLoop,
+			expectErr:   ErrInvalidLoop,
 			expectEdges: false,
 		},
 		{
