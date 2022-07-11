@@ -65,7 +65,7 @@ func (vi *BFSViz[V]) Export(w io.Writer) error {
 
 		vtx.ResetFmt()
 
-		if node.Distance == math.MaxInt32 {
+		if math.IsInf(node.Distance, 1) {
 			vi.OnUnVertex(vtx, node)
 			continue
 		}

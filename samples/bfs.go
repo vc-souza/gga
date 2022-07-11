@@ -78,7 +78,7 @@ func buildBFSInput() (*ds.Graph[letter], *letter) {
 }
 
 func onBFSTreeVertex(v *ds.GraphVertex[letter], n *algo.BFSNode[letter]) {
-	v.SetFmtAttr("label", fmt.Sprintf(`%s\nd=%d`, v.Label(), n.Distance))
+	v.SetFmtAttr("label", fmt.Sprintf(`%s\nd=%d`, v.Label(), int(n.Distance)))
 	v.SetFmtAttr("fillcolor", "#000000")
 	v.SetFmtAttr("fontcolor", "#ffffff")
 	v.SetFmtAttr("shape", "doublecircle")
