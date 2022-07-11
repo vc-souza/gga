@@ -60,7 +60,7 @@ func TestGraphVisitor(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
 			g := tc.gen()
-			e := NewDotExporter(g)
+			e := NewExporter(g)
 
 			john := &Person{"John"}
 			jane := &Person{"Jane"}

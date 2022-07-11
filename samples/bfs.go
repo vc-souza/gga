@@ -101,7 +101,7 @@ func onBFSTreeEdge(e *ds.GraphEdge[letter]) {
 func main() {
 	// build graph, establish a source vertex
 	g, src := buildBFSInput()
-	ex := viz.NewDotExporter(g)
+	ex := viz.NewExporter(g)
 
 	ex.DefaultGraphFmt = defaultGraphFmt
 	ex.DefaultVertexFmt = defaultVertexFmt

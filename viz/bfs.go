@@ -9,7 +9,11 @@ import (
 	"github.com/vc-souza/gga/ds"
 )
 
-// TODO: docs
+/*
+	BFSViz formats and exports a graph after an execution of the BFS algorithm.
+	The output of the algorithm is traversed, and hooks are provided so that
+	custom formatting can be applied to the graph, its vertices and edges.
+*/
 type BFSViz[V ds.Item] struct {
 	Graph  *ds.Graph[V]
 	Tree   algo.BFSTree[V]
@@ -19,20 +23,20 @@ type BFSViz[V ds.Item] struct {
 	DefaultVertexFmt ds.FmtAttrs
 	DefaultEdgeFmt   ds.FmtAttrs
 
-	// TODO: docs
+	// OnUnVertex is called when an unreachable vertex is found.
 	OnUnVertex func(*ds.GraphVertex[V], *algo.BFSNode[V])
 
-	// TODO: docs
+	// OnSourceVertex is called when the source vertex is found.
 	OnSourceVertex func(*ds.GraphVertex[V], *algo.BFSNode[V])
 
-	// TODO: docs
+	// OnTreeVertex is called when any tree vertex is found, including the source vertex.
 	OnTreeVertex func(*ds.GraphVertex[V], *algo.BFSNode[V])
 
-	// TODO: docs
+	// OnTreeEdge is called when a tree edge is found.
 	OnTreeEdge func(*ds.GraphEdge[V])
 }
 
-// TODO: docs
+// NewBFSViz initializes a new BFSViz with NOOP hooks and no custom formatting.
 func NewBFSViz[V ds.Item](g *ds.Graph[V], t algo.BFSTree[V], src *V) *BFSViz[V] {
 	res := &BFSViz[V]{}
 
@@ -48,9 +52,12 @@ func NewBFSViz[V ds.Item](g *ds.Graph[V], t algo.BFSTree[V], src *V) *BFSViz[V] 
 	return res
 }
 
-// TODO: docs
+/*
+Export traverses the results of a BFS execution, calling its hooks when appropriate.
+The graph is then exported to the given io.Writer, using the standard viz.Exporter.
+*/
 func (vi *BFSViz[V]) Export(w io.Writer) error {
-	ex := NewDotExporter(vi.Graph)
+	ex := NewExporter(vi.Graph)
 
 	ex.DefaultGraphFmt = vi.DefaultGraphFmt
 	ex.DefaultVertexFmt = vi.DefaultVertexFmt

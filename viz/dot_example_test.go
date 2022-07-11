@@ -16,14 +16,14 @@ func (c pokemon) Label() string {
 	return fmt.Sprintf("%s (%s)", c.Name, c.Type)
 }
 
-func ExampleDotExporter() {
+func ExampleExporter() {
 	pwag := &pokemon{Type: "water", Name: "Poliwag"}
 	pwl := &pokemon{Type: "water", Name: "Poliwhirl"}
 	pot := &pokemon{Type: "water", Name: "Politoed"}
 	pow := &pokemon{Type: "water/fighting", Name: "Poliwrath"}
 
 	g := ds.NewDirectedGraph[pokemon]()
-	e := NewDotExporter(g)
+	e := NewExporter(g)
 
 	g.AddUnweightedEdge(pwag, pwl)
 	g.AddUnweightedEdge(pwl, pot)

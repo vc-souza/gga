@@ -9,14 +9,14 @@ import (
 )
 
 /*
-	DotExporter implements the ds.GraphVisitor interface in order to traverse a ds.Graph
+	Exporter implements the ds.GraphVisitor interface in order to traverse a ds.Graph
 	and build a sequence of lines in the DOT language. After a successful visit, these
 	lines can then be exported to an io.Writer by calling its Export method.
 
 	Full specification of the DOT language, by Graphviz can be found here:
 	https://graphviz.org/doc/info/lang.html
 */
-type DotExporter[V ds.Item] struct {
+type Exporter[V ds.Item] struct {
 	Graph *ds.Graph[V]
 	Lines []string
 
@@ -28,9 +28,9 @@ type DotExporter[V ds.Item] struct {
 	DirectedArrow   string
 }
 
-// NewDotExporter creates an initialized DotExporter.
-func NewDotExporter[V ds.Item](graph *ds.Graph[V]) *DotExporter[V] {
-	res := DotExporter[V]{}
+// NewExporter creates an initialized Exporter.
+func NewExporter[V ds.Item](graph *ds.Graph[V]) *Exporter[V] {
+	res := Exporter[V]{}
 
 	res.Graph = graph
 	res.Lines = []string{}
@@ -41,11 +41,11 @@ func NewDotExporter[V ds.Item](graph *ds.Graph[V]) *DotExporter[V] {
 	return &res
 }
 
-func (d *DotExporter[V]) add(s string) {
+func (d *Exporter[V]) add(s string) {
 	d.Lines = append(d.Lines, s)
 }
 
-func (d *DotExporter[V]) addDefault(pfx string, attrs ds.FmtAttrs) {
+func (d *Exporter[V]) addDefault(pfx string, attrs ds.FmtAttrs) {
 	if len(attrs) == 0 {
 		return
 	}
@@ -53,18 +53,18 @@ func (d *DotExporter[V]) addDefault(pfx string, attrs ds.FmtAttrs) {
 	d.add(fmt.Sprintf("%s %s", pfx, DotAttrs(attrs)))
 }
 
-func (d *DotExporter[V]) addDefaults() {
+func (d *Exporter[V]) addDefaults() {
 	d.addDefault("graph", d.DefaultGraphFmt)
 	d.addDefault("node", d.DefaultVertexFmt)
 	d.addDefault("edge", d.DefaultEdgeFmt)
 }
 
 // Export writes the data it has accumulated to an io.Writer.
-func (d *DotExporter[V]) Export(w io.Writer) {
+func (d *Exporter[V]) Export(w io.Writer) {
 	io.Copy(w, strings.NewReader(strings.Join(d.Lines, "\n")))
 }
 
-func (d *DotExporter[V]) VisitGraphStart(g *ds.Graph[V]) {
+func (d *Exporter[V]) VisitGraphStart(g *ds.Graph[V]) {
 	var start string
 
 	if g.Directed() {
@@ -77,11 +77,11 @@ func (d *DotExporter[V]) VisitGraphStart(g *ds.Graph[V]) {
 	d.addDefaults()
 }
 
-func (d *DotExporter[V]) VisitGraphEnd(g *ds.Graph[V]) {
+func (d *Exporter[V]) VisitGraphEnd(g *ds.Graph[V]) {
 	d.add("}\n")
 }
 
-func (d *DotExporter[V]) VisitVertex(v *ds.GraphVertex[V]) {
+func (d *Exporter[V]) VisitVertex(v *ds.GraphVertex[V]) {
 	var line string
 
 	if len(v.Fmt) == 0 {
@@ -93,7 +93,7 @@ func (d *DotExporter[V]) VisitVertex(v *ds.GraphVertex[V]) {
 	d.add(line)
 }
 
-func (d *DotExporter[V]) VisitEdge(e *ds.GraphEdge[V]) {
+func (d *Exporter[V]) VisitEdge(e *ds.GraphEdge[V]) {
 	var line string
 	var op string
 
