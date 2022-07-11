@@ -16,3 +16,12 @@ func (f *Formattable) SetFmtAttr(k, v string) {
 
 	f.Fmt[k] = v
 }
+
+// ResetFmt resets the current formatting attributes, if any.
+func (f *Formattable) ResetFmt() {
+	if f.Fmt == nil {
+		return
+	}
+
+	f.Fmt = make(FmtAttrs)
+}

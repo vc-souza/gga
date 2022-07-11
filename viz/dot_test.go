@@ -60,17 +60,17 @@ func TestGraphVisitor(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
 			g := tc.gen()
-			de := NewDotExporter(g)
+			e := NewDotExporter(g)
 
 			john := &Person{"John"}
 			jane := &Person{"Jane"}
 			jonas := &Person{"Jonas"}
 
-			de.DefaultGraphFmt = ds.FmtAttrs{
+			e.DefaultGraphFmt = ds.FmtAttrs{
 				"label": "A Test",
 			}
 
-			de.DefaultEdgeFmt = ds.FmtAttrs{
+			e.DefaultEdgeFmt = ds.FmtAttrs{
 				"arrowhead": "vee",
 			}
 
@@ -86,11 +86,11 @@ func TestGraphVisitor(t *testing.T) {
 			g.AddUnweightedEdge(jane, john)
 			g.AddUnweightedEdge(jane, jane)
 
-			g.Accept(de)
+			g.Accept(e)
 
 			buf := bytes.Buffer{}
 
-			de.Export(&buf)
+			e.Export(&buf)
 
 			ut.AssertEqual(t, tc.expect, buf.String())
 		})

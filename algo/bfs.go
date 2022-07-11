@@ -23,7 +23,7 @@ type BFSNode[V ds.Item] struct {
 type BFSTree[V ds.Item] map[*V]*BFSNode[V]
 
 // TODO: docs Θ(V +  E)
-// TODO: warning: assumes src exists, assumes the graph is correctly built: otherwise, the behavior is undefined
+// TODO: warning: assumes that src exists, and that the graph is correctly built: otherwise, the behavior is undefined
 func BFS[V ds.Item](g *ds.Graph[V], src *V) (BFSTree[V], error) {
 	tree := BFSTree[V]{}
 
