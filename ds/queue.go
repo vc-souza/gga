@@ -10,7 +10,4 @@ type Queue[T any] interface {
 
 	// Empty checks if the queue is empty.
 	Empty() bool
-
-	// Get fetches an item at a particular position, for testability purposes.
-	Get(int) (T, bool)
 }

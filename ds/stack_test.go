@@ -13,15 +13,15 @@ func TestStackPush(t *testing.T) {
 
 	s.Push(1, 2, 3)
 
-	item, ok = s.Get(0)
+	item, ok = s.(*Deque[int]).Get(2)
 	ut.AssertEqual(t, true, ok)
 	ut.AssertEqual(t, 1, item)
 
-	item, ok = s.Get(1)
+	item, ok = s.(*Deque[int]).Get(1)
 	ut.AssertEqual(t, true, ok)
 	ut.AssertEqual(t, 2, item)
 
-	item, ok = s.Get(2)
+	item, ok = s.(*Deque[int]).Get(0)
 	ut.AssertEqual(t, true, ok)
 	ut.AssertEqual(t, 3, item)
 }
@@ -108,6 +108,13 @@ func TestStackPop_empty(t *testing.T) {
 }
 
 func TestStackPop_wrong_type(t *testing.T) {
+	defer func() {
+		if err := recover(); err == nil {
+			t.Log("function did not panic")
+			t.FailNow()
+		}
+	}()
+
 	var s Stack[int] = new(Deque[int])
 
 	// forcefully adding an item with wrong type
@@ -115,25 +122,5 @@ func TestStackPop_wrong_type(t *testing.T) {
 		d.PushBack("wrong")
 	}
 
-	_, ok := s.Pop()
-	ut.AssertEqual(t, false, ok)
-}
-
-func TestStackGet_invalid(t *testing.T) {
-	var s Stack[int] = new(Deque[int])
-
-	_, ok := s.Get(-1)
-	ut.AssertEqual(t, false, ok)
-}
-
-func TestStackGet_wrong_type(t *testing.T) {
-	var s Stack[int] = new(Deque[int])
-
-	// forcefully adding an item with wrong type
-	if d, ok := s.(*Deque[int]); ok {
-		d.PushBack("wrong")
-	}
-
-	_, ok := s.Get(0)
-	ut.AssertEqual(t, false, ok)
+	s.Pop()
 }

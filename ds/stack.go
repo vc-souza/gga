@@ -13,7 +13,4 @@ type Stack[T any] interface {
 
 	// Empty checks if the stack is empty.
 	Empty() bool
-
-	// Get fetches an item at a particular position, for testability purposes.
-	Get(int) (T, bool)
 }

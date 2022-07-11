@@ -2,7 +2,11 @@ package ds
 
 import "container/list"
 
-// TODO: docs
+/*
+A Deque (Double-Ended Queue) allows insertion and removal at both ends of a doubly linked list,
+which is already provided by list.List, from the standard library. So the idea is to embed a
+list.List, and use it to implement both the ds.Queue and ds.Stack interfaces.
+*/
 type Deque[T any] struct {
 	list.List
 }
