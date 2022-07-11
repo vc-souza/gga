@@ -63,14 +63,14 @@ func (vi *BFSViz[V]) Export(w io.Writer) error {
 	ex.DefaultVertexFmt = vi.DefaultVertexFmt
 	ex.DefaultEdgeFmt = vi.DefaultEdgeFmt
 
+	ResetGraphFmt(vi.Graph)
+
 	for v, node := range vi.Tree {
 		vtx, _, ok := vi.Graph.GetVertex(v)
 
 		if !ok {
 			return errors.New("could not find vertex")
 		}
-
-		vtx.ResetFmt()
 
 		if math.IsInf(node.Distance, 1) {
 			vi.OnUnVertex(vtx, node)
@@ -90,7 +90,6 @@ func (vi *BFSViz[V]) Export(w io.Writer) error {
 			return errors.New("could not find edge")
 		}
 
-		edg.ResetFmt()
 		vi.OnTreeEdge(edg)
 
 		if vi.Graph.Directed() {
@@ -103,7 +102,6 @@ func (vi *BFSViz[V]) Export(w io.Writer) error {
 			return errors.New("could not find reverse edge")
 		}
 
-		rev.ResetFmt()
 		vi.OnTreeEdge(rev)
 	}
 

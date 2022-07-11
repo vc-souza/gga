@@ -134,6 +134,19 @@ func DotAttrs(f ds.FmtAttrs) string {
 	return strings.Join(s, " ")
 }
 
+// ResetGraphFmt resets custom formatting attributes for every vertex and edge of a graph.
+func ResetGraphFmt[V ds.Item](g *ds.Graph[V]) {
+	for _, vtx := range g.Verts {
+		vtx.ResetFmt()
+	}
+
+	for _, es := range g.Adj {
+		for _, e := range es {
+			e.ResetFmt()
+		}
+	}
+}
+
 func quote(s string) string {
 	return fmt.Sprintf(`"%s"`, s)
 }

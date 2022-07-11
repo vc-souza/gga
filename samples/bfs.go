@@ -147,5 +147,9 @@ func main() {
 
 	// annotate the input graph with the result of the BFS,
 	// then export the annotated version
-	vi.Export(fOut)
+	err = vi.Export(fOut)
+
+	if err != nil {
+		panic(err)
+	}
 }

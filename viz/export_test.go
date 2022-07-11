@@ -31,28 +31,28 @@ edge [ arrowhead="vee" ]
 }
 `
 
-type Person struct {
+type person struct {
 	Name string
 }
 
-func (p Person) Label() string {
+func (p person) Label() string {
 	return p.Name
 }
 
 func TestGraphVisitor(t *testing.T) {
 	cases := []struct {
 		desc   string
-		gen    func() *ds.Graph[Person]
+		gen    func() *ds.Graph[person]
 		expect string
 	}{
 		{
 			desc:   "graph",
-			gen:    ds.NewUndirectedGraph[Person],
+			gen:    ds.NewUndirectedGraph[person],
 			expect: ExpectedUndirectedDOT,
 		},
 		{
 			desc:   "digraph",
-			gen:    ds.NewDirectedGraph[Person],
+			gen:    ds.NewDirectedGraph[person],
 			expect: ExpectedDirectedDOT,
 		},
 	}
@@ -62,9 +62,9 @@ func TestGraphVisitor(t *testing.T) {
 			g := tc.gen()
 			e := NewExporter(g)
 
-			john := &Person{"John"}
-			jane := &Person{"Jane"}
-			jonas := &Person{"Jonas"}
+			john := &person{"John"}
+			jane := &person{"Jane"}
+			jonas := &person{"Jonas"}
 
 			e.DefaultGraphFmt = ds.FmtAttrs{
 				"label": "A Test",
@@ -118,6 +118,78 @@ func TestDotAttrs(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
 			ut.AssertEqual(t, tc.expect, DotAttrs(tc.attrs))
+		})
+	}
+}
+
+func TestResetGraphFmt(t *testing.T) {
+	isClear := func(g *ds.Graph[person]) bool {
+		for _, vtx := range g.Verts {
+			if len(vtx.Fmt) != 0 {
+				return false
+			}
+		}
+
+		for _, es := range g.Adj {
+			for _, e := range es {
+				if len(e.Fmt) != 0 {
+					return false
+				}
+			}
+		}
+
+		return true
+	}
+
+	cases := []struct {
+		desc   string
+		gen    func() *ds.Graph[person]
+		expect string
+	}{
+		{
+			desc:   "graph",
+			gen:    ds.NewUndirectedGraph[person],
+			expect: ExpectedUndirectedDOT,
+		},
+		{
+			desc:   "digraph",
+			gen:    ds.NewDirectedGraph[person],
+			expect: ExpectedDirectedDOT,
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.desc, func(t *testing.T) {
+			g := tc.gen()
+
+			ut.AssertEqual(t, true, isClear(g))
+
+			john := &person{"John"}
+			jane := &person{"Jane"}
+
+			vJohn, err := g.AddVertex(john)
+
+			ut.AssertEqual(t, true, err == nil)
+
+			vJohn.SetFmtAttr("label", "John is here")
+
+			vJane, err := g.AddVertex(jane)
+
+			ut.AssertEqual(t, true, err == nil)
+
+			vJane.SetFmtAttr("label", "Jane is here")
+
+			edg, err := g.AddUnweightedEdge(john, jane)
+
+			ut.AssertEqual(t, true, err == nil)
+
+			edg.SetFmtAttr("label", "Connection")
+
+			ut.AssertEqual(t, false, isClear(g))
+
+			ResetGraphFmt(g)
+
+			ut.AssertEqual(t, true, isClear(g))
 		})
 	}
 }
