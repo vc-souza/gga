@@ -8,7 +8,7 @@ import (
 )
 
 // TODO: docs
-type VertexAttrs[V ds.Item] struct {
+type BFSNode[V ds.Item] struct {
 	// TODO: docs
 	Distance int
 
@@ -20,26 +20,24 @@ type VertexAttrs[V ds.Item] struct {
 }
 
 // TODO: docs
-type BFSResult[V ds.Item] map[*V]*VertexAttrs[V]
+type BFSTree[V ds.Item] map[*V]*BFSNode[V]
 
 // TODO: docs Θ(V +  E)
 // TODO: warning: assumes src exists, assumes the graph is correctly built: otherwise, the behavior is undefined
-func BFS[V ds.Item](g *ds.Graph[V], src *V) (BFSResult[V], error) {
-	attrs := BFSResult[V]{}
+func BFS[V ds.Item](g *ds.Graph[V], src *V) (BFSTree[V], error) {
+	tree := BFSTree[V]{}
 
 	// Θ(V)
-	for _, vert := range g.Verts {
-		v := vert.Sat
-
-		attrs[v] = &VertexAttrs[V]{
+	for v := range g.Adj {
+		tree[v] = &BFSNode[V]{
 			Distance: math.MaxInt32,
 			Color:    ColorWhite,
 			Parent:   nil,
 		}
 	}
 
-	attrs[src].Distance = 0
-	attrs[src].Color = ColorGray
+	tree[src].Color = ColorGray
+	tree[src].Distance = 0
 
 	// only using the ds.Queue interface
 	queue := ds.Queue[*V](new(ds.LLQueue[*V]))
@@ -55,20 +53,20 @@ func BFS[V ds.Item](g *ds.Graph[V], src *V) (BFSResult[V], error) {
 		}
 
 		for _, edge := range g.Adj[curr] {
-			if attrs[edge.Dst].Color != ColorWhite {
+			if tree[edge.Dst].Color != ColorWhite {
 				continue
 			}
 
 			// found a tree edge
-			attrs[edge.Dst].Distance = attrs[curr].Distance + 1
-			attrs[edge.Dst].Color = ColorGray
-			attrs[edge.Dst].Parent = curr
+			tree[edge.Dst].Distance = tree[curr].Distance + 1
+			tree[edge.Dst].Color = ColorGray
+			tree[edge.Dst].Parent = curr
 
 			queue.Enqueue(edge.Dst)
 		}
 
-		attrs[curr].Color = ColorBlack
+		tree[curr].Color = ColorBlack
 	}
 
-	return attrs, nil
+	return tree, nil
 }

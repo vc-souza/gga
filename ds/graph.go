@@ -7,14 +7,14 @@ type GraphVertex[V Item] struct {
 	Formattable
 
 	/*
-		Sat holds satellite data for the vertex, which is data that should come along with the vertex everywhere it goes.
+		Val holds satellite data for the vertex, which is data that should come along with the vertex everywhere it goes.
 	*/
-	Sat *V
+	Val *V
 }
 
 // Label provides a label for the vertex, straight from its satellite data.
 func (vert *GraphVertex[V]) Label() string {
-	return (*vert.Sat).Label()
+	return (*vert.Val).Label()
 }
 
 // Accept accepts a graph visitor, and guides its execution using double-dispatching.
@@ -179,7 +179,7 @@ process, this might help a bit.
 If you have any doubts about using this version, use the safe one.
 */
 func (g *Graph[V]) UnsafeAddVertex(v *V) *GraphVertex[V] {
-	res := &GraphVertex[V]{Sat: v}
+	res := &GraphVertex[V]{Val: v}
 
 	g.Verts = append(g.Verts, res)
 	g.VertMap[v] = len(g.Verts) - 1
@@ -210,7 +210,7 @@ func (g *Graph[V]) removeVertex(v *V, idx int) {
 
 	// update the index of all copied vertices
 	for i := idx; i < len(g.Verts); i++ {
-		item := g.Verts[i].Sat
+		item := g.Verts[i].Val
 		g.VertMap[item] = i
 	}
 }
@@ -382,7 +382,7 @@ func (g *Graph[V]) Accept(v GraphVisitor[V]) {
 	for _, vert := range g.Verts {
 		vert.Accept(v)
 
-		es := g.Adj[vert.Sat]
+		es := g.Adj[vert.Val]
 
 		for _, e := range es {
 			e.Accept(v)
@@ -405,7 +405,7 @@ func (g *Graph[V]) Transpose() (*Graph[V], error) {
 
 	// same order of insertion
 	for _, vert := range g.Verts {
-		res.AddVertex(vert.Sat)
+		res.AddVertex(vert.Val)
 	}
 
 	// reverse the edges

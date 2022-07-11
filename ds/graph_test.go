@@ -307,7 +307,7 @@ func TestGraphGetVertex(t *testing.T) {
 				ut.AssertEqual(t, tc.expect, ok)
 
 				if vert != nil {
-					ut.AssertEqual(t, tc.vert, vert.Sat)
+					ut.AssertEqual(t, tc.vert, vert.Val)
 				}
 			})
 		}
@@ -560,10 +560,10 @@ func TestGraphRemoveVertex(t *testing.T) {
 					actual := g.Verts[i]
 
 					// correct item at the correct position
-					ut.AssertEqual(t, expected, actual.Sat)
+					ut.AssertEqual(t, expected, actual.Val)
 
 					// correct mapping for the item
-					ut.AssertEqual(t, i, g.VertMap[actual.Sat])
+					ut.AssertEqual(t, i, g.VertMap[actual.Val])
 				}
 
 				// correct edges still in place
