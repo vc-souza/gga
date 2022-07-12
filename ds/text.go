@@ -22,10 +22,38 @@ const (
 	DirectedGraphKey   = "digraph"
 )
 
-// TODO: base: <-str version
+/*
+ParseGraph produces a new graph from a string containing text in the the following grammar:
+	Graph = GraphType ["\n" AdjEntries]
+	GraphType = "graph" | "digraph"
+	AdjEntries = AdjEntry {"\n" AdjEntry}
+	AdjEntry = Vertex "#" [EdgeList]
+	Vertex = all characters but "#", "\n", ":", ","
+	EdgeList = Edge {"," Edge}
+	Edge = Vertex [":" Weight]
+	Weight = float
 
-// TODO: docs
-// TODO: explain format
+Sample (Undirected):
+	graph
+	a#b:4,h:8
+	b#a:4,c:8,h:11
+	c#b:8,d:7,i:2,f:4
+	d#c:7,e:9,f:14
+	e#d:9,f:10
+	f#c:4,d:14,e:10,g:2
+	g#f:2,h:1,i:6
+	h#a:8,b:11,g:1,i:7
+	i#c:2,g:6,h:7
+
+Sample (Directed)
+	digraph
+	1#2,4
+	2#5
+	3#5,6
+	4#2
+	5#4
+	6#6
+*/
 func ParseGraph(s string) (*Graph[Text], error) {
 	addrs := make(map[string]*Text)
 	var g *Graph[Text]
