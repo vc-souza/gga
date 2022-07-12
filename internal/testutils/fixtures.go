@@ -1,6 +1,9 @@
 package testutils
 
-// CLRS 3rd Edition, 22.2-1
+/*
+CLRS 3rd Edition
+Figure 22.2(a)
+*/
 const BasicDG = `
 digraph
 1#2,4
@@ -11,7 +14,10 @@ digraph
 6#6
 `
 
-// CLRS 3rd Edition, 22.2-2
+/*
+CLRS 3rd Edition
+Figure 22.3
+*/
 const BasicUG = `
 graph
 r#s,v
