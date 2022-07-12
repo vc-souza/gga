@@ -116,7 +116,6 @@ func main() {
 	defer fIn.Close()
 
 	// export the input graph
-	g.Accept(ex)
 	ex.Export(fIn)
 
 	// run BFS with the given source

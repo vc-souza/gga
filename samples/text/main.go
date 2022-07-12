@@ -42,10 +42,7 @@ func export(src string) {
 		panic(err)
 	}
 
-	ex := viz.NewExporter(g)
-
-	g.Accept(ex)
-	ex.Export(os.Stdout)
+	viz.NewExporter(g).Export(os.Stdout)
 }
 
 func main() {

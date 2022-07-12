@@ -61,6 +61,7 @@ func (d *Exporter[V]) addDefaults() {
 
 // Export writes the data it has accumulated to an io.Writer.
 func (d *Exporter[V]) Export(w io.Writer) {
+	d.Graph.Accept(d)
 	io.Copy(w, strings.NewReader(strings.Join(d.Lines, "\n")))
 }
 

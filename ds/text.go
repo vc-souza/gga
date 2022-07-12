@@ -75,8 +75,9 @@ Sample (Directed)
 	6#6
 */
 type TextParser struct {
-	vars  map[string]*Text
-	graph *Graph[Text]
+	vars    map[string]*Text
+	graph   *Graph[Text]
+	pending map[*Text]string
 }
 
 func (p *TextParser) parseGraphType(raw string) error {
@@ -132,10 +133,10 @@ func (p *TextParser) parseEdge(src *Text, raw string) error {
 		return errors.New("edge: wrong item count")
 	}
 
-	dst, err := p.parseVertex(edge[0])
+	dst, ok := p.vars[edge[0]]
 
-	if err != nil {
-		return err
+	if !ok {
+		return errors.New("edge: unknown destination")
 	}
 
 	if len(edge) == 2 {
@@ -159,9 +160,7 @@ func (p *TextParser) parseEdgeList(src *Text, raw string) error {
 	}
 
 	for _, e := range strings.Split(raw, ",") {
-		err := p.parseEdge(src, e)
-
-		if err != nil {
+		if err := p.parseEdge(src, e); err != nil {
 			return err
 		}
 	}
@@ -182,11 +181,9 @@ func (p *TextParser) parseAdjEntry(raw string) error {
 		return err
 	}
 
-	err = p.parseEdgeList(src, adj[1])
-
-	if err != nil {
-		return err
-	}
+	// postponing the processing of adjacency lists
+	// so that vertices can be added in input order
+	p.pending[src] = adj[1]
 
 	return nil
 }
@@ -194,6 +191,7 @@ func (p *TextParser) parseAdjEntry(raw string) error {
 // Parse parses the input string, generating a new graph.
 func (p *TextParser) Parse(s string) (*Graph[Text], map[string]*Text, error) {
 	p.vars = make(map[string]*Text)
+	p.pending = make(map[*Text]string)
 	p.graph = nil
 
 	for _, l := range strings.Split(s, "\n") {
@@ -204,18 +202,20 @@ func (p *TextParser) Parse(s string) (*Graph[Text], map[string]*Text, error) {
 		}
 
 		if p.graph == nil {
-			err := p.parseGraphType(l)
-
-			if err != nil {
+			if err := p.parseGraphType(l); err != nil {
 				return nil, nil, ErrInvalidSer{err}
 			}
 
 			continue
 		}
 
-		err := p.parseAdjEntry(l)
+		if err := p.parseAdjEntry(l); err != nil {
+			return nil, nil, ErrInvalidSer{err}
+		}
+	}
 
-		if err != nil {
+	for src, raw := range p.pending {
+		if err := p.parseEdgeList(src, raw); err != nil {
 			return nil, nil, ErrInvalidSer{err}
 		}
 	}

@@ -105,8 +105,6 @@ func (vi *BFSViz[V]) Export(w io.Writer) error {
 		vi.OnTreeEdge(rev)
 	}
 
-	vi.Graph.Accept(ex)
-
 	ex.Export(w)
 
 	return nil

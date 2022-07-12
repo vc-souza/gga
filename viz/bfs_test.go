@@ -13,31 +13,19 @@ type dummyWriter struct{}
 func (d dummyWriter) Write(p []byte) (int, error) { return 0, nil }
 
 func TestBFSViz_directed(t *testing.T) {
-	g := ds.NewDirectedGraph[ds.Text]()
+	g, vars, err := new(ds.TextParser).Parse(`
+	digraph
+	1#2,4
+	2#5
+	3#5,6
+	4#2
+	5#4
+	6#6
+	`)
 
-	v1 := ds.Text("1")
-	v2 := ds.Text("2")
-	v3 := ds.Text("3")
-	v4 := ds.Text("4")
-	v5 := ds.Text("5")
-	v6 := ds.Text("6")
-	src := &v3
+	ut.AssertEqual(t, true, err == nil)
 
-	g.AddVertex(&v1)
-	g.AddVertex(&v2)
-	g.AddVertex(&v3)
-	g.AddVertex(&v4)
-	g.AddVertex(&v5)
-	g.AddVertex(&v6)
-
-	g.AddUnweightedEdge(&v1, &v2)
-	g.AddUnweightedEdge(&v1, &v4)
-	g.AddUnweightedEdge(&v2, &v5)
-	g.AddUnweightedEdge(&v3, &v5)
-	g.AddUnweightedEdge(&v3, &v6)
-	g.AddUnweightedEdge(&v4, &v2)
-	g.AddUnweightedEdge(&v5, &v4)
-	g.AddUnweightedEdge(&v6, &v6)
+	src := vars["3"]
 
 	tree, err := algo.BFS(g, src)
 
