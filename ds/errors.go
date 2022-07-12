@@ -13,3 +13,5 @@ var ErrNilArg = errors.New("received nil argument")
 var ErrInvalidLoop = errors.New("invalid loop")
 
 var ErrInvalidType = errors.New("invalid element type")
+
+var ErrInvalidSer = errors.New("invalid serialized data structure")

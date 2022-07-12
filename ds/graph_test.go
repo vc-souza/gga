@@ -11,14 +11,9 @@ type graphGen func() *Graph[ut.ID]
 type edgeList []GraphEdge[ut.ID]
 type vertList []*ut.ID
 
-const (
-	undirectedGraphKey = "graph"
-	directedGraphKey   = "digraph"
-)
-
 var graphGenFuncs = map[string]graphGen{
-	undirectedGraphKey: NewUndirectedGraph[ut.ID],
-	directedGraphKey:   NewDirectedGraph[ut.ID],
+	UndirectedGraphKey: NewUndirectedGraph[ut.ID],
+	DirectedGraphKey:   NewDirectedGraph[ut.ID],
 }
 
 var vA = ut.ID("a")
@@ -419,11 +414,11 @@ func TestGraphAddWeightedEdge(t *testing.T) {
 
 	for _, tc := range cases {
 		for gType, f := range graphGenFuncs {
-			if tc.skipDir && gType == directedGraphKey {
+			if tc.skipDir && gType == DirectedGraphKey {
 				continue
 			}
 
-			if tc.skipUndir && gType == undirectedGraphKey {
+			if tc.skipUndir && gType == UndirectedGraphKey {
 				continue
 			}
 
