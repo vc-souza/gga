@@ -27,7 +27,7 @@ const (
 )
 
 /*
-ParseGraph produces a new graph from a string containing text in the the following grammar:
+TextParser produces a new graph from text in the following grammar:
 
 	Graph = GraphType ["\n" AdjEntries]
 	GraphType = "graph" | "digraph"
@@ -61,121 +61,131 @@ Sample (Directed)
 	5#4
 	6#6
 */
-func ParseGraph(s string) (*Graph[Text], error) {
-	addrs := make(map[string]*Text)
-	var g *Graph[Text]
+type TextParser struct {
+	addrs map[string]*Text
+	graph *Graph[Text]
+}
 
-	wrapError := func(err error, s string) error {
-		return fmt.Errorf("%w: %s", err, s)
+func (p *TextParser) wrapErr(err error, s string) error {
+	return fmt.Errorf("%w: %s", err, s)
+}
+
+func (p *TextParser) parseGraphType(raw string) error {
+	switch raw {
+
+	case UndirectedGraphKey:
+		p.graph = NewUndirectedGraph[Text]()
+
+	case DirectedGraphKey:
+		p.graph = NewDirectedGraph[Text]()
+
+	default:
+		return p.wrapErr(ErrInvalidSer, "graph type: bad name")
 	}
 
-	parseType := func(raw string) error {
-		switch raw {
+	return nil
+}
 
-		case UndirectedGraphKey:
-			g = NewUndirectedGraph[Text]()
+func (p *TextParser) parseVertex(raw string) (*Text, error) {
+	if len(raw) == 0 {
+		return nil, p.wrapErr(ErrInvalidSer, "vertex: empty name")
+	}
 
-		case DirectedGraphKey:
-			g = NewDirectedGraph[Text]()
+	if strings.ContainsAny(raw, InvalidVertexRunes) {
+		return nil, p.wrapErr(ErrInvalidSer, "vertex: bad name")
+	}
 
-		default:
-			return ErrInvalidSer
+	var res *Text
+
+	if v, ok := p.addrs[raw]; ok {
+		res = v
+	} else {
+		v := Text(raw)
+		p.addrs[raw] = &v
+		res = &v
+
+		p.graph.UnsafeAddVertex(res)
+	}
+
+	return res, nil
+}
+
+func (p *TextParser) parseEdge(src *Text, raw string) error {
+	if len(raw) == 0 {
+		return p.wrapErr(ErrInvalidSer, "edge: empty")
+	}
+
+	var wt float64
+
+	edge := strings.Split(raw, ":")
+
+	if len(edge) < 1 || len(edge) > 2 {
+		return p.wrapErr(ErrInvalidSer, "edge: wrong item count")
+	}
+
+	dst, err := p.parseVertex(edge[0])
+
+	if err != nil {
+		return err
+	}
+
+	if len(edge) == 2 {
+		pWt, err := strconv.ParseFloat(edge[1], 64)
+
+		if err != nil {
+			return p.wrapErr(err, "weight: bad value")
 		}
 
+		wt = pWt
+	}
+
+	p.graph.UnsafeAddWeightedEdge(src, dst, wt)
+
+	return nil
+}
+
+func (p *TextParser) parseEdgeList(src *Text, raw string) error {
+	if len(raw) == 0 {
 		return nil
 	}
 
-	parseVertex := func(raw string) (*Text, error) {
-		if len(raw) == 0 {
-			return nil, ErrInvalidSer
-		}
-
-		if strings.ContainsAny(raw, InvalidVertexRunes) {
-			return nil, ErrInvalidSer
-		}
-
-		var res *Text
-
-		if v, ok := addrs[raw]; ok {
-			res = v
-		} else {
-			v := Text(raw)
-			addrs[raw] = &v
-			res = &v
-
-			g.UnsafeAddVertex(res)
-		}
-
-		return res, nil
-	}
-
-	parseEdge := func(src *Text, raw string) error {
-		if len(raw) == 0 {
-			return ErrInvalidSer
-		}
-
-		var wt float64
-
-		edge := strings.Split(raw, ":")
-
-		if len(edge) < 1 || len(edge) > 2 {
-			return ErrInvalidSer
-		}
-
-		dst, err := parseVertex(edge[0])
+	for _, e := range strings.Split(raw, ",") {
+		err := p.parseEdge(src, e)
 
 		if err != nil {
 			return err
 		}
-
-		if len(edge) == 2 {
-			pWt, err := strconv.ParseFloat(edge[1], 64)
-
-			if err != nil {
-				return err
-			}
-
-			wt = pWt
-		}
-
-		g.UnsafeAddWeightedEdge(src, dst, wt)
-
-		return nil
 	}
 
-	parseEdgeList := func(src *Text, raw string) error {
-		for _, e := range strings.Split(raw, ",") {
-			err := parseEdge(src, e)
+	return nil
+}
 
-			if err != nil {
-				return err
-			}
-		}
+func (p *TextParser) parseAdjEntry(raw string) error {
+	adj := strings.Split(raw, "#")
 
-		return nil
+	if len(adj) != 2 {
+		return p.wrapErr(ErrInvalidSer, "adjacency list: wrong item count")
 	}
 
-	parseAdjEntry := func(raw string) error {
-		adj := strings.Split(raw, "#")
+	src, err := p.parseVertex(adj[0])
 
-		if len(adj) != 2 {
-			return ErrInvalidSer
-		}
-
-		src, err := parseVertex(adj[0])
-
-		if err != nil {
-			return err
-		}
-
-		err = parseEdgeList(src, adj[1])
-
-		if err != nil {
-			return err
-		}
-
-		return nil
+	if err != nil {
+		return err
 	}
+
+	err = p.parseEdgeList(src, adj[1])
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// Parse parses the input string, generating a new graph.
+func (p *TextParser) Parse(s string) (*Graph[Text], error) {
+	p.addrs = make(map[string]*Text)
+	p.graph = nil
 
 	for _, l := range strings.Split(s, "\n") {
 		l = strings.Trim(l, "\n\t")
@@ -184,22 +194,22 @@ func ParseGraph(s string) (*Graph[Text], error) {
 			continue
 		}
 
-		if g == nil {
-			err := parseType(l)
+		if p.graph == nil {
+			err := p.parseGraphType(l)
 
 			if err != nil {
-				return nil, wrapError(err, l)
+				return nil, p.wrapErr(err, l)
 			}
 
 			continue
 		}
 
-		err := parseAdjEntry(l)
+		err := p.parseAdjEntry(l)
 
 		if err != nil {
-			return nil, wrapError(err, l)
+			return nil, p.wrapErr(err, l)
 		}
 	}
 
-	return g, nil
+	return p.graph, nil
 }

@@ -8,7 +8,11 @@ import (
 	ut "github.com/vc-souza/gga/internal/testutils"
 )
 
-func TestParseGraph(t *testing.T) {
+func TestTextLabel(t *testing.T) {
+	ut.AssertEqual(t, "test", Text("test").Label())
+}
+
+func TestTextParser(t *testing.T) {
 	cases := []struct {
 		desc      string
 		addType   bool
@@ -24,9 +28,10 @@ func TestParseGraph(t *testing.T) {
 			a#b,c
 			b#a
 			c#a
+			d#
 			`,
 			err:       nil,
-			vertCount: 3,
+			vertCount: 4,
 			edgeCount: 4,
 		},
 		{
@@ -40,6 +45,16 @@ func TestParseGraph(t *testing.T) {
 			err:       nil,
 			vertCount: 3,
 			edgeCount: 4,
+		},
+		{
+			desc:    "bad weight",
+			addType: true,
+			input: `
+			a#b:10&&,c:5
+			b#a:10&&
+			c#a:5
+			`,
+			err: ErrInvalidSer,
 		},
 		{
 			desc:    "no graph type",
@@ -123,9 +138,10 @@ func TestParseGraph(t *testing.T) {
 					input = tc.input
 				}
 
-				g, err := ParseGraph(input)
+				g, err := new(TextParser).Parse(input)
 
 				if tc.err != nil {
+					fmt.Println(err)
 					ut.AssertEqual(t, true, errors.Is(err, tc.err))
 					return
 				}

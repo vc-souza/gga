@@ -36,12 +36,13 @@ digraph
 `
 
 func export(src string) {
-	g, err := ds.ParseGraph(src)
-	ex := viz.NewExporter(g)
+	g, err := new(ds.TextParser).Parse(src)
 
 	if err != nil {
 		panic(err)
 	}
+
+	ex := viz.NewExporter(g)
 
 	g.Accept(ex)
 	ex.Export(os.Stdout)
