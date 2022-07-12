@@ -75,7 +75,7 @@ Sample (Directed)
 	6#6
 */
 type TextParser struct {
-	addrs map[string]*Text
+	vars  map[string]*Text
 	graph *Graph[Text]
 }
 
@@ -106,11 +106,11 @@ func (p *TextParser) parseVertex(raw string) (*Text, error) {
 
 	var res *Text
 
-	if v, ok := p.addrs[raw]; ok {
+	if v, ok := p.vars[raw]; ok {
 		res = v
 	} else {
 		v := Text(raw)
-		p.addrs[raw] = &v
+		p.vars[raw] = &v
 		res = &v
 
 		p.graph.UnsafeAddVertex(res)
@@ -192,8 +192,8 @@ func (p *TextParser) parseAdjEntry(raw string) error {
 }
 
 // Parse parses the input string, generating a new graph.
-func (p *TextParser) Parse(s string) (*Graph[Text], error) {
-	p.addrs = make(map[string]*Text)
+func (p *TextParser) Parse(s string) (*Graph[Text], map[string]*Text, error) {
+	p.vars = make(map[string]*Text)
 	p.graph = nil
 
 	for _, l := range strings.Split(s, "\n") {
@@ -207,7 +207,7 @@ func (p *TextParser) Parse(s string) (*Graph[Text], error) {
 			err := p.parseGraphType(l)
 
 			if err != nil {
-				return nil, ErrInvalidSer{err}
+				return nil, nil, ErrInvalidSer{err}
 			}
 
 			continue
@@ -216,9 +216,9 @@ func (p *TextParser) Parse(s string) (*Graph[Text], error) {
 		err := p.parseAdjEntry(l)
 
 		if err != nil {
-			return nil, ErrInvalidSer{err}
+			return nil, nil, ErrInvalidSer{err}
 		}
 	}
 
-	return p.graph, nil
+	return p.graph, p.vars, nil
 }

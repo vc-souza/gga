@@ -137,7 +137,7 @@ func TestTextParser(t *testing.T) {
 					input = tc.input
 				}
 
-				g, err := new(TextParser).Parse(input)
+				g, vars, err := new(TextParser).Parse(input)
 
 				if len(tc.err) != 0 {
 					ut.AssertEqual(t, true, errors.As(err, new(ErrInvalidSer)))
@@ -152,6 +152,7 @@ func TestTextParser(t *testing.T) {
 				}
 
 				ut.AssertEqual(t, tc.vertCount, g.VertexCount())
+				ut.AssertEqual(t, tc.vertCount, len(vars))
 
 				if g.Directed() {
 					ut.AssertEqual(t, tc.edgeCount, g.EdgeCount())

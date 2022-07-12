@@ -36,7 +36,7 @@ digraph
 `
 
 func export(src string) {
-	g, err := new(ds.TextParser).Parse(src)
+	g, _, err := new(ds.TextParser).Parse(src)
 
 	if err != nil {
 		panic(err)
