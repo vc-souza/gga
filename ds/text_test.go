@@ -19,6 +19,7 @@ func TestTextParser(t *testing.T) {
 		addType   bool
 		input     string
 		err       string
+		vertOrder string
 		vertCount int
 		edgeCount int
 	}{
@@ -31,6 +32,7 @@ func TestTextParser(t *testing.T) {
 			c#a
 			d#
 			`,
+			vertOrder: "a,b,c,d",
 			vertCount: 4,
 			edgeCount: 4,
 		},
@@ -42,6 +44,7 @@ func TestTextParser(t *testing.T) {
 			b#a:10
 			c#a:5
 			`,
+			vertOrder: "a,b,c",
 			vertCount: 3,
 			edgeCount: 4,
 		},
@@ -153,6 +156,17 @@ func TestTextParser(t *testing.T) {
 
 				ut.AssertEqual(t, tc.vertCount, g.VertexCount())
 				ut.AssertEqual(t, tc.vertCount, len(vars))
+
+				// expected order by the test case
+				expectVerts := strings.Split(tc.vertOrder, ",")
+
+				// making sure the test case is sane
+				ut.AssertEqual(t, tc.vertCount, len(expectVerts))
+
+				// actual order in the graph (insertion)
+				for i := 0; i < tc.vertCount; i++ {
+					ut.AssertEqual(t, expectVerts[i], g.Verts[i].Label())
+				}
 
 				if g.Directed() {
 					ut.AssertEqual(t, tc.edgeCount, g.EdgeCount())
