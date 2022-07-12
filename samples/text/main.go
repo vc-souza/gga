@@ -21,7 +21,6 @@ f#c:4,d:14,e:10,g:2
 g#f:2,h:1,i:6
 h#a:8,b:11,g:1,i:7
 i#c:2,g:6,h:7
-j#
 `
 
 var directedInput = `
@@ -32,7 +31,6 @@ digraph
 4#2
 5#4
 6#6
-7#
 `
 
 func export(src string) {
