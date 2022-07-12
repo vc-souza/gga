@@ -188,11 +188,9 @@ func ParseGraph(s string) (*Graph[Text], error) {
 
 		err := parseAdjEntry(l)
 
-		if err == nil {
-			continue
+		if err != nil {
+			return nil, wrapError(err, l)
 		}
-
-		return nil, wrapError(err, l)
 	}
 
 	return g, nil
