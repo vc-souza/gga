@@ -3,6 +3,7 @@ package ds
 import (
 	"errors"
 	"fmt"
+	"strings"
 	"testing"
 
 	ut "github.com/vc-souza/gga/internal/testutils"
@@ -17,7 +18,7 @@ func TestTextParser(t *testing.T) {
 		desc      string
 		addType   bool
 		input     string
-		err       error
+		err       string
 		vertCount int
 		edgeCount int
 	}{
@@ -30,7 +31,6 @@ func TestTextParser(t *testing.T) {
 			c#a
 			d#
 			`,
-			err:       nil,
 			vertCount: 4,
 			edgeCount: 4,
 		},
@@ -42,32 +42,32 @@ func TestTextParser(t *testing.T) {
 			b#a:10
 			c#a:5
 			`,
-			err:       nil,
 			vertCount: 3,
 			edgeCount: 4,
 		},
 		{
 			desc:    "bad weight",
+			err:     "weight: bad value",
 			addType: true,
 			input: `
 			a#b:10&&,c:5
 			b#a:10&&
 			c#a:5
 			`,
-			err: ErrInvalidSer,
 		},
 		{
 			desc:    "no graph type",
+			err:     "graph type: bad name",
 			addType: false,
 			input: `
 			a#b,c
 			b#a
 			c#a
 			`,
-			err: ErrInvalidSer,
 		},
 		{
 			desc:    "bad graph type",
+			err:     "graph type: bad name",
 			addType: false,
 			input: `
 			random
@@ -75,55 +75,54 @@ func TestTextParser(t *testing.T) {
 			b#a
 			c#a
 			`,
-			err: ErrInvalidSer,
 		},
 		{
 			desc:    "bad adj list",
+			err:     "adjacency list: wrong item count",
 			addType: true,
 			input: `
 			a#b,c#
 			b#a
 			c#a
 			`,
-			err: ErrInvalidSer,
 		},
 		{
 			desc:    "bad vertex name",
+			err:     "vertex: bad name",
 			addType: true,
 			input: `
 			a::#b,c
 			b#a::
 			c#a::
 			`,
-			err: ErrInvalidSer,
 		},
 		{
 			desc:    "empty vertex name",
+			err:     "vertex: empty name",
 			addType: true,
 			input: `
 			#b,c
 			`,
-			err: ErrInvalidSer,
 		},
 		{
 			desc:    "bad edge name",
+			err:     "edge: wrong item count",
 			addType: true,
 			input: `
 			a#x:10:*,c
 			b#
 			c#a
 			`,
-			err: ErrInvalidSer,
 		},
 		{
 			desc:    "empty edge name",
+			err:     "edge: empty",
 			addType: true,
 			input: `
 			a#,c
 			b#
 			c#a
 			`,
-			err: ErrInvalidSer,
 		},
 	}
 
@@ -140,9 +139,9 @@ func TestTextParser(t *testing.T) {
 
 				g, err := new(TextParser).Parse(input)
 
-				if tc.err != nil {
-					fmt.Println(err)
-					ut.AssertEqual(t, true, errors.Is(err, tc.err))
+				if len(tc.err) != 0 {
+					ut.AssertEqual(t, true, errors.As(err, new(ErrInvalidSer)))
+					ut.AssertEqual(t, true, strings.Contains(err.Error(), tc.err))
 					return
 				}
 

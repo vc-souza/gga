@@ -1,6 +1,9 @@
 package ds
 
-import "errors"
+import (
+	"errors"
+	"fmt"
+)
 
 var ErrUndefOp = errors.New("undefined operation for this data structure")
 
@@ -14,4 +17,14 @@ var ErrInvalidLoop = errors.New("invalid loop")
 
 var ErrInvalidType = errors.New("invalid element type")
 
-var ErrInvalidSer = errors.New("invalid serialized data structure")
+type ErrInvalidSer struct {
+	Reason error
+}
+
+func (e ErrInvalidSer) Error() string {
+	return fmt.Sprintf("invalid serialization: %s", e.Reason.Error())
+}
+
+func (e ErrInvalidSer) Unwrap() error {
+	return e.Reason
+}

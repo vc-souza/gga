@@ -1,6 +1,7 @@
 package ds
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -66,10 +67,6 @@ type TextParser struct {
 	graph *Graph[Text]
 }
 
-func (p *TextParser) wrapErr(err error, s string) error {
-	return fmt.Errorf("%w: %s", err, s)
-}
-
 func (p *TextParser) parseGraphType(raw string) error {
 	switch raw {
 
@@ -80,7 +77,7 @@ func (p *TextParser) parseGraphType(raw string) error {
 		p.graph = NewDirectedGraph[Text]()
 
 	default:
-		return p.wrapErr(ErrInvalidSer, "graph type: bad name")
+		return errors.New("graph type: bad name")
 	}
 
 	return nil
@@ -88,11 +85,11 @@ func (p *TextParser) parseGraphType(raw string) error {
 
 func (p *TextParser) parseVertex(raw string) (*Text, error) {
 	if len(raw) == 0 {
-		return nil, p.wrapErr(ErrInvalidSer, "vertex: empty name")
+		return nil, errors.New("vertex: empty name")
 	}
 
 	if strings.ContainsAny(raw, InvalidVertexRunes) {
-		return nil, p.wrapErr(ErrInvalidSer, "vertex: bad name")
+		return nil, errors.New("vertex: bad name")
 	}
 
 	var res *Text
@@ -112,7 +109,7 @@ func (p *TextParser) parseVertex(raw string) (*Text, error) {
 
 func (p *TextParser) parseEdge(src *Text, raw string) error {
 	if len(raw) == 0 {
-		return p.wrapErr(ErrInvalidSer, "edge: empty")
+		return errors.New("edge: empty")
 	}
 
 	var wt float64
@@ -120,7 +117,7 @@ func (p *TextParser) parseEdge(src *Text, raw string) error {
 	edge := strings.Split(raw, ":")
 
 	if len(edge) < 1 || len(edge) > 2 {
-		return p.wrapErr(ErrInvalidSer, "edge: wrong item count")
+		return errors.New("edge: wrong item count")
 	}
 
 	dst, err := p.parseVertex(edge[0])
@@ -133,7 +130,7 @@ func (p *TextParser) parseEdge(src *Text, raw string) error {
 		pWt, err := strconv.ParseFloat(edge[1], 64)
 
 		if err != nil {
-			return p.wrapErr(err, "weight: bad value")
+			return fmt.Errorf("weight: bad value %w", err)
 		}
 
 		wt = pWt
@@ -164,7 +161,7 @@ func (p *TextParser) parseAdjEntry(raw string) error {
 	adj := strings.Split(raw, "#")
 
 	if len(adj) != 2 {
-		return p.wrapErr(ErrInvalidSer, "adjacency list: wrong item count")
+		return errors.New("adjacency list: wrong item count")
 	}
 
 	src, err := p.parseVertex(adj[0])
@@ -198,7 +195,7 @@ func (p *TextParser) Parse(s string) (*Graph[Text], error) {
 			err := p.parseGraphType(l)
 
 			if err != nil {
-				return nil, p.wrapErr(err, l)
+				return nil, ErrInvalidSer{err}
 			}
 
 			continue
@@ -207,7 +204,7 @@ func (p *TextParser) Parse(s string) (*Graph[Text], error) {
 		err := p.parseAdjEntry(l)
 
 		if err != nil {
-			return nil, p.wrapErr(err, l)
+			return nil, ErrInvalidSer{err}
 		}
 	}
 
