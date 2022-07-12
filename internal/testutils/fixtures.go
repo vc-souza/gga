@@ -1,10 +1,12 @@
 package testutils
 
 /*
-CLRS 3rd Edition
-Figure 22.2(a)
+Basic Unweighted Directed Graph.
+
+Source:
+	CLRS 3rd Edition, Figure 22.2(a)
 */
-const BasicDG = `
+const BasicUDG = `
 digraph
 1#2,4
 2#5
@@ -15,10 +17,12 @@ digraph
 `
 
 /*
-CLRS 3rd Edition
-Figure 22.3
+Basic Unweighted Undirected Graph
+
+Source:
+	CLRS 3rd Edition, Figure 22.3
 */
-const BasicUG = `
+const BasicUUG = `
 graph
 r#s,v
 s#r,w

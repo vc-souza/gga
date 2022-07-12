@@ -33,7 +33,7 @@ var (
 )
 
 func buildBFSInput() (*ds.Graph[ds.Text], *ds.Text) {
-	g, vars, err := ds.NewTextParser().Parse(ut.BasicUG)
+	g, vars, err := ds.NewTextParser().Parse(ut.BasicUUG)
 
 	if err != nil {
 		panic(err)

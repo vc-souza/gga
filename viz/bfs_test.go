@@ -13,7 +13,7 @@ type dummyWriter struct{}
 func (d dummyWriter) Write(p []byte) (int, error) { return 0, nil }
 
 func TestBFSViz_directed(t *testing.T) {
-	g, vars, err := ds.NewTextParser().Parse(ut.BasicDG)
+	g, vars, err := ds.NewTextParser().Parse(ut.BasicUDG)
 
 	ut.AssertEqual(t, true, err == nil)
 
@@ -55,7 +55,7 @@ func TestBFSViz_directed(t *testing.T) {
 }
 
 func TestBFSViz_undirected(t *testing.T) {
-	g, vars, err := ds.NewTextParser().Parse(ut.BasicUG)
+	g, vars, err := ds.NewTextParser().Parse(ut.BasicUUG)
 
 	ut.AssertEqual(t, true, err == nil)
 
