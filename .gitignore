@@ -18,9 +18,6 @@ coverage.html
 # IDE settings
 .vscode/
 
-# just a lib
-main.go
-
 # images
 *.svg
 *.png
