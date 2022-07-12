@@ -7,27 +7,27 @@ import (
 )
 
 func TestQueueEnqueue(t *testing.T) {
-	var q Queue[int] = new(LLQueue[int])
+	var q Queue[int] = new(Deque[int])
 	var item int
 	var ok bool
 
 	q.Enqueue(1, 2, 3)
 
-	item, ok = q.Get(0)
+	item, ok = q.(*Deque[int]).Get(0)
 	ut.AssertEqual(t, true, ok)
 	ut.AssertEqual(t, 1, item)
 
-	item, ok = q.Get(1)
+	item, ok = q.(*Deque[int]).Get(1)
 	ut.AssertEqual(t, true, ok)
 	ut.AssertEqual(t, 2, item)
 
-	item, ok = q.Get(2)
+	item, ok = q.(*Deque[int]).Get(2)
 	ut.AssertEqual(t, true, ok)
 	ut.AssertEqual(t, 3, item)
 }
 
 func TestQueueEmpty(t *testing.T) {
-	var q Queue[int] = new(LLQueue[int])
+	var q Queue[int] = new(Deque[int])
 
 	ut.AssertEqual(t, true, q.Empty())
 
@@ -37,7 +37,7 @@ func TestQueueEmpty(t *testing.T) {
 }
 
 func TestQueueDequeue(t *testing.T) {
-	var q Queue[int] = new(LLQueue[int])
+	var q Queue[int] = new(Deque[int])
 	var item int
 	var ok bool
 
@@ -63,7 +63,7 @@ func TestQueueDequeue(t *testing.T) {
 }
 
 func TestQueueDequeue_empty(t *testing.T) {
-	var q Queue[int] = new(LLQueue[int])
+	var q Queue[int] = new(Deque[int])
 
 	ut.AssertEqual(t, true, q.Empty())
 
@@ -72,32 +72,19 @@ func TestQueueDequeue_empty(t *testing.T) {
 }
 
 func TestQueueDequeue_wrong_type(t *testing.T) {
-	var q Queue[int] = new(LLQueue[int])
+	defer func() {
+		if err := recover(); err == nil {
+			t.Log("function did not panic")
+			t.FailNow()
+		}
+	}()
+
+	var q Queue[int] = new(Deque[int])
 
 	// forcefully adding an item with wrong type
-	if llq, ok := q.(*LLQueue[int]); ok {
-		llq.PushBack("wrong")
+	if d, ok := q.(*Deque[int]); ok {
+		d.PushBack("wrong")
 	}
 
-	_, ok := q.Dequeue()
-	ut.AssertEqual(t, false, ok)
-}
-
-func TestQueueGet_invalid(t *testing.T) {
-	var q Queue[int] = new(LLQueue[int])
-
-	_, ok := q.Get(0)
-	ut.AssertEqual(t, false, ok)
-}
-
-func TestQueueGet_wrong_type(t *testing.T) {
-	var q Queue[int] = new(LLQueue[int])
-
-	// forcefully adding an item with wrong type
-	if llq, ok := q.(*LLQueue[int]); ok {
-		llq.PushBack("wrong")
-	}
-
-	_, ok := q.Get(0)
-	ut.AssertEqual(t, false, ok)
+	q.Dequeue()
 }

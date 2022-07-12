@@ -7,14 +7,14 @@ type GraphVertex[V Item] struct {
 	Formattable
 
 	/*
-		Sat holds satellite data for the vertex, which is data that should come along with the vertex everywhere it goes.
+		Val holds satellite data for the vertex, which is data that should come along with the vertex everywhere it goes.
 	*/
-	Sat *V
+	Val *V
 }
 
 // Label provides a label for the vertex, straight from its satellite data.
 func (vert *GraphVertex[V]) Label() string {
-	return (*vert.Sat).Label()
+	return (*vert.Val).Label()
 }
 
 // Accept accepts a graph visitor, and guides its execution using double-dispatching.
@@ -151,10 +151,6 @@ func (g *Graph[V]) GetEdge(src *V, dst *V) (*GraphEdge[V], int, bool) {
 		return nil, -1, false
 	}
 
-	if es == nil {
-		return nil, -1, false
-	}
-
 	for i, e := range es {
 		if e.Dst == dst {
 			return e, i, true
@@ -182,25 +178,27 @@ process, this might help a bit.
 
 If you have any doubts about using this version, use the safe one.
 */
-func (g *Graph[V]) UnsafeAddVertex(v *V) {
-	g.Verts = append(g.Verts, &GraphVertex[V]{Sat: v})
+func (g *Graph[V]) UnsafeAddVertex(v *V) *GraphVertex[V] {
+	res := &GraphVertex[V]{Val: v}
+
+	g.Verts = append(g.Verts, res)
 	g.VertMap[v] = len(g.Verts) - 1
 	g.Adj[v] = nil
+
+	return res
 }
 
 // AddVertex attempts to add whatever vertices are passed to the graph.
-func (g *Graph[V]) AddVertex(v ...*V) {
-	for _, ver := range v {
-		if ver == nil {
-			continue
-		}
-
-		if g.VertexExists(ver) {
-			continue
-		}
-
-		g.UnsafeAddVertex(ver)
+func (g *Graph[V]) AddVertex(v *V) (*GraphVertex[V], error) {
+	if v == nil {
+		return nil, ErrNilArg
 	}
+
+	if g.VertexExists(v) {
+		return nil, ErrExists
+	}
+
+	return g.UnsafeAddVertex(v), nil
 }
 
 func (g *Graph[V]) removeVertex(v *V, idx int) {
@@ -212,7 +210,7 @@ func (g *Graph[V]) removeVertex(v *V, idx int) {
 
 	// update the index of all copied vertices
 	for i := idx; i < len(g.Verts); i++ {
-		item := g.Verts[i].Sat
+		item := g.Verts[i].Val
 		g.VertMap[item] = i
 	}
 }
@@ -223,10 +221,6 @@ func (g *Graph[V]) removeVertexEdges(v *V) {
 
 	// remove every edge arriving at the vertex
 	for vert, es := range g.Adj {
-		if es == nil {
-			continue
-		}
-
 		eIdx := -1
 
 		for i, e := range es {
@@ -261,12 +255,11 @@ func (g *Graph[V]) RemoveVertex(v *V) error {
 }
 
 /*
-UnsafeAddWeightedEdge is the unsafe version of AddWeightedEdge/AddEdge, used by them after their validity checks.
+UnsafeAddWeightedEdge is the unsafe version of AddWeightedEdge/AddUnweightedEdge, used by them after their validity checks.
 
 Unlike the safe versions, no validation is performed, and a graph could easily become invalid:
 - Two vertices could have multiple edges connecting them (multigraphs are not supported).
 - The src and dst vertices might not exist yet in the graph.
-- Undirected edges would not have their counterpart added.
 - Self-loops could be added to undirected graphs.
 - Either src or dst (or both) could be nil.
 
@@ -281,50 +274,46 @@ sequence of steps to build a graph, UnsafeAddWeightedEdge might be the method fo
 
 If you have any doubts about using this version, use the safe ones.
 */
-func (g *Graph[V]) UnsafeAddWeightedEdge(src, dst *V, wt float64) {
-	g.Adj[src] = append(g.Adj[src], &GraphEdge[V]{Src: src, Dst: dst, Wt: wt})
+func (g *Graph[V]) UnsafeAddWeightedEdge(src, dst *V, wt float64) *GraphEdge[V] {
+	res := &GraphEdge[V]{Src: src, Dst: dst, Wt: wt}
+
+	g.Adj[src] = append(g.Adj[src], res)
+
+	return res
 }
 
 /*
 AddWeightedEdge attempts to add a new weighted edge to the graph.
 Several validity checks are performed, and extra work, like adding
-the reverse edge for an undirected graph, or adding a vertex that
-does not exist yet, is going to be performed for convenience's sake.
+a vertex that does not exist yet, is going to be performed for
+the sake of ease of use.
+
+In undirected graphs, if two vertices 'u' and 'v' are connected,
+two edges need to be manually added: (u -> v) and (v -> u).
 
 If you are trying to build a large, dense graph, have a sequence of operations
 that creates a valid graph, and is running into performance issues, consider
 using the UnsafeAddWeightedEdge method directly.
 */
-func (g *Graph[V]) AddWeightedEdge(src, dst *V, wt float64) error {
+func (g *Graph[V]) AddWeightedEdge(src, dst *V, wt float64) (*GraphEdge[V], error) {
 	if src == nil || dst == nil {
-		return ErrNilArg
+		return nil, ErrNilArg
 	}
 
 	if g.Undirected() && src == dst {
-		return ErrLoop
+		return nil, ErrInvalidLoop
 	}
 
-	if !g.VertexExists(src) {
-		g.UnsafeAddVertex(src)
+	g.AddVertex(src)
+	g.AddVertex(dst)
+
+	_, _, ok := g.GetEdge(src, dst)
+
+	if ok {
+		return nil, ErrExists
 	}
 
-	if !g.VertexExists(dst) {
-		g.UnsafeAddVertex(dst)
-	}
-
-	if _, _, ok := g.GetEdge(src, dst); !ok {
-		g.UnsafeAddWeightedEdge(src, dst, wt)
-	}
-
-	if g.Directed() {
-		return nil
-	}
-
-	if _, _, ok := g.GetEdge(dst, src); !ok {
-		g.UnsafeAddWeightedEdge(dst, src, wt)
-	}
-
-	return nil
+	return g.UnsafeAddWeightedEdge(src, dst, wt), nil
 }
 
 /*
@@ -334,7 +323,7 @@ If you are trying to build a large, dense graph, have a sequence of operations
 that creates a valid graph, and is running into performance issues, consider
 using the UnsafeAddWeightedEdge method directly.
 */
-func (g *Graph[V]) AddEdge(src, dst *V) error {
+func (g *Graph[V]) AddUnweightedEdge(src, dst *V) (*GraphEdge[V], error) {
 	return g.AddWeightedEdge(src, dst, 0)
 }
 
@@ -374,10 +363,6 @@ func (g *Graph[V]) EdgeCount() int {
 	res := 0
 
 	for _, es := range g.Adj {
-		if es == nil {
-			continue
-		}
-
 		for range es {
 			res++
 		}
@@ -397,11 +382,7 @@ func (g *Graph[V]) Accept(v GraphVisitor[V]) {
 	for _, vert := range g.Verts {
 		vert.Accept(v)
 
-		es := g.Adj[vert.Sat]
-
-		if es == nil {
-			continue
-		}
+		es := g.Adj[vert.Val]
 
 		for _, e := range es {
 			e.Accept(v)
@@ -424,15 +405,11 @@ func (g *Graph[V]) Transpose() (*Graph[V], error) {
 
 	// same order of insertion
 	for _, vert := range g.Verts {
-		res.AddVertex(vert.Sat)
+		res.AddVertex(vert.Val)
 	}
 
 	// reverse the edges
 	for _, es := range g.Adj {
-		if es == nil {
-			continue
-		}
-
 		for _, e := range es {
 			res.AddWeightedEdge(e.Dst, e.Src, e.Wt)
 		}

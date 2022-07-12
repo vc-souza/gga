@@ -35,9 +35,9 @@ func ExampleGraphVisitor() {
 
 	g := NewDirectedGraph[person]()
 
-	g.AddEdge(john, jane)
-	g.AddEdge(jane, john)
-	g.AddEdge(jane, jane)
+	g.AddUnweightedEdge(john, jane)
+	g.AddUnweightedEdge(jane, john)
+	g.AddUnweightedEdge(jane, jane)
 
 	g.AddVertex(jonas)
 

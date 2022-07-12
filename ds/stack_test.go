@@ -7,27 +7,27 @@ import (
 )
 
 func TestStackPush(t *testing.T) {
-	var s Stack[int] = &SliceStack[int]{}
+	var s Stack[int] = new(Deque[int])
 	var item int
 	var ok bool
 
 	s.Push(1, 2, 3)
 
-	item, ok = s.Get(0)
+	item, ok = s.(*Deque[int]).Get(2)
 	ut.AssertEqual(t, true, ok)
 	ut.AssertEqual(t, 1, item)
 
-	item, ok = s.Get(1)
+	item, ok = s.(*Deque[int]).Get(1)
 	ut.AssertEqual(t, true, ok)
 	ut.AssertEqual(t, 2, item)
 
-	item, ok = s.Get(2)
+	item, ok = s.(*Deque[int]).Get(0)
 	ut.AssertEqual(t, true, ok)
 	ut.AssertEqual(t, 3, item)
 }
 
-func TestEmpty(t *testing.T) {
-	var s Stack[int] = &SliceStack[int]{}
+func TestStackEmpty(t *testing.T) {
+	var s Stack[int] = new(Deque[int])
 
 	ut.AssertEqual(t, true, s.Empty())
 
@@ -37,7 +37,7 @@ func TestEmpty(t *testing.T) {
 }
 
 func TestStackPeek(t *testing.T) {
-	var s Stack[int] = &SliceStack[int]{}
+	var s Stack[int] = new(Deque[int])
 	var item int
 	var ok bool
 
@@ -64,7 +64,7 @@ func TestStackPeek(t *testing.T) {
 }
 
 func TestStackPeek_empty(t *testing.T) {
-	var s Stack[int] = &SliceStack[int]{}
+	var s Stack[int] = new(Deque[int])
 
 	ut.AssertEqual(t, true, s.Empty())
 
@@ -73,7 +73,7 @@ func TestStackPeek_empty(t *testing.T) {
 }
 
 func TestStackPop(t *testing.T) {
-	var s Stack[int] = &SliceStack[int]{}
+	var s Stack[int] = new(Deque[int])
 	var item int
 	var ok bool
 
@@ -99,7 +99,7 @@ func TestStackPop(t *testing.T) {
 }
 
 func TestStackPop_empty(t *testing.T) {
-	var s Stack[int] = &SliceStack[int]{}
+	var s Stack[int] = new(Deque[int])
 
 	ut.AssertEqual(t, true, s.Empty())
 
@@ -107,9 +107,20 @@ func TestStackPop_empty(t *testing.T) {
 	ut.AssertEqual(t, false, ok)
 }
 
-func TestStackGet_invalid(t *testing.T) {
-	var s Stack[int] = &SliceStack[int]{}
+func TestStackPop_wrong_type(t *testing.T) {
+	defer func() {
+		if err := recover(); err == nil {
+			t.Log("function did not panic")
+			t.FailNow()
+		}
+	}()
 
-	_, ok := s.Get(-1)
-	ut.AssertEqual(t, false, ok)
+	var s Stack[int] = new(Deque[int])
+
+	// forcefully adding an item with wrong type
+	if d, ok := s.(*Deque[int]); ok {
+		d.PushBack("wrong")
+	}
+
+	s.Pop()
 }

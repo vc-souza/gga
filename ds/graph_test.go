@@ -57,6 +57,24 @@ func edge(src, dst *ut.ID) GraphEdge[ut.ID] {
 	return GraphEdge[ut.ID]{Src: src, Dst: dst}
 }
 
+func addVerts(g *Graph[ut.ID], verts vertList) {
+	for _, v := range verts {
+		g.AddVertex(v)
+	}
+}
+
+func addEdges(g *Graph[ut.ID], edges edgeList) {
+	for _, e := range edges {
+		g.AddWeightedEdge(e.Src, e.Dst, e.Wt)
+
+		if g.Directed() {
+			continue
+		}
+
+		g.AddWeightedEdge(e.Dst, e.Src, e.Wt)
+	}
+}
+
 func assertEdge(t *testing.T, g *Graph[ut.ID], src, dst *ut.ID, wt float64) {
 	e, _, ok := g.GetEdge(src, dst)
 	ut.AssertEqual(t, true, ok)
@@ -116,7 +134,7 @@ func TestGraphVertexCount(t *testing.T) {
 			t.Run(tagGraphTest(gType, tc.desc), func(t *testing.T) {
 				g := f()
 
-				g.AddVertex(tc.verts...)
+				addVerts(g, tc.verts)
 
 				ut.AssertEqual(t, tc.expect, g.VertexCount())
 			})
@@ -147,9 +165,7 @@ func TestGraphEdgeCount(t *testing.T) {
 			t.Run(tagGraphTest(gType, tc.desc), func(t *testing.T) {
 				g := f()
 
-				for _, e := range tc.edges {
-					g.AddWeightedEdge(e.Src, e.Dst, e.Wt)
-				}
+				addEdges(g, tc.edges)
 
 				ut.AssertEqual(t, tc.expect, g.EdgeCount())
 			})
@@ -189,7 +205,7 @@ func TestGraphVertexExists(t *testing.T) {
 			t.Run(tagGraphTest(gType, tc.desc), func(t *testing.T) {
 				g := f()
 
-				g.AddVertex(tc.verts...)
+				addVerts(g, tc.verts)
 
 				ut.AssertEqual(t, tc.expect, g.VertexExists(tc.vert))
 			})
@@ -247,11 +263,8 @@ func TestGraphGetEdge(t *testing.T) {
 			t.Run(tagGraphTest(gType, tc.desc), func(t *testing.T) {
 				g := f()
 
-				g.AddVertex(tc.verts...)
-
-				for _, e := range tc.edges {
-					g.AddWeightedEdge(e.Src, e.Dst, e.Wt)
-				}
+				addVerts(g, tc.verts)
+				addEdges(g, tc.edges)
 
 				_, _, ok := g.GetEdge(tc.edge.Src, tc.edge.Dst)
 
@@ -287,14 +300,14 @@ func TestGraphGetVertex(t *testing.T) {
 			t.Run(tagGraphTest(gType, tc.desc), func(t *testing.T) {
 				g := f()
 
-				g.AddVertex(tc.verts...)
+				addVerts(g, tc.verts)
 
 				vert, _, ok := g.GetVertex(tc.vert)
 
 				ut.AssertEqual(t, tc.expect, ok)
 
 				if vert != nil {
-					ut.AssertEqual(t, tc.vert, vert.Sat)
+					ut.AssertEqual(t, tc.vert, vert.Val)
 				}
 			})
 		}
@@ -334,7 +347,7 @@ func TestGraphAddVertex(t *testing.T) {
 			t.Run(tagGraphTest(gType, tc.desc), func(t *testing.T) {
 				g := f()
 
-				g.AddVertex(tc.verts...)
+				addVerts(g, tc.verts)
 
 				ut.AssertEqual(t, tc.expect, g.VertexCount())
 			})
@@ -350,7 +363,7 @@ func TestGraphAddWeightedEdge(t *testing.T) {
 		edge        GraphEdge[ut.ID]
 		skipDir     bool
 		skipUndir   bool
-		expectErr   bool
+		expectErr   error
 		expectEdges bool
 		expectCount int
 	}{
@@ -360,33 +373,30 @@ func TestGraphAddWeightedEdge(t *testing.T) {
 			edges:       edgeList{},
 			edge:        edge(&vA, &vB),
 			expectEdges: true,
-			expectCount: 1,
 		},
 		{
 			desc:        "existing edge",
 			verts:       vertList{&vA, &vB},
 			edges:       edgeList{edge(&vA, &vB)},
 			edge:        edge(&vA, &vB),
+			expectErr:   ErrExists,
 			expectEdges: true,
-			expectCount: 1,
 		},
 		{
 			desc:        "nil src",
 			verts:       vertList{&vA, &vB},
 			edges:       edgeList{},
 			edge:        edge(nil, &vB),
-			expectErr:   true,
+			expectErr:   ErrNilArg,
 			expectEdges: false,
-			expectCount: 0,
 		},
 		{
 			desc:        "nil dst",
 			verts:       vertList{&vA, &vB},
 			edges:       edgeList{},
 			edge:        edge(&vA, nil),
-			expectErr:   true,
+			expectErr:   ErrNilArg,
 			expectEdges: false,
-			expectCount: 0,
 		},
 		{
 			desc:        "self-loop",
@@ -394,9 +404,8 @@ func TestGraphAddWeightedEdge(t *testing.T) {
 			edges:       edgeList{},
 			edge:        edge(&vA, &vA),
 			skipDir:     true,
-			expectErr:   true,
+			expectErr:   ErrInvalidLoop,
 			expectEdges: false,
-			expectCount: 0,
 		},
 		{
 			desc:        "self-loop",
@@ -405,7 +414,6 @@ func TestGraphAddWeightedEdge(t *testing.T) {
 			edge:        edge(&vA, &vA),
 			skipUndir:   true,
 			expectEdges: false,
-			expectCount: 1,
 		},
 	}
 
@@ -422,36 +430,28 @@ func TestGraphAddWeightedEdge(t *testing.T) {
 			t.Run(tagGraphTest(gType, tc.desc), func(t *testing.T) {
 				g := f()
 
-				g.AddVertex(tc.verts...)
+				addVerts(g, tc.verts)
+				addEdges(g, tc.edges)
 
-				for _, e := range tc.edges {
-					g.AddWeightedEdge(e.Src, e.Dst, e.Wt)
+				_, err := g.AddWeightedEdge(tc.edge.Src, tc.edge.Dst, tc.edge.Wt)
+
+				ut.AssertEqual(t, tc.expectErr == nil, err == nil)
+
+				if tc.expectErr != nil {
+					ut.AssertEqual(t, true, errors.Is(err, tc.expectErr))
 				}
-
-				err := g.AddWeightedEdge(tc.edge.Src, tc.edge.Dst, tc.edge.Wt)
-
-				ut.AssertEqual(t, tc.expectErr, err != nil)
-				ut.AssertEqual(t, tc.expectCount, g.EdgeCount())
 
 				if !tc.expectEdges {
 					return
 				}
 
-				_, _, ok := g.GetEdge(tc.edge.Src, tc.edge.Dst)
-
-				ut.AssertEqual(t, true, ok)
-
-				if g.Undirected() {
-					_, _, ok := g.GetEdge(tc.edge.Dst, tc.edge.Src)
-
-					ut.AssertEqual(t, true, ok)
-				}
+				assertEdge(t, g, tc.edge.Src, tc.edge.Dst, tc.edge.Wt)
 			})
 		}
 	}
 }
 
-func TestGraphAddEdge(t *testing.T) {
+func TestGraphAddUnweightedEdge(t *testing.T) {
 	src := &vA
 	dst := &vB
 
@@ -459,21 +459,11 @@ func TestGraphAddEdge(t *testing.T) {
 		t.Run(tagGraphTest(gType, "0 wt edge created"), func(t *testing.T) {
 			g := f()
 
-			err := g.AddEdge(src, dst)
+			_, err := g.AddUnweightedEdge(src, dst)
 
 			ut.AssertEqual(t, true, err == nil)
 
-			e, _, ok := g.GetEdge(src, dst)
-
-			ut.AssertEqual(t, true, ok)
-			ut.AssertEqual(t, 0, e.Wt)
-
-			if g.Undirected() {
-				e, _, ok := g.GetEdge(dst, src)
-
-				ut.AssertEqual(t, true, ok)
-				ut.AssertEqual(t, 0, e.Wt)
-			}
+			assertEdge(t, g, src, dst, 0)
 		})
 	}
 }
@@ -484,7 +474,7 @@ func TestGraphRemoveVertex(t *testing.T) {
 		verts       vertList
 		edges       edgeList
 		vert        *ut.ID
-		expectError bool
+		expectError error
 		expectVerts vertList
 		expectEdges edgeList
 	}{
@@ -493,7 +483,7 @@ func TestGraphRemoveVertex(t *testing.T) {
 			verts:       vertList{&vA, &vC},
 			edges:       edgeList{edge(&vA, &vC)},
 			vert:        &vB,
-			expectError: true,
+			expectError: ErrNotExists,
 			expectVerts: vertList{&vA, &vC},
 			expectEdges: edgeList{edge(&vA, &vC)},
 		},
@@ -542,15 +532,16 @@ func TestGraphRemoveVertex(t *testing.T) {
 
 				g := f()
 
-				g.AddVertex(tc.verts...)
-
-				for _, e := range tc.edges {
-					g.AddWeightedEdge(e.Src, e.Dst, e.Wt)
-				}
+				addVerts(g, tc.verts)
+				addEdges(g, tc.edges)
 
 				err := g.RemoveVertex(tc.vert)
 
-				ut.AssertEqual(t, tc.expectError, err != nil)
+				ut.AssertEqual(t, tc.expectError == nil, err == nil)
+
+				if tc.expectError != nil {
+					ut.AssertEqual(t, true, errors.Is(err, tc.expectError))
+				}
 
 				// adjacency list removed
 				_, ok = g.Adj[tc.vert]
@@ -569,10 +560,10 @@ func TestGraphRemoveVertex(t *testing.T) {
 					actual := g.Verts[i]
 
 					// correct item at the correct position
-					ut.AssertEqual(t, expected, actual.Sat)
+					ut.AssertEqual(t, expected, actual.Val)
 
 					// correct mapping for the item
-					ut.AssertEqual(t, i, g.VertMap[actual.Sat])
+					ut.AssertEqual(t, i, g.VertMap[actual.Val])
 				}
 
 				// correct edges still in place
@@ -628,11 +619,8 @@ func TestGraphRemoveEdge(t *testing.T) {
 			t.Run(tagGraphTest(gType, tc.desc), func(t *testing.T) {
 				g := f()
 
-				g.AddVertex(tc.verts...)
-
-				for _, e := range tc.edges {
-					g.AddWeightedEdge(e.Src, e.Dst, e.Wt)
-				}
+				addVerts(g, tc.verts)
+				addEdges(g, tc.edges)
 
 				if tc.exists {
 					_, _, ok := g.GetEdge(tc.edge.Src, tc.edge.Dst)
@@ -694,11 +682,8 @@ func TestGraphVisitor(t *testing.T) {
 			t.Run(tagGraphTest(gType, tc.desc), func(t *testing.T) {
 				g := f()
 
-				g.AddVertex(tc.verts...)
-
-				for _, e := range tc.edges {
-					g.AddWeightedEdge(e.Src, e.Dst, e.Wt)
-				}
+				addVerts(g, tc.verts)
+				addEdges(g, tc.edges)
 
 				v := counterGraphVisitor{}
 

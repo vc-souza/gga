@@ -26,3 +26,6 @@ main.go
 *.png
 *.jpg
 *.jpeg
+
+# DOT language
+*.dot
