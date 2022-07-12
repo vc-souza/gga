@@ -7,22 +7,16 @@ import (
 	"testing"
 )
 
-type idx int
-
-func (i idx) Label() string {
-	return strconv.Itoa(int(i))
-}
-
 var gens = []struct {
-	f    func() *Graph[idx]
+	f    func() *Graph[Text]
 	name string
 }{
 	{
-		NewUndirectedGraph[idx],
+		NewUndirectedGraph[Text],
 		"graph",
 	},
 	{
-		NewDirectedGraph[idx],
+		NewDirectedGraph[Text],
 		"digraph",
 	},
 }
@@ -45,9 +39,9 @@ func BenchmarkGraphAddingVertex(b *testing.B) {
 	// map lookup might be higher than O(1),
 	// depending on the type of collision
 	// resolution used by the map.
-	addVerts := func(g *Graph[idx], size int) {
+	addVerts := func(g *Graph[Text], size int) {
 		for i := 0; i < size; i++ {
-			item := idx(i)
+			item := Text(strconv.Itoa(i))
 			g.UnsafeAddVertex(&item)
 		}
 	}
@@ -59,7 +53,7 @@ func BenchmarkGraphAddingVertex(b *testing.B) {
 					b.StopTimer()
 
 					g := gen.f()
-					v := idx(size)
+					v := Text(strconv.Itoa(size))
 
 					addVerts(g, size)
 
@@ -75,7 +69,7 @@ func BenchmarkGraphAddingVertex(b *testing.B) {
 					b.StopTimer()
 
 					g := gen.f()
-					v := idx(size)
+					v := Text(strconv.Itoa(size))
 
 					addVerts(g, size)
 
@@ -90,11 +84,11 @@ func BenchmarkGraphAddingVertex(b *testing.B) {
 
 func BenchmarkGraphAddingEdges(b *testing.B) {
 	// to build the worst case, we need a line of vertices
-	addVerts := func(g *Graph[idx], size int) []idx {
-		verts := make([]idx, size)
+	addVerts := func(g *Graph[Text], size int) []Text {
+		verts := make([]Text, size)
 
 		for i := 0; i < size; i++ {
-			verts[i] = idx(i)
+			verts[i] = Text(strconv.Itoa(i))
 			g.UnsafeAddVertex(&verts[i])
 		}
 
@@ -102,7 +96,7 @@ func BenchmarkGraphAddingEdges(b *testing.B) {
 	}
 
 	// the worst-case scenario: one vertex v has len(Adj[v]) = O(E)
-	addEdges := func(g *Graph[idx], verts []idx) {
+	addEdges := func(g *Graph[Text], verts []Text) {
 		for i := 1; i < len(verts)-1; i++ {
 			g.UnsafeAddWeightedEdge(&verts[0], &verts[i], 0)
 		}
