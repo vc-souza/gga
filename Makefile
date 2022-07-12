@@ -1,3 +1,7 @@
+define rmftype
+	@find . -type f -name "*.$(1)" -exec rm {} +
+endef
+
 test:
 	@go test -v -race -coverprofile coverage.out -tags test ./...
 
@@ -5,11 +9,11 @@ cov:
 	@go tool cover -html=coverage.out
 
 clean:
-	@find . -type f -name "*.svg" -exec rm {} +
+	$(call rmftype,svg)
 
 clean-all: clean
-	@find . -type f -name "*.dot" -exec rm {} +
-	@find . -type f -name "*.out" -exec rm {} +
+	$(call rmftype,dot)
+	$(call rmftype,out)
 
 parse-dot:
 	@for f in `find $$(pwd -P) -type f -name "*.dot"`; do \
