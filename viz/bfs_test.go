@@ -13,14 +13,14 @@ type dummyWriter struct{}
 func (d dummyWriter) Write(p []byte) (int, error) { return 0, nil }
 
 func TestBFSViz_directed(t *testing.T) {
-	g := ds.NewDirectedGraph[ut.ID]()
+	g := ds.NewDirectedGraph[ds.Text]()
 
-	v1 := ut.ID("1")
-	v2 := ut.ID("2")
-	v3 := ut.ID("3")
-	v4 := ut.ID("4")
-	v5 := ut.ID("5")
-	v6 := ut.ID("6")
+	v1 := ds.Text("1")
+	v2 := ds.Text("2")
+	v3 := ds.Text("3")
+	v4 := ds.Text("4")
+	v5 := ds.Text("5")
+	v6 := ds.Text("6")
 	src := &v3
 
 	g.AddVertex(&v1)
@@ -50,19 +50,19 @@ func TestBFSViz_directed(t *testing.T) {
 
 	vi := NewBFSViz(g, tree, src)
 
-	vi.OnUnVertex = func(d *ds.GraphVertex[ut.ID], a *algo.BFSNode[ut.ID]) {
+	vi.OnUnVertex = func(d *ds.GraphVertex[ds.Text], a *algo.BFSNode[ds.Text]) {
 		uCount++
 	}
 
-	vi.OnTreeVertex = func(d *ds.GraphVertex[ut.ID], a *algo.BFSNode[ut.ID]) {
+	vi.OnTreeVertex = func(d *ds.GraphVertex[ds.Text], a *algo.BFSNode[ds.Text]) {
 		tCount++
 	}
 
-	vi.OnSourceVertex = func(d *ds.GraphVertex[ut.ID], a *algo.BFSNode[ut.ID]) {
+	vi.OnSourceVertex = func(d *ds.GraphVertex[ds.Text], a *algo.BFSNode[ds.Text]) {
 		sCount++
 	}
 
-	vi.OnTreeEdge = func(d *ds.GraphEdge[ut.ID]) {
+	vi.OnTreeEdge = func(d *ds.GraphEdge[ds.Text]) {
 		eCount++
 	}
 
@@ -75,16 +75,16 @@ func TestBFSViz_directed(t *testing.T) {
 }
 
 func TestBFSViz_undirected(t *testing.T) {
-	g := ds.NewUndirectedGraph[ut.ID]()
+	g := ds.NewUndirectedGraph[ds.Text]()
 
-	vR := ut.ID("r")
-	vS := ut.ID("s")
-	vT := ut.ID("t")
-	vU := ut.ID("u")
-	vV := ut.ID("v")
-	vW := ut.ID("w")
-	vX := ut.ID("x")
-	vY := ut.ID("y")
+	vR := ds.Text("r")
+	vS := ds.Text("s")
+	vT := ds.Text("t")
+	vU := ds.Text("u")
+	vV := ds.Text("v")
+	vW := ds.Text("w")
+	vX := ds.Text("x")
+	vY := ds.Text("y")
 	src := &vU
 
 	g.AddVertex(&vR)
@@ -135,19 +135,19 @@ func TestBFSViz_undirected(t *testing.T) {
 
 	vi := NewBFSViz(g, tree, src)
 
-	vi.OnUnVertex = func(d *ds.GraphVertex[ut.ID], a *algo.BFSNode[ut.ID]) {
+	vi.OnUnVertex = func(d *ds.GraphVertex[ds.Text], a *algo.BFSNode[ds.Text]) {
 		uCount++
 	}
 
-	vi.OnTreeVertex = func(d *ds.GraphVertex[ut.ID], a *algo.BFSNode[ut.ID]) {
+	vi.OnTreeVertex = func(d *ds.GraphVertex[ds.Text], a *algo.BFSNode[ds.Text]) {
 		tCount++
 	}
 
-	vi.OnSourceVertex = func(d *ds.GraphVertex[ut.ID], a *algo.BFSNode[ut.ID]) {
+	vi.OnSourceVertex = func(d *ds.GraphVertex[ds.Text], a *algo.BFSNode[ds.Text]) {
 		sCount++
 	}
 
-	vi.OnTreeEdge = func(d *ds.GraphEdge[ut.ID]) {
+	vi.OnTreeEdge = func(d *ds.GraphEdge[ds.Text]) {
 		eCount++
 	}
 

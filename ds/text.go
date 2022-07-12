@@ -61,7 +61,31 @@ func ParseGraph(s string) (*Graph[Text], error) {
 	addrs := make(map[string]*Text)
 	var g *Graph[Text]
 
-	vPtr := func(raw string) *Text {
+	wrapError := func(err error, s string) error {
+		return fmt.Errorf("%w: %s", err, s)
+	}
+
+	parseType := func(raw string) error {
+		switch raw {
+
+		case UndirectedGraphKey:
+			g = NewUndirectedGraph[Text]()
+
+		case DirectedGraphKey:
+			g = NewDirectedGraph[Text]()
+
+		default:
+			return ErrInvalidSer
+		}
+
+		return nil
+	}
+
+	parseVertex := func(raw string) (*Text, error) {
+		if len(raw) == 0 {
+			return nil, ErrInvalidSer
+		}
+
 		var res *Text
 
 		if v, ok := addrs[raw]; ok {
@@ -74,11 +98,75 @@ func ParseGraph(s string) (*Graph[Text], error) {
 			g.UnsafeAddVertex(res)
 		}
 
-		return res
+		return res, nil
 	}
 
-	bail := func(l string) error {
-		return fmt.Errorf("%w: %s", ErrInvalidSer, l)
+	parseEdge := func(src *Text, raw string) error {
+		if len(raw) == 0 {
+			return nil
+		}
+
+		var wt float64
+
+		edge := strings.Split(raw, ":")
+
+		if len(edge) < 1 || len(edge) > 2 {
+			return ErrInvalidSer
+		}
+
+		dst, err := parseVertex(edge[0])
+
+		if err != nil {
+			return err
+		}
+
+		if len(edge) == 2 {
+			pWt, err := strconv.ParseFloat(edge[1], 64)
+
+			if err != nil {
+				return err
+			}
+
+			wt = pWt
+		}
+
+		g.UnsafeAddWeightedEdge(src, dst, wt)
+
+		return nil
+	}
+
+	parseEdgeList := func(src *Text, raw string) error {
+		for _, e := range strings.Split(raw, ",") {
+			err := parseEdge(src, e)
+
+			if err != nil {
+				return err
+			}
+		}
+
+		return nil
+	}
+
+	parseAdjEntry := func(raw string) error {
+		adj := strings.Split(raw, "#")
+
+		if len(adj) != 2 {
+			return ErrInvalidSer
+		}
+
+		src, err := parseVertex(adj[0])
+
+		if err != nil {
+			return err
+		}
+
+		err = parseEdgeList(src, adj[1])
+
+		if err != nil {
+			return err
+		}
+
+		return nil
 	}
 
 	for _, l := range strings.Split(s, "\n") {
@@ -89,52 +177,22 @@ func ParseGraph(s string) (*Graph[Text], error) {
 		}
 
 		if g == nil {
-			switch l {
+			err := parseType(l)
 
-			case UndirectedGraphKey:
-				g = NewUndirectedGraph[Text]()
-
-			case DirectedGraphKey:
-				g = NewDirectedGraph[Text]()
-
-			default:
-				return nil, bail(l)
+			if err != nil {
+				return nil, wrapError(err, l)
 			}
 
 			continue
 		}
 
-		adj := strings.Split(l, "#")
+		err := parseAdjEntry(l)
 
-		if len(adj) != 2 {
-			return nil, bail(l)
+		if err == nil {
+			continue
 		}
 
-		src := vPtr(adj[0])
-
-		for _, e := range strings.Split(adj[1], ",") {
-			var wt float64
-
-			edge := strings.Split(e, ":")
-
-			if len(edge) < 1 || len(edge) > 2 {
-				return nil, bail(l)
-			}
-
-			dst := vPtr(edge[0])
-
-			if len(edge) == 2 {
-				pWt, err := strconv.ParseFloat(edge[1], 64)
-
-				if err != nil {
-					return nil, err
-				}
-
-				wt = pWt
-			}
-
-			g.UnsafeAddWeightedEdge(src, dst, wt)
-		}
+		return nil, wrapError(err, l)
 	}
 
 	return g, nil

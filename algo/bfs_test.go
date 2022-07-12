@@ -9,15 +9,15 @@ import (
 )
 
 func TestBFS_directed(t *testing.T) {
-	g := ds.NewDirectedGraph[ut.ID]()
+	g := ds.NewDirectedGraph[ds.Text]()
 
 	// CLRS 3rd Edition, 22.2-1
-	v1 := ut.ID("1")
-	v2 := ut.ID("2")
-	v3 := ut.ID("3")
-	v4 := ut.ID("4")
-	v5 := ut.ID("5")
-	v6 := ut.ID("6")
+	v1 := ds.Text("1")
+	v2 := ds.Text("2")
+	v3 := ds.Text("3")
+	v4 := ds.Text("4")
+	v5 := ds.Text("5")
+	v6 := ds.Text("6")
 
 	g.AddVertex(&v1)
 	g.AddVertex(&v2)
@@ -59,17 +59,17 @@ func TestBFS_directed(t *testing.T) {
 }
 
 func TestBFS_undirected(t *testing.T) {
-	g := ds.NewUndirectedGraph[ut.ID]()
+	g := ds.NewUndirectedGraph[ds.Text]()
 
 	// CLRS 3rd Edition, 22.2-2
-	vR := ut.ID("r")
-	vS := ut.ID("s")
-	vT := ut.ID("t")
-	vU := ut.ID("u")
-	vV := ut.ID("v")
-	vW := ut.ID("w")
-	vX := ut.ID("x")
-	vY := ut.ID("y")
+	vR := ds.Text("r")
+	vS := ds.Text("s")
+	vT := ds.Text("t")
+	vU := ds.Text("u")
+	vV := ds.Text("v")
+	vW := ds.Text("w")
+	vX := ds.Text("x")
+	vY := ds.Text("y")
 
 	g.AddVertex(&vR)
 	g.AddVertex(&vS)

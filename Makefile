@@ -7,6 +7,10 @@ cov:
 clean:
 	@rm -f *.svg
 
+clean-all: clean
+	@rm -f *.dot
+	@rm *.out
+
 parse-dot:
 	@for f in `ls *.dot`; do \
 		dot -o "`basename $$f .dot`.svg" -Tsvg $$f; \
