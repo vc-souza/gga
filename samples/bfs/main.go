@@ -8,6 +8,7 @@ import (
 
 	"github.com/vc-souza/gga/algo"
 	"github.com/vc-souza/gga/ds"
+	ut "github.com/vc-souza/gga/internal/testutils"
 	"github.com/vc-souza/gga/viz"
 )
 
@@ -32,18 +33,7 @@ var (
 )
 
 func buildBFSInput() (*ds.Graph[ds.Text], *ds.Text) {
-	g, vars, err := new(ds.TextParser).Parse(`
-	graph
-	a#
-	r#s,v
-	s#r,w
-	t#u,w,x
-	u#t,x,y
-	v#r
-	w#s,t,x
-	x#t,u,w,y
-	y#u,x
-	`)
+	g, vars, err := ds.NewTextParser().Parse(ut.BasicUG)
 
 	if err != nil {
 		panic(err)

@@ -9,16 +9,7 @@ import (
 )
 
 func TestBFS_directed(t *testing.T) {
-	// CLRS 3rd Edition, 22.2-1
-	g, vars, err := new(ds.TextParser).Parse(`
-	digraph
-	1#2,4
-	2#5
-	3#5,6
-	4#2
-	5#4
-	6#6
-	`)
+	g, vars, err := ds.NewTextParser().Parse(ut.BasicDG)
 
 	ut.AssertEqual(t, true, err == nil)
 
@@ -53,18 +44,7 @@ func TestBFS_directed(t *testing.T) {
 }
 
 func TestBFS_undirected(t *testing.T) {
-	// CLRS 3rd Edition, 22.2-2
-	g, vars, err := new(ds.TextParser).Parse(`
-	graph
-	r#s,v
-	s#r,w
-	t#u,w,x
-	u#t,x,y
-	v#r
-	w#s,t,x
-	x#t,u,w,y
-	y#u,x
-	`)
+	g, vars, err := ds.NewTextParser().Parse(ut.BasicUG)
 
 	ut.AssertEqual(t, true, err == nil)
 

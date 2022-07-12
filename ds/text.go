@@ -80,6 +80,11 @@ type TextParser struct {
 	pending map[*Text]string
 }
 
+// NewTextParser creates and returns a new TextParser.
+func NewTextParser() *TextParser {
+	return &TextParser{}
+}
+
 func (p *TextParser) parseGraphType(raw string) error {
 	switch raw {
 

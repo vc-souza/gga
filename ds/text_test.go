@@ -150,7 +150,7 @@ func TestTextParser(t *testing.T) {
 					input = tc.input
 				}
 
-				g, vars, err := new(TextParser).Parse(input)
+				g, vars, err := NewTextParser().Parse(input)
 
 				if len(tc.err) != 0 {
 					ut.AssertEqual(t, true, errors.As(err, new(ErrInvalidSer)))
