@@ -127,6 +127,16 @@ func TestTextParser(t *testing.T) {
 			c#a
 			`,
 		},
+		{
+			desc:    "undeclared vertex",
+			err:     "edge: unknown destination",
+			addType: true,
+			input: `
+			a#b,c
+			b#a,d
+			c#a
+			`,
+		},
 	}
 
 	for _, tc := range cases {
