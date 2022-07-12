@@ -24,6 +24,7 @@ const (
 
 /*
 ParseGraph produces a new graph from a string containing text in the the following grammar:
+
 	Graph = GraphType ["\n" AdjEntries]
 	GraphType = "graph" | "digraph"
 	AdjEntries = AdjEntry {"\n" AdjEntry}
@@ -34,6 +35,7 @@ ParseGraph produces a new graph from a string containing text in the the followi
 	Weight = float
 
 Sample (Undirected):
+
 	graph
 	a#b:4,h:8
 	b#a:4,c:8,h:11
@@ -46,6 +48,7 @@ Sample (Undirected):
 	i#c:2,g:6,h:7
 
 Sample (Directed)
+
 	digraph
 	1#2,4
 	2#5
