@@ -7,6 +7,15 @@ import (
 	"strings"
 )
 
+const (
+	UndirectedGraphKey = "graph"
+	DirectedGraphKey   = "digraph"
+)
+
+const (
+	InvalidVertexRunes = "#\n:,"
+)
+
 /*
 Text trivially implements the ds.Item interface, and it is meant for both
 basic graphs where only strings are manipulated as vertices, and for unit
@@ -18,14 +27,17 @@ func (t Text) Label() string {
 	return string(t)
 }
 
-const (
-	UndirectedGraphKey = "graph"
-	DirectedGraphKey   = "digraph"
-)
+type ErrInvalidSer struct {
+	Reason error
+}
 
-const (
-	InvalidVertexRunes = "#\n:,"
-)
+func (e ErrInvalidSer) Error() string {
+	return fmt.Sprintf("invalid serialization: %s", e.Reason.Error())
+}
+
+func (e ErrInvalidSer) Unwrap() error {
+	return e.Reason
+}
 
 /*
 TextParser produces a new graph from text in the following grammar:
