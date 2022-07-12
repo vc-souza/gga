@@ -22,6 +22,10 @@ const (
 	DirectedGraphKey   = "digraph"
 )
 
+const (
+	InvalidVertexRunes = "#\n:,"
+)
+
 /*
 ParseGraph produces a new graph from a string containing text in the the following grammar:
 
@@ -86,6 +90,10 @@ func ParseGraph(s string) (*Graph[Text], error) {
 			return nil, ErrInvalidSer
 		}
 
+		if strings.ContainsAny(raw, InvalidVertexRunes) {
+			return nil, ErrInvalidSer
+		}
+
 		var res *Text
 
 		if v, ok := addrs[raw]; ok {
@@ -103,7 +111,7 @@ func ParseGraph(s string) (*Graph[Text], error) {
 
 	parseEdge := func(src *Text, raw string) error {
 		if len(raw) == 0 {
-			return nil
+			return ErrInvalidSer
 		}
 
 		var wt float64
@@ -170,7 +178,7 @@ func ParseGraph(s string) (*Graph[Text], error) {
 	}
 
 	for _, l := range strings.Split(s, "\n") {
-		l = strings.Trim(l, "\n")
+		l = strings.Trim(l, "\n\t")
 
 		if len(l) == 0 {
 			continue

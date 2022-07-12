@@ -469,7 +469,7 @@ func TestGraphRemoveVertex(t *testing.T) {
 		verts       vertList
 		edges       edgeList
 		vert        *Text
-		expectError error
+		err         error
 		expectVerts vertList
 		expectEdges edgeList
 	}{
@@ -478,7 +478,7 @@ func TestGraphRemoveVertex(t *testing.T) {
 			verts:       vertList{&vA, &vC},
 			edges:       edgeList{edge(&vA, &vC)},
 			vert:        &vB,
-			expectError: ErrNotExists,
+			err:         ErrNotExists,
 			expectVerts: vertList{&vA, &vC},
 			expectEdges: edgeList{edge(&vA, &vC)},
 		},
@@ -532,10 +532,10 @@ func TestGraphRemoveVertex(t *testing.T) {
 
 				err := g.RemoveVertex(tc.vert)
 
-				ut.AssertEqual(t, tc.expectError == nil, err == nil)
+				ut.AssertEqual(t, tc.err == nil, err == nil)
 
-				if tc.expectError != nil {
-					ut.AssertEqual(t, true, errors.Is(err, tc.expectError))
+				if tc.err != nil {
+					ut.AssertEqual(t, true, errors.Is(err, tc.err))
 				}
 
 				// adjacency list removed
@@ -578,7 +578,7 @@ func TestGraphRemoveEdge(t *testing.T) {
 		edges       edgeList
 		edge        GraphEdge[Text]
 		exists      bool
-		expectError bool
+		err         bool
 		expectCount int
 	}{
 		{
@@ -586,7 +586,7 @@ func TestGraphRemoveEdge(t *testing.T) {
 			verts:       vertList{&vA, &vB},
 			edges:       edgeList{},
 			edge:        edge(&vA, &vB),
-			expectError: true,
+			err:         true,
 			expectCount: 0,
 		},
 		{
@@ -595,7 +595,7 @@ func TestGraphRemoveEdge(t *testing.T) {
 			edges:       edgeList{edge(&vA, &vB)},
 			edge:        edge(&vA, &vB),
 			exists:      true,
-			expectError: false,
+			err:         false,
 			expectCount: 0,
 		},
 		{
@@ -604,7 +604,7 @@ func TestGraphRemoveEdge(t *testing.T) {
 			edges:       edgeList{edge(&vA, &vB), edge(&vA, &vC), edge(&vB, &vC)},
 			edge:        edge(&vA, &vB),
 			exists:      true,
-			expectError: false,
+			err:         false,
 			expectCount: 2,
 		},
 	}
@@ -624,7 +624,7 @@ func TestGraphRemoveEdge(t *testing.T) {
 
 				err := g.RemoveEdge(tc.edge.Src, tc.edge.Dst)
 
-				ut.AssertEqual(t, tc.expectError, err != nil)
+				ut.AssertEqual(t, tc.err, err != nil)
 				ut.AssertEqual(t, tc.expectCount, g.EdgeCount())
 
 				_, _, ok := g.GetEdge(tc.edge.Src, tc.edge.Dst)
