@@ -57,8 +57,6 @@ func ExampleExporter() {
 		e.SetFmtAttr("label", "Water Stone")
 	}
 
-	g.Accept(e)
-
 	e.Export(os.Stdout)
 
 	// Output:

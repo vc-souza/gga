@@ -8,6 +8,7 @@ import (
 
 	"github.com/vc-souza/gga/algo"
 	"github.com/vc-souza/gga/ds"
+	ut "github.com/vc-souza/gga/internal/testutils"
 	"github.com/vc-souza/gga/viz"
 )
 
@@ -31,70 +32,34 @@ var (
 	}
 )
 
-func buildBFSInput() (*ds.Graph[letter], *letter) {
-	a := letter("A")
-	r := letter("R")
-	s := letter("S")
-	t := letter("T")
-	u := letter("U")
-	v := letter("V")
-	w := letter("W")
-	x := letter("X")
-	y := letter("Y")
+func buildBFSInput() (*ds.Graph[ds.Text], *ds.Text) {
+	g, vars, err := ds.NewTextParser().Parse(ut.BasicUUG)
 
-	g := ds.NewUndirectedGraph[letter]()
+	if err != nil {
+		panic(err)
+	}
 
-	g.AddVertex(&a)
-
-	g.AddUnweightedEdge(&r, &s)
-	g.AddUnweightedEdge(&r, &v)
-
-	g.AddUnweightedEdge(&s, &r)
-	g.AddUnweightedEdge(&s, &w)
-
-	g.AddUnweightedEdge(&t, &u)
-	g.AddUnweightedEdge(&t, &w)
-	g.AddUnweightedEdge(&t, &x)
-
-	g.AddUnweightedEdge(&u, &t)
-	g.AddUnweightedEdge(&u, &x)
-	g.AddUnweightedEdge(&u, &y)
-
-	g.AddUnweightedEdge(&v, &r)
-
-	g.AddUnweightedEdge(&w, &s)
-	g.AddUnweightedEdge(&w, &t)
-	g.AddUnweightedEdge(&w, &x)
-
-	g.AddUnweightedEdge(&x, &t)
-	g.AddUnweightedEdge(&x, &u)
-	g.AddUnweightedEdge(&x, &w)
-	g.AddUnweightedEdge(&x, &y)
-
-	g.AddUnweightedEdge(&y, &u)
-	g.AddUnweightedEdge(&y, &x)
-
-	return g, &s
+	return g, vars["s"]
 }
 
-func onBFSTreeVertex(v *ds.GraphVertex[letter], n *algo.BFSNode[letter]) {
+func onBFSTreeVertex(v *ds.GraphVertex[ds.Text], n *algo.BFSNode[ds.Text]) {
 	v.SetFmtAttr("label", fmt.Sprintf(`%s\nd=%d`, v.Label(), int(n.Distance)))
 	v.SetFmtAttr("fillcolor", "#000000")
 	v.SetFmtAttr("fontcolor", "#ffffff")
 	v.SetFmtAttr("shape", "doublecircle")
 }
 
-func onBFSUnVertex(v *ds.GraphVertex[letter], n *algo.BFSNode[letter]) {
+func onBFSUnVertex(v *ds.GraphVertex[ds.Text], n *algo.BFSNode[ds.Text]) {
 	v.SetFmtAttr("fillcolor", "#ff0000")
 	v.SetFmtAttr("fontcolor", "#ffffff")
 }
 
-func onBFSSourceVertex(v *ds.GraphVertex[letter], n *algo.BFSNode[letter]) {
+func onBFSSourceVertex(v *ds.GraphVertex[ds.Text], n *algo.BFSNode[ds.Text]) {
 	v.SetFmtAttr("shape", "circle")
 	v.SetFmtAttr("pos", "0,0!")
 }
 
-func onBFSTreeEdge(e *ds.GraphEdge[letter]) {
+func onBFSTreeEdge(e *ds.GraphEdge[ds.Text]) {
 	e.SetFmtAttr("penwidth", "3.0")
 }
 
@@ -116,7 +81,6 @@ func main() {
 	defer fIn.Close()
 
 	// export the input graph
-	g.Accept(ex)
 	ex.Export(fIn)
 
 	// run BFS with the given source

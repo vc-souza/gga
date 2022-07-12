@@ -1,6 +1,8 @@
 package ds
 
-import "errors"
+import (
+	"errors"
+)
 
 var ErrUndefOp = errors.New("undefined operation for this data structure")
 

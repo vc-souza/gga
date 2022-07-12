@@ -86,8 +86,6 @@ func TestGraphVisitor(t *testing.T) {
 			g.AddUnweightedEdge(jane, john)
 			g.AddUnweightedEdge(jane, jane)
 
-			g.Accept(e)
-
 			buf := bytes.Buffer{}
 
 			e.Export(&buf)

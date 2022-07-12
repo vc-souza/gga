@@ -2,29 +2,21 @@ package ds
 
 import "fmt"
 
-type state struct {
-	Name string
-}
-
-func (c state) Label() string {
-	return c.Name
-}
-
 func ExampleGraph_directed() {
-	si := &state{"initialization"}
-	sm := &state{"maintenance"}
-	st := &state{"termination"}
-	u1 := &state{"unrelated1"}
-	u2 := &state{"unrelated2"}
+	si := Text("initialization")
+	sm := Text("maintenance")
+	st := Text("termination")
+	u1 := Text("unrelated1")
+	u2 := Text("unrelated2")
 
-	g := NewDirectedGraph[state]()
+	g := NewDirectedGraph[Text]()
 
-	g.AddVertex(u1)
-	g.AddVertex(u2)
+	g.AddVertex(&u1)
+	g.AddVertex(&u2)
 
-	g.AddUnweightedEdge(si, sm)
-	g.AddUnweightedEdge(sm, sm)
-	g.AddUnweightedEdge(sm, st)
+	g.AddUnweightedEdge(&si, &sm)
+	g.AddUnweightedEdge(&sm, &sm)
+	g.AddUnweightedEdge(&sm, &st)
 
 	fmt.Println(g.VertexCount())
 
