@@ -64,7 +64,7 @@ type Graph[V Item] struct {
 	/*
 		VertMap maps items to the position of their vertex in the vertex list.
 		Usually, it would be enough to map items to vertices directly, but
-		since it is desireable for the graph to be traversed in the same order
+		since it is desirable for the graph to be traversed in the same order
 		the vertices were inserted (for consistency and presentation purposes),
 		we map the item to the position of their vertex in the ordered list instead.
 	*/
