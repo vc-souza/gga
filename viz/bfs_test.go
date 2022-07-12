@@ -63,54 +63,21 @@ func TestBFSViz_directed(t *testing.T) {
 }
 
 func TestBFSViz_undirected(t *testing.T) {
-	g := ds.NewUndirectedGraph[ds.Text]()
+	g, vars, err := new(ds.TextParser).Parse(`
+	graph
+	r#s,v
+	s#r,w
+	t#u,w,x
+	u#t,x,y
+	v#r
+	w#s,t,x
+	x#t,u,w,y
+	y#u,x
+	`)
 
-	vR := ds.Text("r")
-	vS := ds.Text("s")
-	vT := ds.Text("t")
-	vU := ds.Text("u")
-	vV := ds.Text("v")
-	vW := ds.Text("w")
-	vX := ds.Text("x")
-	vY := ds.Text("y")
-	src := &vU
+	ut.AssertEqual(t, true, err == nil)
 
-	g.AddVertex(&vR)
-	g.AddVertex(&vS)
-	g.AddVertex(&vT)
-	g.AddVertex(&vU)
-	g.AddVertex(&vV)
-	g.AddVertex(&vW)
-	g.AddVertex(&vX)
-	g.AddVertex(&vY)
-
-	g.AddUnweightedEdge(&vR, &vS)
-	g.AddUnweightedEdge(&vR, &vV)
-
-	g.AddUnweightedEdge(&vS, &vR)
-	g.AddUnweightedEdge(&vS, &vW)
-
-	g.AddUnweightedEdge(&vT, &vU)
-	g.AddUnweightedEdge(&vT, &vW)
-	g.AddUnweightedEdge(&vT, &vX)
-
-	g.AddUnweightedEdge(&vU, &vT)
-	g.AddUnweightedEdge(&vU, &vX)
-	g.AddUnweightedEdge(&vU, &vY)
-
-	g.AddUnweightedEdge(&vV, &vR)
-
-	g.AddUnweightedEdge(&vW, &vS)
-	g.AddUnweightedEdge(&vW, &vT)
-	g.AddUnweightedEdge(&vW, &vX)
-
-	g.AddUnweightedEdge(&vX, &vT)
-	g.AddUnweightedEdge(&vX, &vU)
-	g.AddUnweightedEdge(&vX, &vW)
-	g.AddUnweightedEdge(&vX, &vY)
-
-	g.AddUnweightedEdge(&vY, &vU)
-	g.AddUnweightedEdge(&vY, &vX)
+	src := vars["u"]
 
 	tree, err := algo.BFS(g, src)
 

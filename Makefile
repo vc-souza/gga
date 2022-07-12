@@ -5,13 +5,13 @@ cov:
 	@go tool cover -html=coverage.out
 
 clean:
-	@rm -f *.svg
+	@find . -type f -name "*.svg" -exec rm {} +
 
 clean-all: clean
-	@rm -f *.dot
-	@rm *.out
+	@find . -type f -name "*.dot" -exec rm {} +
+	@find . -type f -name "*.out" -exec rm {} +
 
 parse-dot:
-	@for f in `ls *.dot`; do \
-		dot -o "`basename $$f .dot`.svg" -Tsvg $$f; \
+	@for f in `find $$(pwd -P) -type f -name "*.dot"`; do \
+		dot -o "`dirname $$f`/`basename $$f .dot`.svg" -Tsvg $$f; \
 	done
