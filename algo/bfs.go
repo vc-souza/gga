@@ -67,7 +67,6 @@ Complexity:
 func BFS[V ds.Item](g *ds.Graph[V], src *V) (BFSTree[V], error) {
 	tree := BFSTree[V]{}
 
-	// Θ(V)
 	for v := range g.Adj {
 		tree[v] = &BFSNode[V]{
 			Distance: math.Inf(1),
@@ -83,7 +82,6 @@ func BFS[V ds.Item](g *ds.Graph[V], src *V) (BFSTree[V], error) {
 
 	queue.Enqueue(src)
 
-	// Θ(E)
 	for !queue.Empty() {
 		curr, _ := queue.Dequeue()
 

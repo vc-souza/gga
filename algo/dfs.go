@@ -39,7 +39,6 @@ func DFS[V ds.Item](g *ds.Graph[V]) (DFSForest[V], *EdgeTypes[V], error) {
 
 	// classify the edge that connects a gray vertex being explored
 	// to another gray vertex that has also been discovered before
-	// TODO: O(???)
 	classify := func(e *ds.GraphEdge[V]) {
 		// the vertex being reached (Dst) was discovered before
 		// the vertex being explored (Src), so Dst is either
@@ -71,7 +70,6 @@ func DFS[V ds.Item](g *ds.Graph[V]) (DFSForest[V], *EdgeTypes[V], error) {
 
 	// build a DFS tree rooted at the given vertex;
 	// the tree will be a part of the DFS forest
-	// TODO: O(???)
 	tree := func(root *V) {
 		// only using the ds.Stack interface
 		stk := ds.Stack[*V](new(ds.Deque[*V]))
@@ -118,7 +116,6 @@ func DFS[V ds.Item](g *ds.Graph[V]) (DFSForest[V], *EdgeTypes[V], error) {
 		}
 	}
 
-	// TODO: O(???)
 	for _, vert := range g.Verts {
 		root := vert.Val
 
