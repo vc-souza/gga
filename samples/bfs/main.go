@@ -13,27 +13,36 @@ import (
 )
 
 const (
-	bfsFileIn  = "BFS-in.dot"
-	bfsFileOut = "BFS-out.dot"
+	bfsFileIn  = "BFS-before.dot"
+	bfsFileOut = "BFS-after.dot"
 )
+
+var soloVertex = "a#"
 
 var (
 	defaultGraphFmt = ds.FmtAttrs{
-		"layout": "dot",
+		"layout":  "dot",
+		"nodesep": "0.8",
+		"ranksep": "0.5",
+		"pad":     "0.2",
 	}
 
 	defaultVertexFmt = ds.FmtAttrs{
-		"shape": "circle",
-		"style": "filled",
+		"shape":     "Mrecord",
+		"style":     "filled",
+		"fillcolor": "#7289da",
+		"fontcolor": "#ffffff",
+		"color":     "#ffffff",
+		"penwidth":  "1.1",
 	}
 
 	defaultEdgeFmt = ds.FmtAttrs{
-		"pencolor": "#000000",
+		"penwidth": "1.2",
 	}
 )
 
 func buildBFSInput() (*ds.Graph[ds.Text], *ds.Text) {
-	g, vars, err := ds.NewTextParser().Parse(ut.BasicUUG)
+	g, vars, err := ds.NewTextParser().Parse(ut.BasicUUG + soloVertex)
 
 	if err != nil {
 		panic(err)
@@ -43,20 +52,18 @@ func buildBFSInput() (*ds.Graph[ds.Text], *ds.Text) {
 }
 
 func onBFSTreeVertex(v *ds.GraphVertex[ds.Text], n *algo.BFSNode[ds.Text]) {
-	v.SetFmtAttr("label", fmt.Sprintf(`%s\nd=%d`, v.Label(), int(n.Distance)))
-	v.SetFmtAttr("fillcolor", "#000000")
-	v.SetFmtAttr("fontcolor", "#ffffff")
-	v.SetFmtAttr("shape", "doublecircle")
+	v.SetFmtAttr("label", fmt.Sprintf(`{ %s | d = %d }`, v.Label(), int(n.Distance)))
 }
 
 func onBFSUnVertex(v *ds.GraphVertex[ds.Text], n *algo.BFSNode[ds.Text]) {
-	v.SetFmtAttr("fillcolor", "#ff0000")
-	v.SetFmtAttr("fontcolor", "#ffffff")
+	v.SetFmtAttr("label", fmt.Sprintf(`{ %s | ∞ }`, v.Label()))
+	v.SetFmtAttr("fillcolor", "#ED2839")
 }
 
 func onBFSSourceVertex(v *ds.GraphVertex[ds.Text], n *algo.BFSNode[ds.Text]) {
-	v.SetFmtAttr("shape", "circle")
-	v.SetFmtAttr("pos", "0,0!")
+	v.SetFmtAttr("label", fmt.Sprintf(`{ %s | source }`, v.Label()))
+	v.SetFmtAttr("penwidth", "1.7")
+	v.SetFmtAttr("color", "#000000")
 }
 
 func onBFSTreeEdge(e *ds.GraphEdge[ds.Text]) {
