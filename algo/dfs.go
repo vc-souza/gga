@@ -44,11 +44,20 @@ func DFS[V ds.Item](g *ds.Graph[V]) (DFSForest[V], *EdgeTypes[V], error) {
 		// the vertex being reached (Dst) was discovered before
 		// the vertex being explored (Src), so Dst is either
 		// an ancestor of Src, or they do not have a direct
-		// ancestor/descendant relationship.
+		// ancestor/descendant relationship
 		if fst[e.Src].Discovery >= fst[e.Dst].Discovery {
 			// ancestor/descendant relationship,
 			// self-loops included here
 			if fst[e.Dst].Finish == 0 {
+				// due to how adjacency lists work, undirected
+				// graphs represent the same edge twice, so
+				// if we're dealing with the reverse of a tree
+				// edge, then do not flag the reverse edge as
+				// being a back edge
+				if g.Undirected() && fst[e.Src].Parent == e.Dst {
+					return
+				}
+
 				tps.Back = append(tps.Back, e)
 			} else {
 				tps.Cross = append(tps.Cross, e)
