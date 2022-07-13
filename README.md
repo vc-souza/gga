@@ -24,3 +24,11 @@ Examples can be found in the [samples](/samples) folder.
 
 ##### After
 ![BFS after](/res/img/BFS/after.svg)
+
+### [DFS (Depth-First Search)](/algo/dfs.go)
+
+##### Before
+![DFS before](/res/img/DFS/before.svg)
+
+##### After
+![DFS after](/res/img/DFS/after.svg)
