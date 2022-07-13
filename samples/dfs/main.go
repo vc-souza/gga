@@ -19,7 +19,7 @@ var soloVertex = "7#"
 
 var (
 	defaultGraphFmt = ds.FmtAttrs{
-		"bgcolor": "transparent",
+		"bgcolor": "#ffffff",
 		"layout":  "dot",
 		"nodesep": "0.8",
 		"ranksep": "0.5",
