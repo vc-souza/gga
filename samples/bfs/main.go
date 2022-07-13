@@ -13,8 +13,8 @@ import (
 )
 
 const (
-	bfsFileIn  = "BFS-before.dot"
-	bfsFileOut = "BFS-after.dot"
+	fileIn  = "BFS-before.dot"
+	fileOut = "BFS-after.dot"
 )
 
 var soloVertex = "a#"
@@ -79,7 +79,7 @@ func main() {
 	ex.DefaultVertexFmt = defaultVertexFmt
 	ex.DefaultEdgeFmt = defaultEdgeFmt
 
-	fIn, err := os.Create(bfsFileIn)
+	fIn, err := os.Create(fileIn)
 
 	if err != nil {
 		panic(err)
@@ -97,7 +97,7 @@ func main() {
 		panic(err)
 	}
 
-	fOut, err := os.Create(bfsFileOut)
+	fOut, err := os.Create(fileOut)
 
 	if err != nil {
 		panic(err)

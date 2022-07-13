@@ -17,6 +17,8 @@ type DFSNode[V ds.Item] struct {
 
 	// TODO: docs
 	Parent *V
+
+	next int
 }
 
 // TODO: docs
@@ -33,16 +35,6 @@ func DFS[V ds.Item](g *ds.Graph[V]) (DFSForest[V], *EdgeTypes[V], error) {
 		fst[v] = &DFSNode[V]{
 			Color: ColorWhite,
 		}
-	}
-
-	hasGrayTop := func(stk ds.Stack[*V]) bool {
-		top, ok := stk.Peek()
-
-		if !ok {
-			return false
-		}
-
-		return fst[top].Color == ColorGray
 	}
 
 	// classify the edge that connects a gray vertex being explored
@@ -80,18 +72,29 @@ func DFS[V ds.Item](g *ds.Graph[V]) (DFSForest[V], *EdgeTypes[V], error) {
 		for !stk.Empty() {
 			vtx, _ := stk.Peek()
 
-			t++
+			if fst[vtx].Color == ColorWhite {
+				t++
 
-			fst[vtx].Discovery = t
-			fst[vtx].Color = ColorGray
+				fst[vtx].Discovery = t
+				fst[vtx].Color = ColorGray
+			}
 
-			// traversing the adjacency list backwards
-			// because we are pushing onto the stack
-			for i := len(g.Adj[vtx]) - 1; i >= 0; i-- {
+			if fst[vtx].next >= len(g.Adj[vtx]) {
+				vtx, _ := stk.Pop()
+
+				t++
+
+				fst[vtx].Finish = t
+
+				continue
+			}
+
+			for i := fst[vtx].next; i < len(g.Adj[vtx]); i++ {
 				e := g.Adj[vtx][i]
 
 				if fst[e.Dst].Color != ColorWhite {
 					classify(e)
+					fst[vtx].next++
 					continue
 				}
 
@@ -99,17 +102,9 @@ func DFS[V ds.Item](g *ds.Graph[V]) (DFSForest[V], *EdgeTypes[V], error) {
 				fst[e.Dst].Parent = vtx
 
 				stk.Push(e.Dst)
-			}
 
-			// we need to pop elements from the stack
-			// until it is either empty or has a white
-			// vertex on top, for the next iteration
-			for hasGrayTop(stk) {
-				vtx, _ := stk.Pop()
-
-				t++
-
-				fst[vtx].Finish = t
+				fst[vtx].next++
+				break
 			}
 		}
 	}
