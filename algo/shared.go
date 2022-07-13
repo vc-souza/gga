@@ -5,7 +5,6 @@ import "github.com/vc-souza/gga/ds"
 const (
 	ColorWhite = iota
 	ColorGray
-	ColorBlack
 )
 
 // TODO: docs
