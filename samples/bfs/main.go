@@ -41,7 +41,7 @@ var (
 	}
 )
 
-func buildBFSInput() (*ds.Graph[ds.Text], *ds.Text) {
+func buildInput() (*ds.Graph[ds.Text], *ds.Text) {
 	g, vars, err := ds.NewTextParser().Parse(ut.BasicUUG + soloVertex)
 
 	if err != nil {
@@ -51,28 +51,9 @@ func buildBFSInput() (*ds.Graph[ds.Text], *ds.Text) {
 	return g, vars["s"]
 }
 
-func onBFSTreeVertex(v *ds.GraphVertex[ds.Text], n *algo.BFSNode[ds.Text]) {
-	v.SetFmtAttr("label", fmt.Sprintf(`{ %s | d = %d }`, v.Label(), int(n.Distance)))
-}
-
-func onBFSUnVertex(v *ds.GraphVertex[ds.Text], n *algo.BFSNode[ds.Text]) {
-	v.SetFmtAttr("label", fmt.Sprintf(`{ %s | ∞ }`, v.Label()))
-	v.SetFmtAttr("fillcolor", "#ED2839")
-}
-
-func onBFSSourceVertex(v *ds.GraphVertex[ds.Text], n *algo.BFSNode[ds.Text]) {
-	v.SetFmtAttr("label", fmt.Sprintf(`{ %s | source }`, v.Label()))
-	v.SetFmtAttr("penwidth", "1.7")
-	v.SetFmtAttr("color", "#000000")
-}
-
-func onBFSTreeEdge(e *ds.GraphEdge[ds.Text]) {
-	e.SetFmtAttr("penwidth", "3.0")
-}
-
 func main() {
 	// build graph, establish a source vertex
-	g, src := buildBFSInput()
+	g, src := buildInput()
 	ex := viz.NewExporter(g)
 
 	ex.DefaultGraphFmt = defaultGraphFmt
@@ -111,16 +92,29 @@ func main() {
 	vi.DefaultGraphFmt = defaultGraphFmt
 	vi.DefaultVertexFmt = defaultVertexFmt
 	vi.DefaultEdgeFmt = defaultEdgeFmt
-	vi.OnTreeVertex = onBFSTreeVertex
-	vi.OnSourceVertex = onBFSSourceVertex
-	vi.OnUnVertex = onBFSUnVertex
-	vi.OnTreeEdge = onBFSTreeEdge
+
+	vi.OnTreeVertex = func(v *ds.GraphVertex[ds.Text], n *algo.BFSNode[ds.Text]) {
+		v.SetFmtAttr("label", fmt.Sprintf(`{ %s | d = %d }`, v.Label(), int(n.Distance)))
+	}
+
+	vi.OnSourceVertex = func(v *ds.GraphVertex[ds.Text], n *algo.BFSNode[ds.Text]) {
+		v.SetFmtAttr("label", fmt.Sprintf(`{ %s | source }`, v.Label()))
+		v.SetFmtAttr("penwidth", "1.7")
+		v.SetFmtAttr("color", "#000000")
+	}
+
+	vi.OnUnVertex = func(v *ds.GraphVertex[ds.Text], n *algo.BFSNode[ds.Text]) {
+		v.SetFmtAttr("label", fmt.Sprintf(`{ %s | ∞ }`, v.Label()))
+		v.SetFmtAttr("fillcolor", "#ED2839")
+	}
+
+	vi.OnTreeEdge = func(e *ds.GraphEdge[ds.Text]) {
+		e.SetFmtAttr("penwidth", "3.0")
+	}
 
 	// annotate the input graph with the result of the BFS,
 	// then export the annotated version
-	err = vi.Export(fOut)
-
-	if err != nil {
+	if err := vi.Export(fOut); err != nil {
 		panic(err)
 	}
 }

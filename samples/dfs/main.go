@@ -39,7 +39,7 @@ var (
 	}
 )
 
-func buildDFSInput() *ds.Graph[ds.Text] {
+func buildInput() *ds.Graph[ds.Text] {
 	g, _, err := ds.NewTextParser().Parse(ut.BasicUDG + soloVertex)
 
 	if err != nil {
@@ -50,7 +50,7 @@ func buildDFSInput() *ds.Graph[ds.Text] {
 }
 
 func main() {
-	g := buildDFSInput()
+	g := buildInput()
 	ex := viz.NewExporter(g)
 
 	ex.DefaultGraphFmt = defaultGraphFmt
@@ -74,29 +74,49 @@ func main() {
 		panic(err)
 	}
 
-	fmt.Println("DFS Forest...")
-	for vtx, node := range fst {
-		s := fmt.Sprintf("%s %d/%d", vtx.Label(), node.Discovery, node.Finish)
+	fOut, err := os.Create(fileOut)
 
-		if node.Parent != nil {
-			s = fmt.Sprintf("%s p=%s", s, node.Parent.Label())
-		}
-
-		fmt.Println(s)
+	if err != nil {
+		panic(err)
 	}
 
-	fmt.Println("Forward edges...")
-	for _, e := range edges.Forward {
-		fmt.Printf("%s -> %s\n", e.Src.Label(), e.Dst.Label())
+	defer fOut.Close()
+
+	vi := viz.NewDFSViz(g, fst, edges)
+
+	// set the desired custom formatting
+	vi.DefaultGraphFmt = defaultGraphFmt
+	vi.DefaultVertexFmt = defaultVertexFmt
+	vi.DefaultEdgeFmt = defaultEdgeFmt
+
+	vi.OnTreeVertex = func(v *ds.GraphVertex[ds.Text], n *algo.DFSNode[ds.Text]) {
+		v.SetFmtAttr("label", fmt.Sprintf(` %s | { d = %d | f = %d }`, v.Label(), n.Discovery, n.Finish))
 	}
 
-	fmt.Println("Back edges...")
-	for _, e := range edges.Back {
-		fmt.Printf("%s -> %s\n", e.Src.Label(), e.Dst.Label())
+	vi.OnRootVertex = func(v *ds.GraphVertex[ds.Text], n *algo.DFSNode[ds.Text]) {
+		v.SetFmtAttr("penwidth", "1.7")
+		v.SetFmtAttr("color", "#000000")
 	}
 
-	fmt.Println("Cross edges...")
-	for _, e := range edges.Cross {
-		fmt.Printf("%s -> %s\n", e.Src.Label(), e.Dst.Label())
+	vi.OnTreeEdge = func(e *ds.GraphEdge[ds.Text]) {
+		e.SetFmtAttr("penwidth", "3.0")
+	}
+
+	vi.OnForwardEdge = func(e *ds.GraphEdge[ds.Text]) {
+		e.SetFmtAttr("label", "F")
+	}
+
+	vi.OnBackEdge = func(e *ds.GraphEdge[ds.Text]) {
+		e.SetFmtAttr("label", "B")
+	}
+
+	vi.OnCrossEdge = func(e *ds.GraphEdge[ds.Text]) {
+		e.SetFmtAttr("label", "C")
+	}
+
+	// annotate the input graph with the result of the DFS,
+	// then export the annotated version
+	if err := vi.Export(fOut); err != nil {
+		panic(err)
 	}
 }

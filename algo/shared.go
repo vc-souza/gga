@@ -10,6 +10,6 @@ const (
 // TODO: docs
 type EdgeTypes[V ds.Item] struct {
 	Forward []*ds.GraphEdge[V]
-	Cross   []*ds.GraphEdge[V]
 	Back    []*ds.GraphEdge[V]
+	Cross   []*ds.GraphEdge[V]
 }

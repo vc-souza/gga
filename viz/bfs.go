@@ -15,13 +15,11 @@ import (
 	custom formatting can be applied to the graph, its vertices and edges.
 */
 type BFSViz[V ds.Item] struct {
-	Graph  *ds.Graph[V]
-	Tree   algo.BFSTree[V]
-	Source *V
+	AlgoViz
 
-	DefaultGraphFmt  ds.FmtAttrs
-	DefaultVertexFmt ds.FmtAttrs
-	DefaultEdgeFmt   ds.FmtAttrs
+	Tree   algo.BFSTree[V]
+	Graph  *ds.Graph[V]
+	Source *V
 
 	// OnUnVertex is called when an unreachable vertex is found.
 	OnUnVertex func(*ds.GraphVertex[V], *algo.BFSNode[V])
@@ -40,8 +38,8 @@ type BFSViz[V ds.Item] struct {
 func NewBFSViz[V ds.Item](g *ds.Graph[V], t algo.BFSTree[V], src *V) *BFSViz[V] {
 	res := &BFSViz[V]{}
 
-	res.Graph = g
 	res.Tree = t
+	res.Graph = g
 	res.Source = src
 
 	res.OnUnVertex = func(*ds.GraphVertex[V], *algo.BFSNode[V]) {}
@@ -84,13 +82,13 @@ func (vi *BFSViz[V]) Export(w io.Writer) error {
 			continue
 		}
 
-		edg, _, ok := vi.Graph.GetEdge(node.Parent, v)
+		edge, _, ok := vi.Graph.GetEdge(node.Parent, v)
 
 		if !ok {
 			return errors.New("could not find edge")
 		}
 
-		vi.OnTreeEdge(edg)
+		vi.OnTreeEdge(edge)
 
 		if vi.Graph.Directed() {
 			continue

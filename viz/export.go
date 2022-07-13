@@ -106,6 +106,10 @@ func (d *Exporter[V]) VisitEdge(e *ds.GraphEdge[V]) {
 
 	rel := fmt.Sprintf("%s %s %s", quote((*e.Src).Label()), op, quote((*e.Dst).Label()))
 
+	if e.Wt != 0 {
+		e.AppendFmtAttr("label", fmt.Sprintf(" %.2f", e.Wt))
+	}
+
 	if len(e.Fmt) == 0 {
 		line = rel
 	} else {
