@@ -60,8 +60,8 @@ func TestDFSViz(t *testing.T) {
 
 			vi := NewDFSViz(g, fst, tps)
 
-			vi.OnTreeVertex = func(*ds.GraphVertex[ds.Text], *algo.DFSNode[ds.Text]) { tvCount++ }
-			vi.OnRootVertex = func(*ds.GraphVertex[ds.Text], *algo.DFSNode[ds.Text]) { rvCount++ }
+			vi.OnTreeVertex = func(*ds.GraphVertex[ds.Text], *algo.DFNode[ds.Text]) { tvCount++ }
+			vi.OnRootVertex = func(*ds.GraphVertex[ds.Text], *algo.DFNode[ds.Text]) { rvCount++ }
 
 			vi.OnTreeEdge = func(*ds.GraphEdge[ds.Text]) { teCount++ }
 			vi.OnForwardEdge = func(*ds.GraphEdge[ds.Text]) { feCount++ }

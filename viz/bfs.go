@@ -17,34 +17,34 @@ custom formatting can be applied to the graph, its vertices and edges.
 type BFSViz[V ds.Item] struct {
 	AlgoViz
 
-	Tree   algo.BFSTree[V]
+	Tree   algo.BFTree[V]
 	Graph  *ds.Graph[V]
 	Source *V
 
 	// OnUnVertex is called when an unreachable vertex is found.
-	OnUnVertex func(*ds.GraphVertex[V], *algo.BFSNode[V])
+	OnUnVertex func(*ds.GraphVertex[V], *algo.BFNode[V])
 
 	// OnSourceVertex is called when the source vertex is found.
-	OnSourceVertex func(*ds.GraphVertex[V], *algo.BFSNode[V])
+	OnSourceVertex func(*ds.GraphVertex[V], *algo.BFNode[V])
 
 	// OnTreeVertex is called when any tree vertex is found, including the source vertex.
-	OnTreeVertex func(*ds.GraphVertex[V], *algo.BFSNode[V])
+	OnTreeVertex func(*ds.GraphVertex[V], *algo.BFNode[V])
 
 	// OnTreeEdge is called when a tree edge is found.
 	OnTreeEdge func(*ds.GraphEdge[V])
 }
 
 // NewBFSViz initializes a new BFSViz with NOOP hooks and no custom formatting.
-func NewBFSViz[V ds.Item](g *ds.Graph[V], t algo.BFSTree[V], src *V) *BFSViz[V] {
+func NewBFSViz[V ds.Item](g *ds.Graph[V], t algo.BFTree[V], src *V) *BFSViz[V] {
 	res := &BFSViz[V]{}
 
 	res.Tree = t
 	res.Graph = g
 	res.Source = src
 
-	res.OnUnVertex = func(*ds.GraphVertex[V], *algo.BFSNode[V]) {}
-	res.OnSourceVertex = func(*ds.GraphVertex[V], *algo.BFSNode[V]) {}
-	res.OnTreeVertex = func(*ds.GraphVertex[V], *algo.BFSNode[V]) {}
+	res.OnUnVertex = func(*ds.GraphVertex[V], *algo.BFNode[V]) {}
+	res.OnSourceVertex = func(*ds.GraphVertex[V], *algo.BFNode[V]) {}
+	res.OnTreeVertex = func(*ds.GraphVertex[V], *algo.BFNode[V]) {}
 	res.OnTreeEdge = func(*ds.GraphEdge[V]) {}
 
 	return res

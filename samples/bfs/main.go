@@ -92,17 +92,17 @@ func main() {
 	vi.DefaultVertexFmt = defaultVertexFmt
 	vi.DefaultEdgeFmt = defaultEdgeFmt
 
-	vi.OnTreeVertex = func(v *ds.GraphVertex[ds.Text], n *algo.BFSNode[ds.Text]) {
+	vi.OnTreeVertex = func(v *ds.GraphVertex[ds.Text], n *algo.BFNode[ds.Text]) {
 		v.SetFmtAttr("label", fmt.Sprintf(`{ %s | d = %d }`, v.Label(), int(n.Distance)))
 	}
 
-	vi.OnSourceVertex = func(v *ds.GraphVertex[ds.Text], n *algo.BFSNode[ds.Text]) {
+	vi.OnSourceVertex = func(v *ds.GraphVertex[ds.Text], n *algo.BFNode[ds.Text]) {
 		v.SetFmtAttr("label", fmt.Sprintf(`{ %s | source }`, v.Label()))
 		v.SetFmtAttr("penwidth", "1.7")
 		v.SetFmtAttr("color", "#000000")
 	}
 
-	vi.OnUnVertex = func(v *ds.GraphVertex[ds.Text], n *algo.BFSNode[ds.Text]) {
+	vi.OnUnVertex = func(v *ds.GraphVertex[ds.Text], n *algo.BFNode[ds.Text]) {
 		v.SetFmtAttr("label", fmt.Sprintf(`{ %s | ∞ }`, v.Label()))
 		v.SetFmtAttr("fillcolor", "#ED2839")
 	}

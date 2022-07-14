@@ -16,15 +16,15 @@ custom formatting can be applied to the graph, its vertices and edges.
 type DFSViz[V ds.Item] struct {
 	AlgoViz
 
-	Forest algo.DFSForest[V]
+	Forest algo.DFForest[V]
 	Edges  *algo.EdgeTypes[V]
 	Graph  *ds.Graph[V]
 
 	// OnTreeVertex is called for every vertex in the graph.
-	OnTreeVertex func(*ds.GraphVertex[V], *algo.DFSNode[V])
+	OnTreeVertex func(*ds.GraphVertex[V], *algo.DFNode[V])
 
-	// OnRootVertex is called when the root of a DFS tree is found.
-	OnRootVertex func(*ds.GraphVertex[V], *algo.DFSNode[V])
+	// OnRootVertex is called when the root of a DF tree is found.
+	OnRootVertex func(*ds.GraphVertex[V], *algo.DFNode[V])
 
 	// OnTreeEdge is called when a tree edge is found.
 	OnTreeEdge func(*ds.GraphEdge[V])
@@ -40,15 +40,15 @@ type DFSViz[V ds.Item] struct {
 }
 
 // NewDFSViz initializes a new DFSViz with NOOP hooks and no custom formatting.
-func NewDFSViz[V ds.Item](g *ds.Graph[V], f algo.DFSForest[V], e *algo.EdgeTypes[V]) *DFSViz[V] {
+func NewDFSViz[V ds.Item](g *ds.Graph[V], f algo.DFForest[V], e *algo.EdgeTypes[V]) *DFSViz[V] {
 	res := &DFSViz[V]{}
 
 	res.Forest = f
 	res.Edges = e
 	res.Graph = g
 
-	res.OnTreeVertex = func(*ds.GraphVertex[V], *algo.DFSNode[V]) {}
-	res.OnRootVertex = func(*ds.GraphVertex[V], *algo.DFSNode[V]) {}
+	res.OnTreeVertex = func(*ds.GraphVertex[V], *algo.DFNode[V]) {}
+	res.OnRootVertex = func(*ds.GraphVertex[V], *algo.DFNode[V]) {}
 
 	res.OnTreeEdge = func(*ds.GraphEdge[V]) {}
 	res.OnForwardEdge = func(*ds.GraphEdge[V]) {}

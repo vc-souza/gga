@@ -90,11 +90,11 @@ func main() {
 	vi.DefaultVertexFmt = defaultVertexFmt
 	vi.DefaultEdgeFmt = defaultEdgeFmt
 
-	vi.OnTreeVertex = func(v *ds.GraphVertex[ds.Text], n *algo.DFSNode[ds.Text]) {
+	vi.OnTreeVertex = func(v *ds.GraphVertex[ds.Text], n *algo.DFNode[ds.Text]) {
 		v.SetFmtAttr("label", fmt.Sprintf(` %s | { d = %d | f = %d }`, v.Label(), n.Discovery, n.Finish))
 	}
 
-	vi.OnRootVertex = func(v *ds.GraphVertex[ds.Text], n *algo.DFSNode[ds.Text]) {
+	vi.OnRootVertex = func(v *ds.GraphVertex[ds.Text], n *algo.DFNode[ds.Text]) {
 		v.SetFmtAttr("penwidth", "1.7")
 		v.SetFmtAttr("color", "#000000")
 	}
