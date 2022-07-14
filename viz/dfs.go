@@ -8,7 +8,11 @@ import (
 	"github.com/vc-souza/gga/ds"
 )
 
-// TODO: docs
+/*
+DFSViz formats and exports a graph after an execution of the DFS algorithm.
+The output of the algorithm is traversed, and hooks are provided so that
+custom formatting can be applied to the graph, its vertices and edges.
+*/
 type DFSViz[V ds.Item] struct {
 	AlgoViz
 
@@ -16,26 +20,26 @@ type DFSViz[V ds.Item] struct {
 	Edges  *algo.EdgeTypes[V]
 	Graph  *ds.Graph[V]
 
-	// TODO: docs
+	// OnTreeVertex is called for every vertex in the graph.
 	OnTreeVertex func(*ds.GraphVertex[V], *algo.DFSNode[V])
 
-	// TODO: docs
+	// OnRootVertex is called when the root of a DFS tree is found.
 	OnRootVertex func(*ds.GraphVertex[V], *algo.DFSNode[V])
 
-	// TODO: docs
+	// OnTreeEdge is called when a tree edge is found.
 	OnTreeEdge func(*ds.GraphEdge[V])
 
-	// TODO: docs
+	// OnForwardEdge is called when a forward edge is found.
 	OnForwardEdge func(*ds.GraphEdge[V])
 
-	// TODO: docs
+	// OnBackEdge is called when a back edge is found.
 	OnBackEdge func(*ds.GraphEdge[V])
 
-	// TODO: docs
+	// OnCrossEdge is called when a cross edge is found.
 	OnCrossEdge func(*ds.GraphEdge[V])
 }
 
-// TODO: docs
+// NewDFSViz initializes a new DFSViz with NOOP hooks and no custom formatting.
 func NewDFSViz[V ds.Item](g *ds.Graph[V], f algo.DFSForest[V], e *algo.EdgeTypes[V]) *DFSViz[V] {
 	res := &DFSViz[V]{}
 
@@ -54,6 +58,10 @@ func NewDFSViz[V ds.Item](g *ds.Graph[V], f algo.DFSForest[V], e *algo.EdgeTypes
 	return res
 }
 
+/*
+Export traverses the results of a DFS execution, calling its hooks when appropriate.
+The graph is then exported to the given io.Writer, using the standard viz.Exporter.
+*/
 func (vi *DFSViz[V]) Export(w io.Writer) error {
 	ex := NewExporter(vi.Graph)
 

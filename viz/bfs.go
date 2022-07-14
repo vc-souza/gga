@@ -10,9 +10,9 @@ import (
 )
 
 /*
-	BFSViz formats and exports a graph after an execution of the BFS algorithm.
-	The output of the algorithm is traversed, and hooks are provided so that
-	custom formatting can be applied to the graph, its vertices and edges.
+BFSViz formats and exports a graph after an execution of the BFS algorithm.
+The output of the algorithm is traversed, and hooks are provided so that
+custom formatting can be applied to the graph, its vertices and edges.
 */
 type BFSViz[V ds.Item] struct {
 	AlgoViz

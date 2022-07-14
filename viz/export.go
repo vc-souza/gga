@@ -9,12 +9,12 @@ import (
 )
 
 /*
-	Exporter implements the ds.GraphVisitor interface in order to traverse a ds.Graph
-	and build a sequence of lines in the DOT language. After a successful visit, these
-	lines can then be exported to an io.Writer by calling its Export method.
+Exporter implements the ds.GraphVisitor interface in order to traverse a ds.Graph
+and build a sequence of lines in the DOT language. After a successful visit, these
+lines can then be exported to an io.Writer by calling its Export method.
 
-	Full specification of the DOT language, by Graphviz can be found here:
-	https://graphviz.org/doc/info/lang.html
+Full specification of the DOT language, by Graphviz can be found here:
+https://graphviz.org/doc/info/lang.html
 */
 type Exporter[V ds.Item] struct {
 	Graph *ds.Graph[V]

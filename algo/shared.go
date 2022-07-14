@@ -7,7 +7,7 @@ const (
 	ColorGray
 )
 
-// TODO: docs
+// EdgeTypes stores edges classified by a graph algorithm.
 type EdgeTypes[V ds.Item] struct {
 	Forward []*ds.GraphEdge[V]
 	Back    []*ds.GraphEdge[V]
