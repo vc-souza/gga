@@ -1,13 +1,15 @@
 package algo
 
 import (
+	"container/list"
+
 	"github.com/vc-souza/gga/ds"
 )
 
 // TODO: docs
-func TopologicalSort[V ds.Item](g *ds.Graph[V]) ([]*V, error) {
+func TopologicalSort[V ds.Item](g *ds.Graph[V]) (*list.List, error) {
 	stk := ds.Stack[*V](new(ds.Deque[*V]))
-	ord := make([]*V, 0, g.VertexCount())
+	ord := list.New()
 
 	visited := map[*V]bool{}
 	next := map[*V]int{}
@@ -21,15 +23,11 @@ func TopologicalSort[V ds.Item](g *ds.Graph[V]) ([]*V, error) {
 
 		for !stk.Empty() {
 			vtx, _ := stk.Peek()
-
 			visited[vtx] = true
 
 			if next[vtx] >= len(g.Adj[vtx]) {
 				stk.Pop()
-
-				// TODO: linked list?
-				ord = append([]*V{vtx}, ord...)
-
+				ord.PushFront(vtx)
 				continue
 			}
 
