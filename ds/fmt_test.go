@@ -14,6 +14,23 @@ func TestSetFmtAttr(t *testing.T) {
 	ut.AssertEqual(t, "b", f.Fmt["a"])
 }
 
+func TestAppendFmtAttr_exists(t *testing.T) {
+	f := Formattable{}
+
+	f.SetFmtAttr("a", "b")
+	f.AppendFmtAttr("a", "b")
+
+	ut.AssertEqual(t, "bb", f.Fmt["a"])
+}
+
+func TestAppendFmtAttr_does_not_exist(t *testing.T) {
+	f := Formattable{}
+
+	f.AppendFmtAttr("a", "b")
+
+	ut.AssertEqual(t, "b", f.Fmt["a"])
+}
+
 func TestResetFmt_empty(t *testing.T) {
 	f := Formattable{}
 
