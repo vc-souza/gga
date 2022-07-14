@@ -20,7 +20,7 @@ func TestBFSViz(t *testing.T) {
 	}{
 		{
 			desc:     "graph",
-			input:    ut.UUGBasic,
+			input:    ut.UUGSimple,
 			src:      "u",
 			expectUV: 0,
 			expectTV: 8,
@@ -29,7 +29,7 @@ func TestBFSViz(t *testing.T) {
 		},
 		{
 			desc:     "digraph",
-			input:    ut.UDGBasic,
+			input:    ut.UDGSimple,
 			src:      "3",
 			expectUV: 1,
 			expectTV: 5,

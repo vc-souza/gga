@@ -1,0 +1,11 @@
+digraph
+q#s,t,w
+r#u,y
+s#v
+t#x,y
+u#y
+v#w
+w#s
+x#z
+y#q
+z#x

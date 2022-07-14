@@ -7,11 +7,17 @@ import (
 //go:embed testdata
 var fixFS embed.FS
 
-// // Basic Unweighted Directed Graph.
-var UDGBasic = LoadFixture("testdata/graphs/clrs_22_2_a.gga")
+// Unweighted Directed Graph with simple layout.
+var UDGSimple = LoadFixture("testdata/graphs/clrs_22_2_a.gga")
 
-// // Basic Unweighted Undirected Graph
-var UUGBasic = LoadFixture("testdata/graphs/clrs_22_3.gga")
+// Unweighted Directed Graph with non-trivial dependencies.
+var UDGDeps = LoadFixture("testdata/graphs/clrs_22_6.gga")
+
+// Unweighted Directed Graph with complex dependencies.
+var UDGClx = LoadFixture("testdata/graphs/clrs_22_8.gga")
+
+// Unweighted Undirected Graph with simple layout.
+var UUGSimple = LoadFixture("testdata/graphs/clrs_22_3.gga")
 
 // LoadFixture loads a fixture from a file
 func LoadFixture(path string) string {

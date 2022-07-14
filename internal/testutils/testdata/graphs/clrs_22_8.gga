@@ -1,0 +1,15 @@
+digraph
+m#q,r,x
+n#o,q,u
+o#r,s,v
+p#o,s,z
+q#t
+r#u,y
+s#r
+t#
+u#t
+v#w,x
+w#z
+x#
+y#v
+z#

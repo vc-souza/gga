@@ -36,9 +36,9 @@ func main() {
 
 	switch opt {
 	case "1":
-		export(ut.UDGBasic)
+		export(ut.UDGSimple)
 	case "2":
-		export(ut.UUGBasic)
+		export(ut.UUGSimple)
 	default:
 		panic("invalid choice!")
 	}
