@@ -21,7 +21,7 @@ func TestDFSViz(t *testing.T) {
 	}{
 		{
 			desc:     "graph",
-			input:    ut.BasicUUG,
+			input:    ut.UUGBasic,
 			expectTV: 8,
 			expectRV: 1,
 			expectTE: 7,
@@ -31,7 +31,7 @@ func TestDFSViz(t *testing.T) {
 		},
 		{
 			desc:     "digraph",
-			input:    ut.BasicUDG,
+			input:    ut.UDGBasic,
 			expectTV: 6,
 			expectRV: 2,
 			expectTE: 4,

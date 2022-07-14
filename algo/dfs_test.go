@@ -8,7 +8,7 @@ import (
 )
 
 func TestDFS_directed(t *testing.T) {
-	g, vars, err := ds.NewTextParser().Parse(ut.BasicUDG)
+	g, vars, err := ds.NewTextParser().Parse(ut.UDGBasic)
 
 	ut.AssertEqual(t, true, err == nil)
 
@@ -53,7 +53,7 @@ func TestDFS_directed(t *testing.T) {
 }
 
 func TestDFS_undirected(t *testing.T) {
-	g, vars, err := ds.NewTextParser().Parse(ut.BasicUUG)
+	g, vars, err := ds.NewTextParser().Parse(ut.UUGBasic)
 
 	ut.AssertEqual(t, true, err == nil)
 

@@ -41,7 +41,7 @@ var (
 )
 
 func buildInput() *ds.Graph[ds.Text] {
-	g, _, err := ds.NewTextParser().Parse(ut.BasicUDG + "7#")
+	g, _, err := ds.NewTextParser().Parse(ut.UDGBasic + "7#")
 
 	if err != nil {
 		panic(err)
