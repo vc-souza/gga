@@ -40,8 +40,10 @@ var (
 	}
 )
 
+var input = ut.UUGSimple + "a#"
+
 func buildInput() (*ds.Graph[ds.Text], *ds.Text) {
-	g, vars, err := ds.NewTextParser().Parse(ut.UUGSimple + "a#")
+	g, vars, err := ds.NewTextParser().Parse(input)
 
 	if err != nil {
 		panic(err)

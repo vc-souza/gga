@@ -16,6 +16,9 @@ var UDGDeps = LoadFixture("testdata/graphs/clrs_22_6.gga")
 // Unweighted Directed Graph with complex dependencies.
 var UDGClx = LoadFixture("testdata/graphs/clrs_22_8.gga")
 
+// Unweighted Directed Graph containing dress order data.
+var UDGDress = LoadFixture("testdata/graphs/clrs_22_7.gga")
+
 // Unweighted Undirected Graph with simple layout.
 var UUGSimple = LoadFixture("testdata/graphs/clrs_22_3.gga")
 
