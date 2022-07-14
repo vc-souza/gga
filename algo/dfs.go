@@ -106,10 +106,14 @@ Complexity:
 	- Space (wit edge classification): O(V + E)
 */
 func DFS[V ds.Item](g *ds.Graph[V], classify bool) (DFForest[V], *EdgeTypes[V], error) {
+	stk := ds.Stack[*V](new(ds.Deque[*V]))
+
 	fst := DFForest[V]{}
 	tps := &EdgeTypes[V]{}
+
 	visited := map[*V]bool{}
 	next := map[*V]int{}
+
 	t := 0
 
 	for v := range g.Adj {
@@ -119,9 +123,6 @@ func DFS[V ds.Item](g *ds.Graph[V], classify bool) (DFForest[V], *EdgeTypes[V], 
 	// build a DF tree rooted at the vertex being visited;
 	// the tree will be a part of the DF forest
 	visit := func(root *V) {
-		// only using the ds.Stack interface
-		stk := ds.Stack[*V](new(ds.Deque[*V]))
-
 		stk.Push(root)
 
 		for !stk.Empty() {
@@ -150,10 +151,9 @@ func DFS[V ds.Item](g *ds.Graph[V], classify bool) (DFForest[V], *EdgeTypes[V], 
 			// trigger the classification of the edge that connects them
 			for i := next[vtx]; i < len(g.Adj[vtx]); i++ {
 				e := g.Adj[vtx][i]
+				next[vtx]++
 
 				if visited[e.Dst] {
-					next[vtx]++
-
 					if !classify {
 						continue
 					}
@@ -163,21 +163,18 @@ func DFS[V ds.Item](g *ds.Graph[V], classify bool) (DFForest[V], *EdgeTypes[V], 
 					} else {
 						classifyUndirectedEdge(fst, tps, e)
 					}
+				} else {
+					// found a tree edge
+					fst[e.Dst].Parent = vtx
+					stk.Push(e.Dst)
 
-					continue
+					// depth-first means that a descendant needs to be fully
+					// explored before the next adjacent vertex is considered;
+					// whenever we run out of descendants to explore, the value
+					// of fst[vtx].next will give us the next adjacent node
+					// to fully explore.
+					break
 				}
-
-				// found a tree edge
-				fst[e.Dst].Parent = vtx
-				stk.Push(e.Dst)
-				next[vtx]++
-
-				// depth-first means that a descendant needs to be fully
-				// explored before the next adjacent vertex is considered;
-				// whenever we run out of descendants to explore, the value
-				// of fst[vtx].next will give us the next adjacent node
-				// to fully explore.
-				break
 			}
 		}
 	}
