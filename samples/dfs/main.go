@@ -40,7 +40,7 @@ var (
 	}
 )
 
-var input = ut.UDGSimple + "7#"
+var input = ut.UDGSimple + "\n7#"
 
 func buildInput() *ds.Graph[ds.Text] {
 	g, _, err := ds.NewTextParser().Parse(input)

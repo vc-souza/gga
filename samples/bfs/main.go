@@ -40,7 +40,7 @@ var (
 	}
 )
 
-var input = ut.UUGSimple + "a#"
+var input = ut.UUGSimple + "\na#"
 
 func buildInput() (*ds.Graph[ds.Text], *ds.Text) {
 	g, vars, err := ds.NewTextParser().Parse(input)
