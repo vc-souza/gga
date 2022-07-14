@@ -71,7 +71,7 @@ func main() {
 	// export the input graph
 	ex.Export(fIn)
 
-	fst, edges, err := algo.DFS(g)
+	fst, edges, err := algo.DFS(g, true)
 
 	if err != nil {
 		panic(err)

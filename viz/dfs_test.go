@@ -47,7 +47,7 @@ func TestDFSViz(t *testing.T) {
 
 			ut.AssertEqual(t, true, err == nil)
 
-			fst, tps, err := algo.DFS(g)
+			fst, tps, err := algo.DFS(g, true)
 
 			ut.AssertEqual(t, true, err == nil)
 

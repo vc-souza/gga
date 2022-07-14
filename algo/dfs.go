@@ -52,6 +52,43 @@ so repeated DFS calls always produce the same DF forest.
 */
 type DFForest[V ds.Item] map[*V]*DFNode[V]
 
+func classifyDirectedEdge[V ds.Item](fst DFForest[V], tps *EdgeTypes[V], e *ds.GraphEdge[V]) {
+	// the vertex being reached (Dst) was discovered before
+	// the vertex being explored (Src), so Dst is either
+	// an ancestor of Src, or they do not have a direct
+	// ancestor/descendant relationship
+	if fst[e.Src].Discovery >= fst[e.Dst].Discovery {
+		// ancestor/descendant relationship,
+		// self-loops included here
+		if fst[e.Dst].Finish == 0 {
+			tps.Back = append(tps.Back, e)
+		} else {
+			tps.Cross = append(tps.Cross, e)
+		}
+	} else {
+		// Src is an ancestor of Dst, and since Dst has
+		// been discovered before, this is a Forward edge
+		tps.Forward = append(tps.Forward, e)
+	}
+}
+
+func classifyUndirectedEdge[V ds.Item](fst DFForest[V], tps *EdgeTypes[V], e *ds.GraphEdge[V]) {
+	// due to how adjacency lists work, undirected
+	// graphs represent the same edge twice, so
+	// if we're dealing with the reverse of a tree
+	// edge, then do not flag the reverse edge as
+	// being a back edge
+	if fst[e.Src].Parent == e.Dst {
+		return
+	}
+
+	// undirected graphs only have tree and back edges
+	// even if this looks like a forward edge from one
+	// side, it will be classified as a back edge
+	// when the reverse edge gets classified
+	tps.Back = append(tps.Back, e)
+}
+
 /*
 DFS implements the Depth-First Search (DFS) algorithm.
 
@@ -81,7 +118,7 @@ Complexity:
 	- Space (without edge classification): Θ(V)
 	- Space (wit edge classification): O(V + E)
 */
-func DFS[V ds.Item](g *ds.Graph[V]) (DFForest[V], *EdgeTypes[V], error) {
+func DFS[V ds.Item](g *ds.Graph[V], classify bool) (DFForest[V], *EdgeTypes[V], error) {
 	fst := DFForest[V]{}
 	tps := &EdgeTypes[V]{}
 	t := 0
@@ -89,45 +126,6 @@ func DFS[V ds.Item](g *ds.Graph[V]) (DFForest[V], *EdgeTypes[V], error) {
 	for v := range g.Adj {
 		fst[v] = &DFNode[V]{
 			Color: ColorWhite,
-		}
-	}
-
-	// classify the edge that connects a gray vertex being explored
-	// to another gray vertex that has also been discovered before
-	classify := func(e *ds.GraphEdge[V]) {
-		if g.Directed() {
-			// the vertex being reached (Dst) was discovered before
-			// the vertex being explored (Src), so Dst is either
-			// an ancestor of Src, or they do not have a direct
-			// ancestor/descendant relationship
-			if fst[e.Src].Discovery >= fst[e.Dst].Discovery {
-				// ancestor/descendant relationship,
-				// self-loops included here
-				if fst[e.Dst].Finish == 0 {
-					tps.Back = append(tps.Back, e)
-				} else {
-					tps.Cross = append(tps.Cross, e)
-				}
-			} else {
-				// Src is an ancestor of Dst, and since Dst has
-				// been discovered before, this is a Forward edge
-				tps.Forward = append(tps.Forward, e)
-			}
-		} else {
-			// due to how adjacency lists work, undirected
-			// graphs represent the same edge twice, so
-			// if we're dealing with the reverse of a tree
-			// edge, then do not flag the reverse edge as
-			// being a back edge
-			if fst[e.Src].Parent == e.Dst {
-				return
-			}
-
-			// undirected graphs only have tree and back edges
-			// even if this looks like a forward edge from one
-			// side, it will be classified as a back edge
-			// when the reverse edge gets classified
-			tps.Back = append(tps.Back, e)
 		}
 	}
 
@@ -167,8 +165,18 @@ func DFS[V ds.Item](g *ds.Graph[V]) (DFForest[V], *EdgeTypes[V], error) {
 				e := g.Adj[vtx][i]
 
 				if fst[e.Dst].Color != ColorWhite {
-					classify(e)
 					fst[vtx].next++
+
+					if !classify {
+						continue
+					}
+
+					if g.Directed() {
+						classifyDirectedEdge(fst, tps, e)
+					} else {
+						classifyUndirectedEdge(fst, tps, e)
+					}
+
 					continue
 				}
 
