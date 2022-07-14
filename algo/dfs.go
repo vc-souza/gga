@@ -13,15 +13,8 @@ type DFNode[V ds.Item] struct {
 	// Discovery records when the vertex was marked as discovered.
 	Discovery int
 
-	// Discovery records when the vertex was marked as fully explored.
+	// Finish records when the vertex was marked as fully explored.
 	Finish int
-
-	/*
-		Visited holds the visiting status of the vertex:
-			- Unvisited vertices are undiscovered, but at the end of the DFS, no vertex will remain so.
-			- Visited vertices are discovered and either being explored or fully explored.
-	*/
-	Visited bool
 
 	/*
 		Parent holds the vertex that discovered this vertex, with the edge (v.Parent, v) being called a tree edge.
@@ -31,12 +24,6 @@ type DFNode[V ds.Item] struct {
 		After a DFS, every root of a DF tree in the DF forest will have a nil Parent.
 	*/
 	Parent *V
-
-	/*
-		next is used to keep track of which one of the vertices that are adjacent to this vertex
-		should be processed next, whenever this vertex gets picked up again for processing.
-	*/
-	next int
 }
 
 /*
@@ -121,15 +108,17 @@ Complexity:
 func DFS[V ds.Item](g *ds.Graph[V], classify bool) (DFForest[V], *EdgeTypes[V], error) {
 	fst := DFForest[V]{}
 	tps := &EdgeTypes[V]{}
+	visited := map[*V]bool{}
+	next := map[*V]int{}
 	t := 0
 
 	for v := range g.Adj {
 		fst[v] = &DFNode[V]{}
 	}
 
-	// build a DF tree rooted at the given vertex;
+	// build a DF tree rooted at the vertex being visited;
 	// the tree will be a part of the DF forest
-	tree := func(root *V) {
+	visit := func(root *V) {
 		// only using the ds.Stack interface
 		stk := ds.Stack[*V](new(ds.Deque[*V]))
 
@@ -139,16 +128,16 @@ func DFS[V ds.Item](g *ds.Graph[V], classify bool) (DFForest[V], *EdgeTypes[V], 
 			vtx, _ := stk.Peek()
 
 			// vertex is being discovered
-			if !fst[vtx].Visited {
+			if !visited[vtx] {
 				t++
 				fst[vtx].Discovery = t
-				fst[vtx].Visited = true
+				visited[vtx] = true
 			}
 
 			// vertex has exhausted its adjacency list:
 			// all of its descendants have been
 			// discovered and fully explored
-			if fst[vtx].next >= len(g.Adj[vtx]) {
+			if next[vtx] >= len(g.Adj[vtx]) {
 				stk.Pop()
 				t++
 				fst[vtx].Finish = t
@@ -159,11 +148,11 @@ func DFS[V ds.Item](g *ds.Graph[V], classify bool) (DFForest[V], *EdgeTypes[V], 
 			// explore what remains of the adjacency list of the vertex:
 			// new nodes will be pushed to the stack and old ones will
 			// trigger the classification of the edge that connects them
-			for i := fst[vtx].next; i < len(g.Adj[vtx]); i++ {
+			for i := next[vtx]; i < len(g.Adj[vtx]); i++ {
 				e := g.Adj[vtx][i]
 
-				if fst[e.Dst].Visited {
-					fst[vtx].next++
+				if visited[e.Dst] {
+					next[vtx]++
 
 					if !classify {
 						continue
@@ -181,7 +170,7 @@ func DFS[V ds.Item](g *ds.Graph[V], classify bool) (DFForest[V], *EdgeTypes[V], 
 				// found a tree edge
 				fst[e.Dst].Parent = vtx
 				stk.Push(e.Dst)
-				fst[vtx].next++
+				next[vtx]++
 
 				// depth-first means that a descendant needs to be fully
 				// explored before the next adjacent vertex is considered;
@@ -202,11 +191,11 @@ func DFS[V ds.Item](g *ds.Graph[V], classify bool) (DFForest[V], *EdgeTypes[V], 
 		root := vert.Val
 
 		// skip: already part of another tree
-		if fst[root].Visited {
+		if visited[root] {
 			continue
 		}
 
-		tree(root)
+		visit(root)
 	}
 
 	return fst, tps, nil

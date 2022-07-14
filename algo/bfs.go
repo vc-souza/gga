@@ -19,13 +19,6 @@ type BFNode[V ds.Item] struct {
 	Distance float64
 
 	/*
-		Visited holds the visiting status of the vertex:
-			- Unvisited vertices are undiscovered, and might remain so if unreachable.
-			- Visited vertices are discovered and either being explored or fully explored.
-	*/
-	Visited bool
-
-	/*
 		Parent holds the vertex that discovered this vertex, with the edge (v.Parent, v) being called a tree edge.
 		This is how the BF tree is encoded: by following the parent pointers from any reachable vertex back to
 		the source, one can generate a shortest path from the source to the vertex.
@@ -67,6 +60,7 @@ Complexity:
 	- Space: Θ(V)
 */
 func BFS[V ds.Item](g *ds.Graph[V], src *V) (BFTree[V], error) {
+	visited := map[*V]bool{}
 	tree := BFTree[V]{}
 
 	for v := range g.Adj {
@@ -75,8 +69,8 @@ func BFS[V ds.Item](g *ds.Graph[V], src *V) (BFTree[V], error) {
 		}
 	}
 
-	tree[src].Visited = true
 	tree[src].Distance = 0
+	visited[src] = true
 
 	// only using the ds.Queue interface
 	queue := ds.Queue[*V](new(ds.Deque[*V]))
@@ -87,14 +81,14 @@ func BFS[V ds.Item](g *ds.Graph[V], src *V) (BFTree[V], error) {
 		curr, _ := queue.Dequeue()
 
 		for _, edge := range g.Adj[curr] {
-			if tree[edge.Dst].Visited {
+			if visited[edge.Dst] {
 				continue
 			}
 
 			// found a tree edge
 			tree[edge.Dst].Distance = tree[curr].Distance + 1
-			tree[edge.Dst].Visited = true
 			tree[edge.Dst].Parent = curr
+			visited[edge.Dst] = true
 
 			queue.Enqueue(edge.Dst)
 		}
