@@ -19,11 +19,11 @@ type BFNode[V ds.Item] struct {
 	Distance float64
 
 	/*
-		Color holds the current color of the vertex.
-			- White vertices are undiscovered, and might remain so if unreachable.
-			- Gray vertices are discovered and either being explored or fully explored.
+		Visited holds the visiting status of the vertex:
+			- Unvisited vertices are undiscovered, and might remain so if unreachable.
+			- Visited vertices are discovered and either being explored or fully explored.
 	*/
-	Color int
+	Visited bool
 
 	/*
 		Parent holds the vertex that discovered this vertex, with the edge (v.Parent, v) being called a tree edge.
@@ -72,11 +72,10 @@ func BFS[V ds.Item](g *ds.Graph[V], src *V) (BFTree[V], error) {
 	for v := range g.Adj {
 		tree[v] = &BFNode[V]{
 			Distance: math.Inf(1),
-			Color:    ColorWhite,
 		}
 	}
 
-	tree[src].Color = ColorGray
+	tree[src].Visited = true
 	tree[src].Distance = 0
 
 	// only using the ds.Queue interface
@@ -88,13 +87,13 @@ func BFS[V ds.Item](g *ds.Graph[V], src *V) (BFTree[V], error) {
 		curr, _ := queue.Dequeue()
 
 		for _, edge := range g.Adj[curr] {
-			if tree[edge.Dst].Color != ColorWhite {
+			if tree[edge.Dst].Visited {
 				continue
 			}
 
 			// found a tree edge
 			tree[edge.Dst].Distance = tree[curr].Distance + 1
-			tree[edge.Dst].Color = ColorGray
+			tree[edge.Dst].Visited = true
 			tree[edge.Dst].Parent = curr
 
 			queue.Enqueue(edge.Dst)

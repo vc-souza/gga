@@ -17,11 +17,11 @@ type DFNode[V ds.Item] struct {
 	Finish int
 
 	/*
-		Color holds the current color of the vertex.
-			- White vertices are undiscovered, but at the end of the DFS, no vertex will remain so.
-			- Gray vertices are discovered and either being explored or fully explored.
+		Visited holds the visiting status of the vertex:
+			- Unvisited vertices are undiscovered, but at the end of the DFS, no vertex will remain so.
+			- Visited vertices are discovered and either being explored or fully explored.
 	*/
-	Color int
+	Visited bool
 
 	/*
 		Parent holds the vertex that discovered this vertex, with the edge (v.Parent, v) being called a tree edge.
@@ -41,7 +41,7 @@ type DFNode[V ds.Item] struct {
 
 /*
 A DFForest is one of the results of a DFS, representing a forest of DF trees (connected acyclic subgraphs),
-with each DF tree being composed of all (at the time) white vertices that were reachable from the root
+with each DF tree being composed of all (at the time) unvisited vertices that were reachable from the root
 of the DF tree, during the execution of the DFS.
 
 Slightly different trees can be generated for the same graph, if the visiting order for either vertices
@@ -124,9 +124,7 @@ func DFS[V ds.Item](g *ds.Graph[V], classify bool) (DFForest[V], *EdgeTypes[V], 
 	t := 0
 
 	for v := range g.Adj {
-		fst[v] = &DFNode[V]{
-			Color: ColorWhite,
-		}
+		fst[v] = &DFNode[V]{}
 	}
 
 	// build a DF tree rooted at the given vertex;
@@ -141,10 +139,10 @@ func DFS[V ds.Item](g *ds.Graph[V], classify bool) (DFForest[V], *EdgeTypes[V], 
 			vtx, _ := stk.Peek()
 
 			// vertex is being discovered
-			if fst[vtx].Color == ColorWhite {
+			if !fst[vtx].Visited {
 				t++
 				fst[vtx].Discovery = t
-				fst[vtx].Color = ColorGray
+				fst[vtx].Visited = true
 			}
 
 			// vertex has exhausted its adjacency list:
@@ -164,7 +162,7 @@ func DFS[V ds.Item](g *ds.Graph[V], classify bool) (DFForest[V], *EdgeTypes[V], 
 			for i := fst[vtx].next; i < len(g.Adj[vtx]); i++ {
 				e := g.Adj[vtx][i]
 
-				if fst[e.Dst].Color != ColorWhite {
+				if fst[e.Dst].Visited {
 					fst[vtx].next++
 
 					if !classify {
@@ -197,14 +195,14 @@ func DFS[V ds.Item](g *ds.Graph[V], classify bool) (DFForest[V], *EdgeTypes[V], 
 
 	// if a vertex is not included in a tree during a call to the 'tree'
 	// function, then it could be picked as the root of the next tree:
-	// by iterating over all white vertices, we assure that no vertex
-	// will be left without being assign to a DF tree, even if its
-	// tree ends up only containing the vertex itself.
+	// by iterating over all unvisited vertices, we assure that no
+	// vertex will be left without being assign to a DF tree, even
+	// if its tree ends up only containing the vertex itself.
 	for _, vert := range g.Verts {
 		root := vert.Val
 
 		// skip: already part of another tree
-		if fst[root].Color != ColorWhite {
+		if fst[root].Visited {
 			continue
 		}
 
