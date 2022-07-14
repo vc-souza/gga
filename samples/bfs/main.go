@@ -17,8 +17,6 @@ const (
 	fileOut = "BFS-after.dot"
 )
 
-var soloVertex = "a#"
-
 var (
 	defaultGraphFmt = ds.FmtAttrs{
 		"bgcolor": "#ffffff",
@@ -43,7 +41,7 @@ var (
 )
 
 func buildInput() (*ds.Graph[ds.Text], *ds.Text) {
-	g, vars, err := ds.NewTextParser().Parse(ut.BasicUUG + soloVertex)
+	g, vars, err := ds.NewTextParser().Parse(ut.BasicUUG + "a#")
 
 	if err != nil {
 		panic(err)

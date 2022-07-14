@@ -1,3 +1,5 @@
+//go:build !test
+
 package main
 
 import (
@@ -14,8 +16,6 @@ const (
 	fileIn  = "DFS-before.dot"
 	fileOut = "DFS-after.dot"
 )
-
-var soloVertex = "7#"
 
 var (
 	defaultGraphFmt = ds.FmtAttrs{
@@ -41,7 +41,7 @@ var (
 )
 
 func buildInput() *ds.Graph[ds.Text] {
-	g, _, err := ds.NewTextParser().Parse(ut.BasicUDG + soloVertex)
+	g, _, err := ds.NewTextParser().Parse(ut.BasicUDG + "7#")
 
 	if err != nil {
 		panic(err)
