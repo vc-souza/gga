@@ -9,11 +9,10 @@ cov:
 	@go tool cover -html=coverage.out
 
 clean:
-	$(call rmftype,svg)
-
-clean-all: clean
 	$(call rmftype,dot)
 	$(call rmftype,out)
+	@rm -f *.svg
+
 
 parse-dot:
 	@for f in `find $$(pwd -P) -type f -name "*.dot"`; do \

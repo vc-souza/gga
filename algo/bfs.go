@@ -1,7 +1,6 @@
 package algo
 
 import (
-	"errors"
 	"math"
 
 	"github.com/vc-souza/gga/ds"
@@ -21,10 +20,7 @@ type BFSNode[V ds.Item] struct {
 	/*
 		Color holds the current color of the vertex.
 			- White vertices are undiscovered, and might remain so if unreachable.
-			- Gray vertices are in the frontier: discovered but not fully explored.
-			- Black vertices are fully explored: discovered + adjacency list explored.
-
-		Technically, BFS only needs two colors, but a third color is useful for learning/visualizations.
+			- Gray vertices are discovered and either being explored or fully explored.
 	*/
 	Color int
 
@@ -71,12 +67,10 @@ Complexity:
 func BFS[V ds.Item](g *ds.Graph[V], src *V) (BFSTree[V], error) {
 	tree := BFSTree[V]{}
 
-	// Θ(V)
 	for v := range g.Adj {
 		tree[v] = &BFSNode[V]{
 			Distance: math.Inf(1),
 			Color:    ColorWhite,
-			Parent:   nil,
 		}
 	}
 
@@ -88,13 +82,8 @@ func BFS[V ds.Item](g *ds.Graph[V], src *V) (BFSTree[V], error) {
 
 	queue.Enqueue(src)
 
-	// Θ(E)
 	for !queue.Empty() {
-		curr, ok := queue.Dequeue()
-
-		if !ok {
-			return nil, errors.New("could not dequeue")
-		}
+		curr, _ := queue.Dequeue()
 
 		for _, edge := range g.Adj[curr] {
 			if tree[edge.Dst].Color != ColorWhite {
@@ -108,8 +97,6 @@ func BFS[V ds.Item](g *ds.Graph[V], src *V) (BFSTree[V], error) {
 
 			queue.Enqueue(edge.Dst)
 		}
-
-		tree[curr].Color = ColorBlack
 	}
 
 	return tree, nil

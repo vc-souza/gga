@@ -8,90 +8,69 @@ import (
 	ut "github.com/vc-souza/gga/internal/testutils"
 )
 
-type dummyWriter struct{}
-
-func (d dummyWriter) Write(p []byte) (int, error) { return 0, nil }
-
-func TestBFSViz_directed(t *testing.T) {
-	g, vars, err := ds.NewTextParser().Parse(ut.BasicUDG)
-
-	ut.AssertEqual(t, true, err == nil)
-
-	src := vars["3"]
-
-	tree, err := algo.BFS(g, src)
-
-	ut.AssertEqual(t, true, err == nil)
-
-	uCount := 0
-	tCount := 0
-	sCount := 0
-	eCount := 0
-
-	vi := NewBFSViz(g, tree, src)
-
-	vi.OnUnVertex = func(d *ds.GraphVertex[ds.Text], a *algo.BFSNode[ds.Text]) {
-		uCount++
+func TestBFSViz(t *testing.T) {
+	cases := []struct {
+		desc     string
+		input    string
+		src      string
+		expectUV int
+		expectTV int
+		expectSV int
+		expectTE int
+	}{
+		{
+			desc:     "graph",
+			input:    ut.BasicUUG,
+			src:      "u",
+			expectUV: 0,
+			expectTV: 8,
+			expectSV: 1,
+			expectTE: 7,
+		},
+		{
+			desc:     "digraph",
+			input:    ut.BasicUDG,
+			src:      "3",
+			expectUV: 1,
+			expectTV: 5,
+			expectSV: 1,
+			expectTE: 4,
+		},
 	}
 
-	vi.OnTreeVertex = func(d *ds.GraphVertex[ds.Text], a *algo.BFSNode[ds.Text]) {
-		tCount++
+	for _, tc := range cases {
+		t.Run(tc.desc, func(t *testing.T) {
+			g, vars, err := ds.NewTextParser().Parse(tc.input)
+
+			ut.AssertEqual(t, true, err == nil)
+
+			src := vars[tc.src]
+
+			tree, err := algo.BFS(g, src)
+
+			ut.AssertEqual(t, true, err == nil)
+
+			uvCount := 0
+			tvCount := 0
+			svCount := 0
+			teCount := 0
+
+			vi := NewBFSViz(g, tree, src)
+
+			vi.OnUnVertex = func(d *ds.GraphVertex[ds.Text], a *algo.BFSNode[ds.Text]) { uvCount++ }
+
+			vi.OnTreeVertex = func(d *ds.GraphVertex[ds.Text], a *algo.BFSNode[ds.Text]) { tvCount++ }
+
+			vi.OnSourceVertex = func(d *ds.GraphVertex[ds.Text], a *algo.BFSNode[ds.Text]) { svCount++ }
+
+			vi.OnTreeEdge = func(d *ds.GraphEdge[ds.Text]) { teCount++ }
+
+			vi.Export(ut.DummyWriter{})
+
+			ut.AssertEqual(t, tc.expectUV, uvCount)
+			ut.AssertEqual(t, tc.expectTV, tvCount)
+			ut.AssertEqual(t, tc.expectSV, svCount)
+			ut.AssertEqual(t, tc.expectTE, teCount)
+		})
 	}
-
-	vi.OnSourceVertex = func(d *ds.GraphVertex[ds.Text], a *algo.BFSNode[ds.Text]) {
-		sCount++
-	}
-
-	vi.OnTreeEdge = func(d *ds.GraphEdge[ds.Text]) {
-		eCount++
-	}
-
-	vi.Export(dummyWriter{})
-
-	ut.AssertEqual(t, 1, uCount)
-	ut.AssertEqual(t, 5, tCount)
-	ut.AssertEqual(t, 1, sCount)
-	ut.AssertEqual(t, 4, eCount)
-}
-
-func TestBFSViz_undirected(t *testing.T) {
-	g, vars, err := ds.NewTextParser().Parse(ut.BasicUUG)
-
-	ut.AssertEqual(t, true, err == nil)
-
-	src := vars["u"]
-
-	tree, err := algo.BFS(g, src)
-
-	ut.AssertEqual(t, true, err == nil)
-
-	uCount := 0
-	tCount := 0
-	sCount := 0
-	eCount := 0
-
-	vi := NewBFSViz(g, tree, src)
-
-	vi.OnUnVertex = func(d *ds.GraphVertex[ds.Text], a *algo.BFSNode[ds.Text]) {
-		uCount++
-	}
-
-	vi.OnTreeVertex = func(d *ds.GraphVertex[ds.Text], a *algo.BFSNode[ds.Text]) {
-		tCount++
-	}
-
-	vi.OnSourceVertex = func(d *ds.GraphVertex[ds.Text], a *algo.BFSNode[ds.Text]) {
-		sCount++
-	}
-
-	vi.OnTreeEdge = func(d *ds.GraphEdge[ds.Text]) {
-		eCount++
-	}
-
-	vi.Export(dummyWriter{})
-
-	ut.AssertEqual(t, 0, uCount)
-	ut.AssertEqual(t, 8, tCount)
-	ut.AssertEqual(t, 1, sCount)
-	ut.AssertEqual(t, 14, eCount)
 }

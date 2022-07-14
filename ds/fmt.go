@@ -17,6 +17,20 @@ func (f *Formattable) SetFmtAttr(k, v string) {
 	f.Fmt[k] = v
 }
 
+/*
+AppendFmtAttr appends a new value to an existing formatting attribute.
+If the attribute hasn't been set yet, it is then set using the value.
+*/
+func (f *Formattable) AppendFmtAttr(k, v string) {
+	old, ok := f.Fmt[k]
+
+	if ok {
+		f.SetFmtAttr(k, old+v)
+	} else {
+		f.SetFmtAttr(k, v)
+	}
+}
+
 // ResetFmt resets the current formatting attributes, if any.
 func (f *Formattable) ResetFmt() {
 	if f.Fmt == nil {

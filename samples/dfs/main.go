@@ -13,8 +13,8 @@ import (
 )
 
 const (
-	fileIn  = "BFS-before.dot"
-	fileOut = "BFS-after.dot"
+	fileIn  = "DFS-before.dot"
+	fileOut = "DFS-after.dot"
 )
 
 var (
@@ -40,19 +40,18 @@ var (
 	}
 )
 
-func buildInput() (*ds.Graph[ds.Text], *ds.Text) {
-	g, vars, err := ds.NewTextParser().Parse(ut.BasicUUG + "a#")
+func buildInput() *ds.Graph[ds.Text] {
+	g, _, err := ds.NewTextParser().Parse(ut.BasicUDG + "7#")
 
 	if err != nil {
 		panic(err)
 	}
 
-	return g, vars["s"]
+	return g
 }
 
 func main() {
-	// build graph, establish a source vertex
-	g, src := buildInput()
+	g := buildInput()
 	ex := viz.NewExporter(g)
 
 	ex.DefaultGraphFmt = defaultGraphFmt
@@ -70,8 +69,7 @@ func main() {
 	// export the input graph
 	ex.Export(fIn)
 
-	// run BFS with the given source
-	tree, err := algo.BFS(g, src)
+	fst, edges, err := algo.DFS(g)
 
 	if err != nil {
 		panic(err)
@@ -85,33 +83,39 @@ func main() {
 
 	defer fOut.Close()
 
-	vi := viz.NewBFSViz(g, tree, src)
+	vi := viz.NewDFSViz(g, fst, edges)
 
 	// set the desired custom formatting
 	vi.DefaultGraphFmt = defaultGraphFmt
 	vi.DefaultVertexFmt = defaultVertexFmt
 	vi.DefaultEdgeFmt = defaultEdgeFmt
 
-	vi.OnTreeVertex = func(v *ds.GraphVertex[ds.Text], n *algo.BFSNode[ds.Text]) {
-		v.SetFmtAttr("label", fmt.Sprintf(`{ %s | d = %d }`, v.Label(), int(n.Distance)))
+	vi.OnTreeVertex = func(v *ds.GraphVertex[ds.Text], n *algo.DFSNode[ds.Text]) {
+		v.SetFmtAttr("label", fmt.Sprintf(` %s | { d = %d | f = %d }`, v.Label(), n.Discovery, n.Finish))
 	}
 
-	vi.OnSourceVertex = func(v *ds.GraphVertex[ds.Text], n *algo.BFSNode[ds.Text]) {
-		v.SetFmtAttr("label", fmt.Sprintf(`{ %s | source }`, v.Label()))
+	vi.OnRootVertex = func(v *ds.GraphVertex[ds.Text], n *algo.DFSNode[ds.Text]) {
 		v.SetFmtAttr("penwidth", "1.7")
 		v.SetFmtAttr("color", "#000000")
-	}
-
-	vi.OnUnVertex = func(v *ds.GraphVertex[ds.Text], n *algo.BFSNode[ds.Text]) {
-		v.SetFmtAttr("label", fmt.Sprintf(`{ %s | ∞ }`, v.Label()))
-		v.SetFmtAttr("fillcolor", "#ED2839")
 	}
 
 	vi.OnTreeEdge = func(e *ds.GraphEdge[ds.Text]) {
 		e.SetFmtAttr("penwidth", "3.0")
 	}
 
-	// annotate the input graph with the result of the BFS,
+	vi.OnForwardEdge = func(e *ds.GraphEdge[ds.Text]) {
+		e.SetFmtAttr("label", "F")
+	}
+
+	vi.OnBackEdge = func(e *ds.GraphEdge[ds.Text]) {
+		e.SetFmtAttr("label", "B")
+	}
+
+	vi.OnCrossEdge = func(e *ds.GraphEdge[ds.Text]) {
+		e.SetFmtAttr("label", "C")
+	}
+
+	// annotate the input graph with the result of the DFS,
 	// then export the annotated version
 	if err := vi.Export(fOut); err != nil {
 		panic(err)
