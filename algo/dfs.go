@@ -30,7 +30,6 @@ func DFS[V ds.Item](g *ds.Graph[V]) (DFSForest[V], *EdgeTypes[V], error) {
 	tps := &EdgeTypes[V]{}
 	t := 0
 
-	// Θ(V)
 	for v := range g.Adj {
 		fst[v] = &DFSNode[V]{
 			Color: ColorWhite,
@@ -87,23 +86,27 @@ func DFS[V ds.Item](g *ds.Graph[V]) (DFSForest[V], *EdgeTypes[V], error) {
 		for !stk.Empty() {
 			vtx, _ := stk.Peek()
 
+			// vertex is being discovered
 			if fst[vtx].Color == ColorWhite {
 				t++
-
 				fst[vtx].Discovery = t
 				fst[vtx].Color = ColorGray
 			}
 
+			// vertex has exhausted its adjacency list:
+			// all of its descendants have been
+			// discovered and fully explored
 			if fst[vtx].next >= len(g.Adj[vtx]) {
-				vtx, _ := stk.Pop()
-
+				stk.Pop()
 				t++
-
 				fst[vtx].Finish = t
 
 				continue
 			}
 
+			// explore what remains of the adjacency list of the vertex:
+			// new nodes will be pushed to the stack and old ones will
+			// trigger the classification of the edge that connects them
 			for i := fst[vtx].next; i < len(g.Adj[vtx]); i++ {
 				e := g.Adj[vtx][i]
 
@@ -115,19 +118,28 @@ func DFS[V ds.Item](g *ds.Graph[V]) (DFSForest[V], *EdgeTypes[V], error) {
 
 				// found a tree edge
 				fst[e.Dst].Parent = vtx
-
 				stk.Push(e.Dst)
-
 				fst[vtx].next++
+
+				// depth-first means that a descendant needs to be fully
+				// explored before the next adjacent vertex is considered;
+				// whenever we run out of descendants to explore, the value
+				// of fst[vtx].next will give us the next adjacent node
+				// to fully explore.
 				break
 			}
 		}
 	}
 
+	// if a vertex is not included in a tree during a call to the 'tree'
+	// function, then it could be picked as the root of the next tree:
+	// by iterating over all white vertices, we assure that no vertex
+	// will be left without being assign to a DFS tree, even if its
+	// tree ends up only containing the vertex itself.
 	for _, vert := range g.Verts {
 		root := vert.Val
 
-		// already part of another tree
+		// skip: already part of another tree
 		if fst[root].Color != ColorWhite {
 			continue
 		}
