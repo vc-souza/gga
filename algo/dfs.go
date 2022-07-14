@@ -40,14 +40,17 @@ func DFS[V ds.Item](g *ds.Graph[V]) (DFSForest[V], *EdgeTypes[V], error) {
 	// classify the edge that connects a gray vertex being explored
 	// to another gray vertex that has also been discovered before
 	classify := func(e *ds.GraphEdge[V]) {
+
 		// the vertex being reached (Dst) was discovered before
 		// the vertex being explored (Src), so Dst is either
 		// an ancestor of Src, or they do not have a direct
 		// ancestor/descendant relationship
 		if fst[e.Src].Discovery >= fst[e.Dst].Discovery {
+
 			// ancestor/descendant relationship,
 			// self-loops included here
 			if fst[e.Dst].Finish == 0 {
+
 				// due to how adjacency lists work, undirected
 				// graphs represent the same edge twice, so
 				// if we're dealing with the reverse of a tree

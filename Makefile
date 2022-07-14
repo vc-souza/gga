@@ -11,6 +11,8 @@ cov:
 clean:
 	$(call rmftype,dot)
 	$(call rmftype,out)
+	@rm -f *.svg
+
 
 parse-dot:
 	@for f in `find $$(pwd -P) -type f -name "*.dot"`; do \

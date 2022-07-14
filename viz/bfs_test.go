@@ -93,5 +93,5 @@ func TestBFSViz_undirected(t *testing.T) {
 	ut.AssertEqual(t, 0, uCount)
 	ut.AssertEqual(t, 8, tCount)
 	ut.AssertEqual(t, 1, sCount)
-	ut.AssertEqual(t, 14, eCount)
+	ut.AssertEqual(t, 7, eCount)
 }

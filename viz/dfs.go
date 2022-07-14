@@ -84,8 +84,6 @@ func (vi *DFSViz[V]) Export(w io.Writer) error {
 		}
 
 		vi.OnTreeEdge(edge)
-
-		// TODO: reverse edge
 	}
 
 	for _, e := range vi.Edges.Forward {
