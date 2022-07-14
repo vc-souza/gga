@@ -40,34 +40,39 @@ func DFS[V ds.Item](g *ds.Graph[V]) (DFSForest[V], *EdgeTypes[V], error) {
 	// classify the edge that connects a gray vertex being explored
 	// to another gray vertex that has also been discovered before
 	classify := func(e *ds.GraphEdge[V]) {
-
-		// the vertex being reached (Dst) was discovered before
-		// the vertex being explored (Src), so Dst is either
-		// an ancestor of Src, or they do not have a direct
-		// ancestor/descendant relationship
-		if fst[e.Src].Discovery >= fst[e.Dst].Discovery {
-
-			// ancestor/descendant relationship,
-			// self-loops included here
-			if fst[e.Dst].Finish == 0 {
-
-				// due to how adjacency lists work, undirected
-				// graphs represent the same edge twice, so
-				// if we're dealing with the reverse of a tree
-				// edge, then do not flag the reverse edge as
-				// being a back edge
-				if g.Undirected() && fst[e.Src].Parent == e.Dst {
-					return
+		if g.Directed() {
+			// the vertex being reached (Dst) was discovered before
+			// the vertex being explored (Src), so Dst is either
+			// an ancestor of Src, or they do not have a direct
+			// ancestor/descendant relationship
+			if fst[e.Src].Discovery >= fst[e.Dst].Discovery {
+				// ancestor/descendant relationship,
+				// self-loops included here
+				if fst[e.Dst].Finish == 0 {
+					tps.Back = append(tps.Back, e)
+				} else {
+					tps.Cross = append(tps.Cross, e)
 				}
-
-				tps.Back = append(tps.Back, e)
 			} else {
-				tps.Cross = append(tps.Cross, e)
+				// Src is an ancestor of Dst, and since Dst has
+				// been discovered before, this is a Forward edge
+				tps.Forward = append(tps.Forward, e)
 			}
 		} else {
-			// Src is an ancestor of Dst, and since Dst has
-			// been discovered before, this is a Forward edge
-			tps.Forward = append(tps.Forward, e)
+			// due to how adjacency lists work, undirected
+			// graphs represent the same edge twice, so
+			// if we're dealing with the reverse of a tree
+			// edge, then do not flag the reverse edge as
+			// being a back edge
+			if fst[e.Src].Parent == e.Dst {
+				return
+			}
+
+			// undirected graphs only have tree and back edges
+			// even if this looks like a forward edge from one
+			// side, it will be classified as a back edge
+			// when the reverse edge gets classified
+			tps.Back = append(tps.Back, e)
 		}
 	}
 

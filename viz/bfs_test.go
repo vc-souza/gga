@@ -8,10 +8,6 @@ import (
 	ut "github.com/vc-souza/gga/internal/testutils"
 )
 
-type dummyWriter struct{}
-
-func (d dummyWriter) Write(p []byte) (int, error) { return 0, nil }
-
 func TestBFSViz_directed(t *testing.T) {
 	g, vars, err := ds.NewTextParser().Parse(ut.BasicUDG)
 
@@ -46,7 +42,7 @@ func TestBFSViz_directed(t *testing.T) {
 		eCount++
 	}
 
-	vi.Export(dummyWriter{})
+	vi.Export(ut.DummyWriter{})
 
 	ut.AssertEqual(t, 1, uCount)
 	ut.AssertEqual(t, 5, tCount)
@@ -88,7 +84,7 @@ func TestBFSViz_undirected(t *testing.T) {
 		eCount++
 	}
 
-	vi.Export(dummyWriter{})
+	vi.Export(ut.DummyWriter{})
 
 	ut.AssertEqual(t, 0, uCount)
 	ut.AssertEqual(t, 8, tCount)
