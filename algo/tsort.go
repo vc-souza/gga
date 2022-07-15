@@ -41,6 +41,7 @@ func TSort[V ds.Item](g *ds.Graph[V]) (*list.List, error) {
 
 				if !visited[e.Dst] {
 					stk.Push(e.Dst)
+
 					break
 				}
 			}
