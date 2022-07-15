@@ -19,13 +19,29 @@ func TestTSortViz(t *testing.T) {
 
 	vi := NewTSortViz(g, ord, nil)
 
-	count := 0
+	eNotExistsCount := 0
+	eExitsCount := 0
+	eCount := 0
+	vCount := 0
 
 	vi.OnVertexRank = func(*ds.GraphVertex[ds.Text], int) {
-		count++
+		vCount++
+	}
+
+	vi.OnOrderEdge = func(d *ds.GraphEdge[ds.Text], b bool) {
+		if b {
+			eExitsCount++
+		} else {
+			eNotExistsCount++
+		}
+
+		eCount++
 	}
 
 	ExportViz[ds.Text](vi, ut.DummyWriter{})
 
-	ut.AssertEqual(t, g.VertexCount(), count)
+	ut.AssertEqual(t, g.VertexCount(), vCount)
+	ut.AssertEqual(t, g.VertexCount()-1, eCount)
+	ut.AssertEqual(t, 4, eExitsCount)
+	ut.AssertEqual(t, 4, eNotExistsCount)
 }
