@@ -152,7 +152,7 @@ func ResetGraphFmt[V ds.Item](g *ds.Graph[V]) {
 	}
 }
 
-// TODO: docs
+// Snapshot implements a shorthand for the quick export of a graph, using a theme.
 func Snapshot[V ds.Item](g *ds.Graph[V], w io.Writer, t Theme) {
 	ex := NewExporter(g)
 	SetTheme(ex, t)
