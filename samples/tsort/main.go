@@ -13,12 +13,12 @@ import (
 )
 
 const (
-	fileIn  = "DFS-before.dot"
-	fileOut = "DFS-after.dot"
+	fileIn  = "TSort-before.dot"
+	fileOut = "TSort-after.dot"
 )
 
 var theme viz.Theme[ds.Text] = viz.LightBreezeTheme[ds.Text]{}
-var input = ut.UDGSimple + "\n7#"
+var input = ut.UDGDress
 
 func buildInput() *ds.Graph[ds.Text] {
 	g, _, err := ds.NewTextParser().Parse(input)
@@ -47,7 +47,7 @@ func main() {
 	// export the input graph
 	ex.Export(fIn)
 
-	fst, edges, err := algo.DFS(g, true)
+	ord, err := algo.TSort(g)
 
 	if err != nil {
 		panic(err)
@@ -61,33 +61,13 @@ func main() {
 
 	defer fOut.Close()
 
-	vi := viz.NewDFSViz(g, fst, edges)
+	vi := viz.NewTSortViz(g, ord)
 
 	vi.Theme = theme
 
-	vi.OnTreeVertex = func(v *ds.GraphVertex[ds.Text], n *algo.DFNode[ds.Text]) {
-		v.SetFmtAttr("label", fmt.Sprintf(` %s | { d = %d | f = %d }`, v.Label(), n.Discovery, n.Finish))
-	}
-
-	vi.OnRootVertex = func(v *ds.GraphVertex[ds.Text], n *algo.DFNode[ds.Text]) {
-		v.SetFmtAttr("penwidth", "1.7")
-		v.SetFmtAttr("color", "#000000")
-	}
-
-	vi.OnTreeEdge = func(e *ds.GraphEdge[ds.Text]) {
-		e.SetFmtAttr("penwidth", "3.0")
-	}
-
-	vi.OnForwardEdge = func(e *ds.GraphEdge[ds.Text]) {
-		e.SetFmtAttr("label", "F")
-	}
-
-	vi.OnBackEdge = func(e *ds.GraphEdge[ds.Text]) {
-		e.SetFmtAttr("label", "B")
-	}
-
-	vi.OnCrossEdge = func(e *ds.GraphEdge[ds.Text]) {
-		e.SetFmtAttr("label", "C")
+	vi.OnVertex = func(v *ds.GraphVertex[ds.Text], rank int) {
+		v.SetFmtAttr("label", fmt.Sprintf(`%s | %d`, v.Label(), rank))
+		// v.SetFmtAttr("pos", fmt.Sprintf("%d,10!", rank+5))
 	}
 
 	// annotate the input graph with the result of the DFS,

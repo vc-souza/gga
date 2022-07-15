@@ -15,11 +15,11 @@ The output of the algorithm is traversed, and hooks are provided so that
 custom formatting can be applied to the graph, its vertices and edges.
 */
 type BFSViz[V ds.Item] struct {
-	AlgoViz
-
 	Tree   algo.BFTree[V]
 	Graph  *ds.Graph[V]
 	Source *V
+
+	Theme Theme[V]
 
 	// OnUnVertex is called when an unreachable vertex is found.
 	OnUnVertex func(*ds.GraphVertex[V], *algo.BFNode[V])
@@ -57,11 +57,8 @@ The graph is then exported to the given io.Writer, using the standard viz.Export
 func (vi *BFSViz[V]) Export(w io.Writer) error {
 	ex := NewExporter(vi.Graph)
 
-	ex.DefaultGraphFmt = vi.DefaultGraphFmt
-	ex.DefaultVertexFmt = vi.DefaultVertexFmt
-	ex.DefaultEdgeFmt = vi.DefaultEdgeFmt
-
 	ResetGraphFmt(vi.Graph)
+	SetTheme(ex, vi.Theme)
 
 	for v, node := range vi.Tree {
 		vtx, _, ok := vi.Graph.GetVertex(v)

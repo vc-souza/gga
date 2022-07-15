@@ -7,7 +7,11 @@ import (
 )
 
 // TODO: docs
-func TopologicalSort[V ds.Item](g *ds.Graph[V]) (*list.List, error) {
+func TSort[V ds.Item](g *ds.Graph[V]) (*list.List, error) {
+	if g.Undirected() {
+		return nil, ds.ErrUndefOp
+	}
+
 	stk := ds.Stack[*V](new(ds.Deque[*V]))
 	ord := list.New()
 

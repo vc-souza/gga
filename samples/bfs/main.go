@@ -17,29 +17,7 @@ const (
 	fileOut = "BFS-after.dot"
 )
 
-var (
-	defaultGraphFmt = ds.FmtAttrs{
-		"bgcolor": "#ffffff",
-		"layout":  "dot",
-		"nodesep": "0.8",
-		"ranksep": "0.5",
-		"pad":     "0.2",
-	}
-
-	defaultVertexFmt = ds.FmtAttrs{
-		"shape":     "Mrecord",
-		"style":     "filled",
-		"fillcolor": "#7289da",
-		"fontcolor": "#ffffff",
-		"color":     "#ffffff",
-		"penwidth":  "1.1",
-	}
-
-	defaultEdgeFmt = ds.FmtAttrs{
-		"penwidth": "1.2",
-	}
-)
-
+var theme viz.Theme[ds.Text] = viz.LightBreezeTheme[ds.Text]{}
 var input = ut.UUGSimple + "\na#"
 
 func buildInput() (*ds.Graph[ds.Text], *ds.Text) {
@@ -57,9 +35,7 @@ func main() {
 	g, src := buildInput()
 	ex := viz.NewExporter(g)
 
-	ex.DefaultGraphFmt = defaultGraphFmt
-	ex.DefaultVertexFmt = defaultVertexFmt
-	ex.DefaultEdgeFmt = defaultEdgeFmt
+	viz.SetTheme(ex, theme)
 
 	fIn, err := os.Create(fileIn)
 
@@ -89,10 +65,7 @@ func main() {
 
 	vi := viz.NewBFSViz(g, tree, src)
 
-	// set the desired custom formatting
-	vi.DefaultGraphFmt = defaultGraphFmt
-	vi.DefaultVertexFmt = defaultVertexFmt
-	vi.DefaultEdgeFmt = defaultEdgeFmt
+	vi.Theme = theme
 
 	vi.OnTreeVertex = func(v *ds.GraphVertex[ds.Text], n *algo.BFNode[ds.Text]) {
 		v.SetFmtAttr("label", fmt.Sprintf(`{ %s | d = %d }`, v.Label(), int(n.Distance)))

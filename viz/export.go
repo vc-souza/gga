@@ -38,6 +38,10 @@ func NewExporter[V ds.Item](graph *ds.Graph[V]) *Exporter[V] {
 	res.UndirectedArrow = "--"
 	res.DirectedArrow = "->"
 
+	res.DefaultGraphFmt = make(ds.FmtAttrs)
+	res.DefaultVertexFmt = make(ds.FmtAttrs)
+	res.DefaultEdgeFmt = make(ds.FmtAttrs)
+
 	return &res
 }
 
