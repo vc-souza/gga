@@ -19,9 +19,9 @@ parse-dot:
 	done
 
 run-samples:
-	go run samples/bfs/main.go
-	go run samples/dfs/main.go
-	go run samples/tsort/main.go
+	go run internal/samples/bfs/main.go
+	go run internal/samples/dfs/main.go
+	go run internal/samples/tsort/main.go
 
 open-samples:
 	@for f in `find . -maxdepth 1 -type f -name "*.svg"`; do \
