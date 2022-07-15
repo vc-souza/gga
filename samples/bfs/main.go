@@ -27,7 +27,7 @@ func input() (*ds.Graph[ds.Text], *ds.Text) {
 	return g, vars["s"]
 }
 
-func start(g *ds.Graph[ds.Text]) {
+func exportStart(g *ds.Graph[ds.Text]) {
 	fIn, err := os.Create(fileIn)
 
 	if err != nil {
@@ -39,7 +39,7 @@ func start(g *ds.Graph[ds.Text]) {
 	viz.Snapshot(g, fIn, viz.Themes.LightBreeze)
 }
 
-func end(v viz.AlgoViz[ds.Text]) {
+func exportEnd(v viz.AlgoViz[ds.Text]) {
 	fOut, err := os.Create(fileOut)
 
 	if err != nil {
@@ -58,7 +58,7 @@ func end(v viz.AlgoViz[ds.Text]) {
 func main() {
 	g, src := input()
 
-	start(g)
+	exportStart(g)
 
 	tree, err := algo.BFS(g, src)
 
@@ -87,5 +87,5 @@ func main() {
 		e.SetFmtAttr("penwidth", "3.0")
 	}
 
-	end(vi)
+	exportEnd(vi)
 }

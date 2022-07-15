@@ -27,7 +27,7 @@ func input() *ds.Graph[ds.Text] {
 	return g
 }
 
-func start(g *ds.Graph[ds.Text]) {
+func exportStart(g *ds.Graph[ds.Text]) {
 	fIn, err := os.Create(fileIn)
 
 	if err != nil {
@@ -39,7 +39,7 @@ func start(g *ds.Graph[ds.Text]) {
 	viz.Snapshot(g, fIn, viz.Themes.LightBreeze)
 }
 
-func end(v viz.AlgoViz[ds.Text]) {
+func exportEnd(v viz.AlgoViz[ds.Text]) {
 	fOut, err := os.Create(fileOut)
 
 	if err != nil {
@@ -58,7 +58,7 @@ func end(v viz.AlgoViz[ds.Text]) {
 func main() {
 	g := input()
 
-	start(g)
+	exportStart(g)
 
 	ord, err := algo.TSort(g)
 
@@ -68,9 +68,9 @@ func main() {
 
 	vi := viz.NewTSortViz(g, ord, viz.Themes.LightBreeze)
 
-	vi.OnVertex = func(v *ds.GraphVertex[ds.Text], rank int) {
+	vi.OnVertexRank = func(v *ds.GraphVertex[ds.Text], rank int) {
 		v.SetFmtAttr("label", fmt.Sprintf(`%s | %d`, v.Label(), rank))
 	}
 
-	end(vi)
+	exportEnd(vi)
 }

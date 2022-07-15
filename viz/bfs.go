@@ -32,13 +32,14 @@ type BFSViz[V ds.Item] struct {
 	OnTreeEdge func(*ds.GraphEdge[V])
 }
 
-// NewBFSViz initializes a new BFSViz with NOOP hooks and no custom formatting.
+// NewBFSViz initializes a new BFSViz with NOOP hooks.
 func NewBFSViz[V ds.Item](g *ds.Graph[V], t algo.BFTree[V], src *V, theme Theme) *BFSViz[V] {
 	res := &BFSViz[V]{}
 
 	res.Tree = t
-	res.Graph = g
 	res.Source = src
+
+	res.Graph = g
 	res.Theme = theme
 
 	res.OnUnVertex = func(*ds.GraphVertex[V], *algo.BFNode[V]) {}
@@ -49,11 +50,7 @@ func NewBFSViz[V ds.Item](g *ds.Graph[V], t algo.BFTree[V], src *V, theme Theme)
 	return res
 }
 
-// TODO: better docs
-/*
-Export traverses the results of a BFS execution, calling its hooks when appropriate.
-The graph is then exported to the given io.Writer, using the standard viz.Exporter.
-*/
+// Traverse iterates over the results of a BFS execution, calling its hooks when appropriate.
 func (vi *BFSViz[V]) Traverse() error {
 	for v, node := range vi.Tree {
 		vtx, _, ok := vi.Graph.GetVertex(v)

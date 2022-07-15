@@ -37,12 +37,13 @@ type DFSViz[V ds.Item] struct {
 	OnCrossEdge func(*ds.GraphEdge[V])
 }
 
-// NewDFSViz initializes a new DFSViz with NOOP hooks and no custom formatting.
+// NewDFSViz initializes a new DFSViz with NOOP hooks.
 func NewDFSViz[V ds.Item](g *ds.Graph[V], f algo.DFForest[V], e *algo.EdgeTypes[V], theme Theme) *DFSViz[V] {
 	res := &DFSViz[V]{}
 
 	res.Forest = f
 	res.Edges = e
+
 	res.Graph = g
 	res.Theme = theme
 
@@ -57,11 +58,7 @@ func NewDFSViz[V ds.Item](g *ds.Graph[V], f algo.DFForest[V], e *algo.EdgeTypes[
 	return res
 }
 
-// TODO: better docs
-/*
-Export traverses the results of a DFS execution, calling its hooks when appropriate.
-The graph is then exported to the given io.Writer, using the standard viz.Exporter.
-*/
+// Traverse iterates over the results of a DFS execution, calling its hooks when appropriate.
 func (vi *DFSViz[V]) Traverse() error {
 	for v, node := range vi.Forest {
 		vtx, _, ok := vi.Graph.GetVertex(v)
