@@ -6,21 +6,26 @@ var Themes = struct {
 	LightBreeze lightBreezeTheme
 }{}
 
-// TODO: docs
+// A Theme implementation is capable of setting default formatting for a graph, its vertices and edges.
 type Theme interface {
 	SetGraphFmt(ds.FmtAttrs)
 	SetVertexFmt(ds.FmtAttrs)
 	SetEdgeFmt(ds.FmtAttrs)
 }
 
-// TODO: docs
+// SetTheme sets the default formatting of an exporter using a Theme.
 func SetTheme[V ds.Item](e *Exporter[V], t Theme) {
 	if t == nil {
 		return
 	}
 
+	e.DefaultGraphFmt = make(ds.FmtAttrs)
 	t.SetGraphFmt(e.DefaultGraphFmt)
+
+	e.DefaultVertexFmt = make(ds.FmtAttrs)
 	t.SetVertexFmt(e.DefaultVertexFmt)
+
+	e.DefaultEdgeFmt = make(ds.FmtAttrs)
 	t.SetEdgeFmt(e.DefaultEdgeFmt)
 }
 
