@@ -60,7 +60,7 @@ Complexity:
 	- Space: Θ(V)
 */
 func BFS[V ds.Item](g *ds.Graph[V], src *V) (BFTree[V], error) {
-	queue := ds.Queue[*V](new(ds.Deque[*V]))
+	queue := ds.NewQueue[*V]()
 
 	visited := map[*V]bool{}
 	tree := BFTree[V]{}

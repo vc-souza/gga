@@ -106,7 +106,7 @@ Complexity:
 	- Space (wit edge classification): O(V + E)
 */
 func DFS[V ds.Item](g *ds.Graph[V], classify bool) (DFForest[V], *EdgeTypes[V], error) {
-	stk := ds.Stack[*V](new(ds.Deque[*V]))
+	stk := ds.NewStack[*V]()
 
 	fst := DFForest[V]{}
 	tps := &EdgeTypes[V]{}
@@ -168,11 +168,10 @@ func DFS[V ds.Item](g *ds.Graph[V], classify bool) (DFForest[V], *EdgeTypes[V], 
 					fst[e.Dst].Parent = vtx
 					stk.Push(e.Dst)
 
-					// depth-first means that a descendant needs to be fully
-					// explored before the next adjacent vertex is considered;
-					// whenever we run out of descendants to explore, the value
-					// of fst[vtx].next will give us the next adjacent node
-					// to fully explore.
+					// depth-first means that a descendant needs to be fully explored
+					// before the next adjacent vertex is considered; whenever we run
+					// out of descendants to explore, the value of next[vtx] will
+					// give us the next adjacent node to fully explore.
 					break
 				}
 			}

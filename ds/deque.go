@@ -11,6 +11,16 @@ type Deque[T any] struct {
 	list.List
 }
 
+// NewQueue returns a new Queue, using a Deque implementation.
+func NewQueue[T any]() Queue[T] {
+	return Queue[T](new(Deque[T]))
+}
+
+// NewStack returns a new Stack, using a Deque implementation.
+func NewStack[T any]() Stack[T] {
+	return Stack[T](new(Deque[T]))
+}
+
 func (d *Deque[T]) Enqueue(ts ...T) {
 	for _, t := range ts {
 		d.PushBack(t)
