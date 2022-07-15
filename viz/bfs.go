@@ -2,7 +2,6 @@ package viz
 
 import (
 	"errors"
-	"io"
 	"math"
 
 	"github.com/vc-souza/gga/algo"
@@ -15,11 +14,10 @@ The output of the algorithm is traversed, and hooks are provided so that
 custom formatting can be applied to the graph, its vertices and edges.
 */
 type BFSViz[V ds.Item] struct {
-	Tree   algo.BFTree[V]
-	Graph  *ds.Graph[V]
-	Source *V
+	ThemedGraphViz[V]
 
-	Theme Theme
+	Tree   algo.BFTree[V]
+	Source *V
 
 	// OnUnVertex is called when an unreachable vertex is found.
 	OnUnVertex func(*ds.GraphVertex[V], *algo.BFNode[V])
@@ -35,12 +33,13 @@ type BFSViz[V ds.Item] struct {
 }
 
 // NewBFSViz initializes a new BFSViz with NOOP hooks and no custom formatting.
-func NewBFSViz[V ds.Item](g *ds.Graph[V], t algo.BFTree[V], src *V) *BFSViz[V] {
+func NewBFSViz[V ds.Item](g *ds.Graph[V], t algo.BFTree[V], src *V, theme Theme) *BFSViz[V] {
 	res := &BFSViz[V]{}
 
 	res.Tree = t
 	res.Graph = g
 	res.Source = src
+	res.Theme = theme
 
 	res.OnUnVertex = func(*ds.GraphVertex[V], *algo.BFNode[V]) {}
 	res.OnSourceVertex = func(*ds.GraphVertex[V], *algo.BFNode[V]) {}
@@ -50,16 +49,12 @@ func NewBFSViz[V ds.Item](g *ds.Graph[V], t algo.BFTree[V], src *V) *BFSViz[V] {
 	return res
 }
 
+// TODO: better docs
 /*
 Export traverses the results of a BFS execution, calling its hooks when appropriate.
 The graph is then exported to the given io.Writer, using the standard viz.Exporter.
 */
-func (vi *BFSViz[V]) Export(w io.Writer) error {
-	ex := NewExporter(vi.Graph)
-
-	ResetGraphFmt(vi.Graph)
-	SetTheme(ex, vi.Theme)
-
+func (vi *BFSViz[V]) Traverse() error {
 	for v, node := range vi.Tree {
 		vtx, _, ok := vi.Graph.GetVertex(v)
 
@@ -87,8 +82,6 @@ func (vi *BFSViz[V]) Export(w io.Writer) error {
 
 		vi.OnTreeEdge(edge)
 	}
-
-	ex.Export(w)
 
 	return nil
 }

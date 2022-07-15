@@ -156,6 +156,13 @@ func ResetGraphFmt[V ds.Item](g *ds.Graph[V]) {
 	}
 }
 
+// TODO: docs
+func Snapshot[V ds.Item](g *ds.Graph[V], w io.Writer, t Theme) {
+	ex := NewExporter(g)
+	SetTheme(ex, t)
+	ex.Export(w)
+}
+
 func quote(s string) string {
 	return fmt.Sprintf(`"%s"`, s)
 }

@@ -17,10 +17,8 @@ const (
 	fileOut = "DFS-after.dot"
 )
 
-var input = ut.UDGSimple + "\n7#"
-
-func buildInput() *ds.Graph[ds.Text] {
-	g, _, err := ds.NewTextParser().Parse(input)
+func input() *ds.Graph[ds.Text] {
+	g, _, err := ds.NewTextParser().Parse(ut.UDGSimple + "\n7#")
 
 	if err != nil {
 		panic(err)
@@ -29,12 +27,7 @@ func buildInput() *ds.Graph[ds.Text] {
 	return g
 }
 
-func main() {
-	g := buildInput()
-	ex := viz.NewExporter(g)
-
-	viz.SetTheme(ex, viz.Themes.LightBreeze)
-
+func start(g *ds.Graph[ds.Text]) {
 	fIn, err := os.Create(fileIn)
 
 	if err != nil {
@@ -43,15 +36,10 @@ func main() {
 
 	defer fIn.Close()
 
-	// export the input graph
-	ex.Export(fIn)
+	viz.Snapshot(g, fIn, viz.Themes.LightBreeze)
+}
 
-	fst, edges, err := algo.DFS(g, true)
-
-	if err != nil {
-		panic(err)
-	}
-
+func end(v viz.AlgoViz[ds.Text]) {
 	fOut, err := os.Create(fileOut)
 
 	if err != nil {
@@ -60,9 +48,25 @@ func main() {
 
 	defer fOut.Close()
 
-	vi := viz.NewDFSViz(g, fst, edges)
+	// annotate the input graph with the result of the DFS,
+	// then export the annotated version
+	if err := viz.ExportViz(v, fOut); err != nil {
+		panic(err)
+	}
+}
 
-	vi.Theme = viz.Themes.LightBreeze
+func main() {
+	g := input()
+
+	start(g)
+
+	fst, edges, err := algo.DFS(g, true)
+
+	if err != nil {
+		panic(err)
+	}
+
+	vi := viz.NewDFSViz(g, fst, edges, viz.Themes.LightBreeze)
 
 	vi.OnTreeVertex = func(v *ds.GraphVertex[ds.Text], n *algo.DFNode[ds.Text]) {
 		v.SetFmtAttr("label", fmt.Sprintf(` %s | { d = %d | f = %d }`, v.Label(), n.Discovery, n.Finish))
@@ -89,9 +93,5 @@ func main() {
 		e.SetFmtAttr("label", "C")
 	}
 
-	// annotate the input graph with the result of the DFS,
-	// then export the annotated version
-	if err := vi.Export(fOut); err != nil {
-		panic(err)
-	}
+	end(vi)
 }

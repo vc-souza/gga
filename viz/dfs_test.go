@@ -58,7 +58,7 @@ func TestDFSViz(t *testing.T) {
 			beCount := 0
 			ceCount := 0
 
-			vi := NewDFSViz(g, fst, tps)
+			vi := NewDFSViz(g, fst, tps, nil)
 
 			vi.OnTreeVertex = func(*ds.GraphVertex[ds.Text], *algo.DFNode[ds.Text]) { tvCount++ }
 			vi.OnRootVertex = func(*ds.GraphVertex[ds.Text], *algo.DFNode[ds.Text]) { rvCount++ }
@@ -68,7 +68,7 @@ func TestDFSViz(t *testing.T) {
 			vi.OnBackEdge = func(*ds.GraphEdge[ds.Text]) { beCount++ }
 			vi.OnCrossEdge = func(*ds.GraphEdge[ds.Text]) { ceCount++ }
 
-			vi.Export(ut.DummyWriter{})
+			ExportViz[ds.Text](vi, ut.DummyWriter{})
 
 			ut.AssertEqual(t, tc.expectTV, tvCount)
 			ut.AssertEqual(t, tc.expectRV, rvCount)

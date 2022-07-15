@@ -55,7 +55,7 @@ func TestBFSViz(t *testing.T) {
 			svCount := 0
 			teCount := 0
 
-			vi := NewBFSViz(g, tree, src)
+			vi := NewBFSViz(g, tree, src, nil)
 
 			vi.OnUnVertex = func(d *ds.GraphVertex[ds.Text], a *algo.BFNode[ds.Text]) { uvCount++ }
 
@@ -65,7 +65,7 @@ func TestBFSViz(t *testing.T) {
 
 			vi.OnTreeEdge = func(d *ds.GraphEdge[ds.Text]) { teCount++ }
 
-			vi.Export(ut.DummyWriter{})
+			ExportViz[ds.Text](vi, ut.DummyWriter{})
 
 			ut.AssertEqual(t, tc.expectUV, uvCount)
 			ut.AssertEqual(t, tc.expectTV, tvCount)

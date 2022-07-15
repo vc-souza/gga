@@ -17,10 +17,8 @@ const (
 	fileOut = "BFS-after.dot"
 )
 
-var input = ut.UUGSimple + "\na#"
-
-func buildInput() (*ds.Graph[ds.Text], *ds.Text) {
-	g, vars, err := ds.NewTextParser().Parse(input)
+func input() (*ds.Graph[ds.Text], *ds.Text) {
+	g, vars, err := ds.NewTextParser().Parse(ut.UUGSimple + "\na#")
 
 	if err != nil {
 		panic(err)
@@ -29,13 +27,7 @@ func buildInput() (*ds.Graph[ds.Text], *ds.Text) {
 	return g, vars["s"]
 }
 
-func main() {
-	// build graph, establish a source vertex
-	g, src := buildInput()
-	ex := viz.NewExporter(g)
-
-	viz.SetTheme(ex, viz.Themes.LightBreeze)
-
+func start(g *ds.Graph[ds.Text]) {
 	fIn, err := os.Create(fileIn)
 
 	if err != nil {
@@ -44,16 +36,10 @@ func main() {
 
 	defer fIn.Close()
 
-	// export the input graph
-	ex.Export(fIn)
+	viz.Snapshot(g, fIn, viz.Themes.LightBreeze)
+}
 
-	// run BFS with the given source
-	tree, err := algo.BFS(g, src)
-
-	if err != nil {
-		panic(err)
-	}
-
+func end(v viz.AlgoViz[ds.Text]) {
 	fOut, err := os.Create(fileOut)
 
 	if err != nil {
@@ -62,9 +48,25 @@ func main() {
 
 	defer fOut.Close()
 
-	vi := viz.NewBFSViz(g, tree, src)
+	// annotate the input graph with the result of the DFS,
+	// then export the annotated version
+	if err := viz.ExportViz(v, fOut); err != nil {
+		panic(err)
+	}
+}
 
-	vi.Theme = viz.Themes.LightBreeze
+func main() {
+	g, src := input()
+
+	start(g)
+
+	tree, err := algo.BFS(g, src)
+
+	if err != nil {
+		panic(err)
+	}
+
+	vi := viz.NewBFSViz(g, tree, src, viz.Themes.LightBreeze)
 
 	vi.OnTreeVertex = func(v *ds.GraphVertex[ds.Text], n *algo.BFNode[ds.Text]) {
 		v.SetFmtAttr("label", fmt.Sprintf(`{ %s | d = %d }`, v.Label(), int(n.Distance)))
@@ -85,9 +87,5 @@ func main() {
 		e.SetFmtAttr("penwidth", "3.0")
 	}
 
-	// annotate the input graph with the result of the BFS,
-	// then export the annotated version
-	if err := vi.Export(fOut); err != nil {
-		panic(err)
-	}
+	end(vi)
 }

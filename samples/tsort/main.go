@@ -17,10 +17,8 @@ const (
 	fileOut = "TSort-after.dot"
 )
 
-var input = ut.UDGDress
-
-func buildInput() *ds.Graph[ds.Text] {
-	g, _, err := ds.NewTextParser().Parse(input)
+func input() *ds.Graph[ds.Text] {
+	g, _, err := ds.NewTextParser().Parse(ut.UDGDress)
 
 	if err != nil {
 		panic(err)
@@ -29,12 +27,7 @@ func buildInput() *ds.Graph[ds.Text] {
 	return g
 }
 
-func main() {
-	g := buildInput()
-	ex := viz.NewExporter(g)
-
-	viz.SetTheme(ex, viz.Themes.LightBreeze)
-
+func start(g *ds.Graph[ds.Text]) {
 	fIn, err := os.Create(fileIn)
 
 	if err != nil {
@@ -43,15 +36,10 @@ func main() {
 
 	defer fIn.Close()
 
-	// export the input graph
-	ex.Export(fIn)
+	viz.Snapshot(g, fIn, viz.Themes.LightBreeze)
+}
 
-	ord, err := algo.TSort(g)
-
-	if err != nil {
-		panic(err)
-	}
-
+func end(v viz.AlgoViz[ds.Text]) {
 	fOut, err := os.Create(fileOut)
 
 	if err != nil {
@@ -60,18 +48,29 @@ func main() {
 
 	defer fOut.Close()
 
-	vi := viz.NewTSortViz(g, ord)
+	// annotate the input graph with the result of the DFS,
+	// then export the annotated version
+	if err := viz.ExportViz(v, fOut); err != nil {
+		panic(err)
+	}
+}
 
-	vi.Theme = viz.Themes.LightBreeze
+func main() {
+	g := input()
+
+	start(g)
+
+	ord, err := algo.TSort(g)
+
+	if err != nil {
+		panic(err)
+	}
+
+	vi := viz.NewTSortViz(g, ord, viz.Themes.LightBreeze)
 
 	vi.OnVertex = func(v *ds.GraphVertex[ds.Text], rank int) {
 		v.SetFmtAttr("label", fmt.Sprintf(`%s | %d`, v.Label(), rank))
-		// v.SetFmtAttr("pos", fmt.Sprintf("%d,10!", rank+5))
 	}
 
-	// annotate the input graph with the result of the DFS,
-	// then export the annotated version
-	if err := vi.Export(fOut); err != nil {
-		panic(err)
-	}
+	end(vi)
 }
