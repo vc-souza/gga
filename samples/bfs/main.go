@@ -17,7 +17,6 @@ const (
 	fileOut = "BFS-after.dot"
 )
 
-var theme viz.Theme[ds.Text] = viz.LightBreezeTheme[ds.Text]{}
 var input = ut.UUGSimple + "\na#"
 
 func buildInput() (*ds.Graph[ds.Text], *ds.Text) {
@@ -35,7 +34,7 @@ func main() {
 	g, src := buildInput()
 	ex := viz.NewExporter(g)
 
-	viz.SetTheme(ex, theme)
+	viz.SetTheme(ex, viz.Themes.LightBreeze)
 
 	fIn, err := os.Create(fileIn)
 
@@ -65,7 +64,7 @@ func main() {
 
 	vi := viz.NewBFSViz(g, tree, src)
 
-	vi.Theme = theme
+	vi.Theme = viz.Themes.LightBreeze
 
 	vi.OnTreeVertex = func(v *ds.GraphVertex[ds.Text], n *algo.BFNode[ds.Text]) {
 		v.SetFmtAttr("label", fmt.Sprintf(`{ %s | d = %d }`, v.Label(), int(n.Distance)))

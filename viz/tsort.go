@@ -12,7 +12,7 @@ type TSortViz[V ds.Item] struct {
 	Graph *ds.Graph[V]
 	Order *list.List
 
-	Theme Theme[V]
+	Theme Theme
 
 	// TODO: docs
 	OnVertex func(*ds.GraphVertex[V], int)

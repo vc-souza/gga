@@ -18,7 +18,7 @@ type DFSViz[V ds.Item] struct {
 	Edges  *algo.EdgeTypes[V]
 	Graph  *ds.Graph[V]
 
-	Theme Theme[V]
+	Theme Theme
 
 	// OnTreeVertex is called for every vertex in the graph.
 	OnTreeVertex func(*ds.GraphVertex[V], *algo.DFNode[V])

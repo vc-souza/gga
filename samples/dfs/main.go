@@ -17,7 +17,6 @@ const (
 	fileOut = "DFS-after.dot"
 )
 
-var theme viz.Theme[ds.Text] = viz.LightBreezeTheme[ds.Text]{}
 var input = ut.UDGSimple + "\n7#"
 
 func buildInput() *ds.Graph[ds.Text] {
@@ -34,7 +33,7 @@ func main() {
 	g := buildInput()
 	ex := viz.NewExporter(g)
 
-	viz.SetTheme(ex, theme)
+	viz.SetTheme(ex, viz.Themes.LightBreeze)
 
 	fIn, err := os.Create(fileIn)
 
@@ -63,7 +62,7 @@ func main() {
 
 	vi := viz.NewDFSViz(g, fst, edges)
 
-	vi.Theme = theme
+	vi.Theme = viz.Themes.LightBreeze
 
 	vi.OnTreeVertex = func(v *ds.GraphVertex[ds.Text], n *algo.DFNode[ds.Text]) {
 		v.SetFmtAttr("label", fmt.Sprintf(` %s | { d = %d | f = %d }`, v.Label(), n.Discovery, n.Finish))

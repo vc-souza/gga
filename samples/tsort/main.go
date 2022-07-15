@@ -17,7 +17,6 @@ const (
 	fileOut = "TSort-after.dot"
 )
 
-var theme viz.Theme[ds.Text] = viz.LightBreezeTheme[ds.Text]{}
 var input = ut.UDGDress
 
 func buildInput() *ds.Graph[ds.Text] {
@@ -34,7 +33,7 @@ func main() {
 	g := buildInput()
 	ex := viz.NewExporter(g)
 
-	viz.SetTheme(ex, theme)
+	viz.SetTheme(ex, viz.Themes.LightBreeze)
 
 	fIn, err := os.Create(fileIn)
 
@@ -63,7 +62,7 @@ func main() {
 
 	vi := viz.NewTSortViz(g, ord)
 
-	vi.Theme = theme
+	vi.Theme = viz.Themes.LightBreeze
 
 	vi.OnVertex = func(v *ds.GraphVertex[ds.Text], rank int) {
 		v.SetFmtAttr("label", fmt.Sprintf(`%s | %d`, v.Label(), rank))

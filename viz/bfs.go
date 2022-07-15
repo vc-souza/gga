@@ -19,7 +19,7 @@ type BFSViz[V ds.Item] struct {
 	Graph  *ds.Graph[V]
 	Source *V
 
-	Theme Theme[V]
+	Theme Theme
 
 	// OnUnVertex is called when an unreachable vertex is found.
 	OnUnVertex func(*ds.GraphVertex[V], *algo.BFNode[V])
