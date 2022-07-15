@@ -92,7 +92,10 @@ func (d *Exporter[V]) VisitGraphStart(g *ds.Graph[V]) {
 }
 
 func (d *Exporter[V]) VisitGraphEnd(g *ds.Graph[V]) {
-	d.add(d.Extra...)
+	if len(d.Extra) != 0 {
+		d.add(d.Extra...)
+	}
+
 	d.add("}\n")
 }
 
