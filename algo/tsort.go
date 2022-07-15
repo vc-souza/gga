@@ -29,7 +29,7 @@ func TSort[V ds.Item](g *ds.Graph[V]) (*list.List, error) {
 		return nil, ds.ErrUndefOp
 	}
 
-	stk := ds.Stack[*V](new(ds.Deque[*V]))
+	stk := ds.NewStack[*V]()
 	ord := list.New()
 
 	visited := map[*V]bool{}
@@ -58,7 +58,6 @@ func TSort[V ds.Item](g *ds.Graph[V]) (*list.List, error) {
 
 				if !visited[e.Dst] {
 					stk.Push(e.Dst)
-
 					break
 				}
 			}
