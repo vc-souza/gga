@@ -33,14 +33,14 @@ type BFSViz[V ds.Item] struct {
 }
 
 // NewBFSViz initializes a new BFSViz with NOOP hooks.
-func NewBFSViz[V ds.Item](g *ds.Graph[V], t algo.BFTree[V], src *V, theme Theme) *BFSViz[V] {
+func NewBFSViz[V ds.Item](g *ds.Graph[V], tree algo.BFTree[V], src *V, t Theme) *BFSViz[V] {
 	res := &BFSViz[V]{}
 
-	res.Tree = t
+	res.Tree = tree
 	res.Source = src
 
 	res.Graph = g
-	res.Theme = theme
+	res.Theme = t
 
 	res.OnUnVertex = func(*ds.GraphVertex[V], *algo.BFNode[V]) {}
 	res.OnSourceVertex = func(*ds.GraphVertex[V], *algo.BFNode[V]) {}

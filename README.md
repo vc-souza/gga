@@ -40,3 +40,11 @@ Examples can be found in the [samples](/internal/samples) folder.
 
 ##### After
 ![DFS after](/res/img/tsort/after.svg)
+
+### [Strongly Connected Components (Directed)](/algo/scc.go)
+
+##### Before
+![DFS before](/res/img/scc/d/before.svg)
+
+##### After
+![DFS after](/res/img/scc/d/after.svg)

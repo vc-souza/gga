@@ -33,13 +33,13 @@ type TSortViz[V ds.Item] struct {
 }
 
 // NewTSortViz initializes a new TSortViz with NOOP hooks.
-func NewTSortViz[V ds.Item](g *ds.Graph[V], ord *list.List, theme Theme) *TSortViz[V] {
+func NewTSortViz[V ds.Item](g *ds.Graph[V], ord *list.List, t Theme) *TSortViz[V] {
 	res := &TSortViz[V]{}
 
 	res.Order = ord
 
 	res.Graph = g
-	res.Theme = theme
+	res.Theme = t
 
 	res.OnVertexRank = func(*ds.GraphVertex[V], int) {}
 	res.OnOrderEdge = func(*ds.GraphEdge[V], bool) {}

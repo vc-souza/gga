@@ -38,14 +38,14 @@ type DFSViz[V ds.Item] struct {
 }
 
 // NewDFSViz initializes a new DFSViz with NOOP hooks.
-func NewDFSViz[V ds.Item](g *ds.Graph[V], f algo.DFForest[V], e *algo.EdgeTypes[V], theme Theme) *DFSViz[V] {
+func NewDFSViz[V ds.Item](g *ds.Graph[V], f algo.DFForest[V], e *algo.EdgeTypes[V], t Theme) *DFSViz[V] {
 	res := &DFSViz[V]{}
 
 	res.Forest = f
 	res.Edges = e
 
 	res.Graph = g
-	res.Theme = theme
+	res.Theme = t
 
 	res.OnTreeVertex = func(*ds.GraphVertex[V], *algo.DFNode[V]) {}
 	res.OnRootVertex = func(*ds.GraphVertex[V], *algo.DFNode[V]) {}

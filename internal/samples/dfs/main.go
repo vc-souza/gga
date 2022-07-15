@@ -67,7 +67,7 @@ func main() {
 	vi := viz.NewDFSViz(g, fst, edges, viz.Themes.LightBreeze)
 
 	vi.OnTreeVertex = func(v *ds.GraphVertex[ds.Text], n *algo.DFNode[ds.Text]) {
-		v.SetFmtAttr("label", fmt.Sprintf(` %s | { d = %d | f = %d }`, v.Label(), n.Discovery, n.Finish))
+		v.SetFmtAttr("label", fmt.Sprintf(`%s | { d = %d | f = %d }`, v.Label(), n.Discovery, n.Finish))
 	}
 
 	vi.OnRootVertex = func(v *ds.GraphVertex[ds.Text], n *algo.DFNode[ds.Text]) {
