@@ -1,35 +1,34 @@
 package testutils
 
-/*
-Basic Unweighted Directed Graph.
+import (
+	"embed"
+)
 
-Source:
-	CLRS 3rd Edition, Figure 22.2(a)
-*/
-const BasicUDG = `
-digraph
-1#2,4
-2#5
-3#5,6
-4#2
-5#4
-6#6
-`
+//go:embed testdata
+var fixFS embed.FS
 
-/*
-Basic Unweighted Undirected Graph
+// Unweighted Directed Graph with simple layout.
+var UDGSimple = LoadFixture("testdata/graphs/clrs_22_2_a.gga")
 
-Source:
-	CLRS 3rd Edition, Figure 22.3
-*/
-const BasicUUG = `
-graph
-r#s,v
-s#r,w
-t#u,w,x
-u#t,x,y
-v#r
-w#s,t,x
-x#t,u,w,y
-y#u,x
-`
+// Unweighted Directed Graph with non-trivial dependencies.
+var UDGDeps = LoadFixture("testdata/graphs/clrs_22_6.gga")
+
+// Unweighted Directed Graph with complex dependencies.
+var UDGClx = LoadFixture("testdata/graphs/clrs_22_8.gga")
+
+// Unweighted Directed Graph containing dress order data.
+var UDGDress = LoadFixture("testdata/graphs/clrs_22_7.gga")
+
+// Unweighted Undirected Graph with simple layout.
+var UUGSimple = LoadFixture("testdata/graphs/clrs_22_3.gga")
+
+// LoadFixture loads a fixture from a file
+func LoadFixture(path string) string {
+	bs, err := fixFS.ReadFile(path)
+
+	if err != nil {
+		panic(err)
+	}
+
+	return string(bs)
+}

@@ -1,0 +1,10 @@
+digraph
+undershorts#pants,shoes
+socks#shoes
+watch#
+pants#shoes,belt
+shoes#
+shirt#belt,tie
+belt#jacket
+tie#jacket
+jacket#

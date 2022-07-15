@@ -17,31 +17,8 @@ const (
 	fileOut = "DFS-after.dot"
 )
 
-var (
-	defaultGraphFmt = ds.FmtAttrs{
-		"bgcolor": "#ffffff",
-		"layout":  "dot",
-		"nodesep": "0.8",
-		"ranksep": "0.5",
-		"pad":     "0.2",
-	}
-
-	defaultVertexFmt = ds.FmtAttrs{
-		"shape":     "Mrecord",
-		"style":     "filled",
-		"fillcolor": "#7289da",
-		"fontcolor": "#ffffff",
-		"color":     "#ffffff",
-		"penwidth":  "1.1",
-	}
-
-	defaultEdgeFmt = ds.FmtAttrs{
-		"penwidth": "1.2",
-	}
-)
-
-func buildInput() *ds.Graph[ds.Text] {
-	g, _, err := ds.NewTextParser().Parse(ut.BasicUDG + "7#")
+func input() *ds.Graph[ds.Text] {
+	g, _, err := ds.NewTextParser().Parse(ut.UDGSimple + "\n7#")
 
 	if err != nil {
 		panic(err)
@@ -50,14 +27,7 @@ func buildInput() *ds.Graph[ds.Text] {
 	return g
 }
 
-func main() {
-	g := buildInput()
-	ex := viz.NewExporter(g)
-
-	ex.DefaultGraphFmt = defaultGraphFmt
-	ex.DefaultVertexFmt = defaultVertexFmt
-	ex.DefaultEdgeFmt = defaultEdgeFmt
-
+func exportStart(g *ds.Graph[ds.Text]) {
 	fIn, err := os.Create(fileIn)
 
 	if err != nil {
@@ -66,15 +36,10 @@ func main() {
 
 	defer fIn.Close()
 
-	// export the input graph
-	ex.Export(fIn)
+	viz.Snapshot(g, fIn, viz.Themes.LightBreeze)
+}
 
-	fst, edges, err := algo.DFS(g)
-
-	if err != nil {
-		panic(err)
-	}
-
+func exportEnd(v viz.AlgoViz[ds.Text]) {
 	fOut, err := os.Create(fileOut)
 
 	if err != nil {
@@ -83,18 +48,29 @@ func main() {
 
 	defer fOut.Close()
 
-	vi := viz.NewDFSViz(g, fst, edges)
+	if err := viz.ExportViz(v, fOut); err != nil {
+		panic(err)
+	}
+}
 
-	// set the desired custom formatting
-	vi.DefaultGraphFmt = defaultGraphFmt
-	vi.DefaultVertexFmt = defaultVertexFmt
-	vi.DefaultEdgeFmt = defaultEdgeFmt
+func main() {
+	g := input()
 
-	vi.OnTreeVertex = func(v *ds.GraphVertex[ds.Text], n *algo.DFSNode[ds.Text]) {
+	exportStart(g)
+
+	fst, edges, err := algo.DFS(g, true)
+
+	if err != nil {
+		panic(err)
+	}
+
+	vi := viz.NewDFSViz(g, fst, edges, viz.Themes.LightBreeze)
+
+	vi.OnTreeVertex = func(v *ds.GraphVertex[ds.Text], n *algo.DFNode[ds.Text]) {
 		v.SetFmtAttr("label", fmt.Sprintf(` %s | { d = %d | f = %d }`, v.Label(), n.Discovery, n.Finish))
 	}
 
-	vi.OnRootVertex = func(v *ds.GraphVertex[ds.Text], n *algo.DFSNode[ds.Text]) {
+	vi.OnRootVertex = func(v *ds.GraphVertex[ds.Text], n *algo.DFNode[ds.Text]) {
 		v.SetFmtAttr("penwidth", "1.7")
 		v.SetFmtAttr("color", "#000000")
 	}
@@ -115,9 +91,5 @@ func main() {
 		e.SetFmtAttr("label", "C")
 	}
 
-	// annotate the input graph with the result of the DFS,
-	// then export the annotated version
-	if err := vi.Export(fOut); err != nil {
-		panic(err)
-	}
+	exportEnd(vi)
 }

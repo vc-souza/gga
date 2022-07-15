@@ -20,7 +20,7 @@ func TestBFSViz(t *testing.T) {
 	}{
 		{
 			desc:     "graph",
-			input:    ut.BasicUUG,
+			input:    ut.UUGSimple,
 			src:      "u",
 			expectUV: 0,
 			expectTV: 8,
@@ -29,7 +29,7 @@ func TestBFSViz(t *testing.T) {
 		},
 		{
 			desc:     "digraph",
-			input:    ut.BasicUDG,
+			input:    ut.UDGSimple,
 			src:      "3",
 			expectUV: 1,
 			expectTV: 5,
@@ -55,17 +55,17 @@ func TestBFSViz(t *testing.T) {
 			svCount := 0
 			teCount := 0
 
-			vi := NewBFSViz(g, tree, src)
+			vi := NewBFSViz(g, tree, src, nil)
 
-			vi.OnUnVertex = func(d *ds.GraphVertex[ds.Text], a *algo.BFSNode[ds.Text]) { uvCount++ }
+			vi.OnUnVertex = func(d *ds.GraphVertex[ds.Text], a *algo.BFNode[ds.Text]) { uvCount++ }
 
-			vi.OnTreeVertex = func(d *ds.GraphVertex[ds.Text], a *algo.BFSNode[ds.Text]) { tvCount++ }
+			vi.OnTreeVertex = func(d *ds.GraphVertex[ds.Text], a *algo.BFNode[ds.Text]) { tvCount++ }
 
-			vi.OnSourceVertex = func(d *ds.GraphVertex[ds.Text], a *algo.BFSNode[ds.Text]) { svCount++ }
+			vi.OnSourceVertex = func(d *ds.GraphVertex[ds.Text], a *algo.BFNode[ds.Text]) { svCount++ }
 
 			vi.OnTreeEdge = func(d *ds.GraphEdge[ds.Text]) { teCount++ }
 
-			vi.Export(ut.DummyWriter{})
+			ExportViz[ds.Text](vi, ut.DummyWriter{})
 
 			ut.AssertEqual(t, tc.expectUV, uvCount)
 			ut.AssertEqual(t, tc.expectTV, tvCount)

@@ -2,7 +2,6 @@ package viz
 
 import (
 	"errors"
-	"io"
 
 	"github.com/vc-souza/gga/algo"
 	"github.com/vc-souza/gga/ds"
@@ -14,17 +13,16 @@ The output of the algorithm is traversed, and hooks are provided so that
 custom formatting can be applied to the graph, its vertices and edges.
 */
 type DFSViz[V ds.Item] struct {
-	AlgoViz
+	ThemedGraphViz[V]
 
-	Forest algo.DFSForest[V]
+	Forest algo.DFForest[V]
 	Edges  *algo.EdgeTypes[V]
-	Graph  *ds.Graph[V]
 
 	// OnTreeVertex is called for every vertex in the graph.
-	OnTreeVertex func(*ds.GraphVertex[V], *algo.DFSNode[V])
+	OnTreeVertex func(*ds.GraphVertex[V], *algo.DFNode[V])
 
-	// OnRootVertex is called when the root of a DFS tree is found.
-	OnRootVertex func(*ds.GraphVertex[V], *algo.DFSNode[V])
+	// OnRootVertex is called when the root of a DF tree is found.
+	OnRootVertex func(*ds.GraphVertex[V], *algo.DFNode[V])
 
 	// OnTreeEdge is called when a tree edge is found.
 	OnTreeEdge func(*ds.GraphEdge[V])
@@ -39,16 +37,18 @@ type DFSViz[V ds.Item] struct {
 	OnCrossEdge func(*ds.GraphEdge[V])
 }
 
-// NewDFSViz initializes a new DFSViz with NOOP hooks and no custom formatting.
-func NewDFSViz[V ds.Item](g *ds.Graph[V], f algo.DFSForest[V], e *algo.EdgeTypes[V]) *DFSViz[V] {
+// NewDFSViz initializes a new DFSViz with NOOP hooks.
+func NewDFSViz[V ds.Item](g *ds.Graph[V], f algo.DFForest[V], e *algo.EdgeTypes[V], theme Theme) *DFSViz[V] {
 	res := &DFSViz[V]{}
 
 	res.Forest = f
 	res.Edges = e
-	res.Graph = g
 
-	res.OnTreeVertex = func(*ds.GraphVertex[V], *algo.DFSNode[V]) {}
-	res.OnRootVertex = func(*ds.GraphVertex[V], *algo.DFSNode[V]) {}
+	res.Graph = g
+	res.Theme = theme
+
+	res.OnTreeVertex = func(*ds.GraphVertex[V], *algo.DFNode[V]) {}
+	res.OnRootVertex = func(*ds.GraphVertex[V], *algo.DFNode[V]) {}
 
 	res.OnTreeEdge = func(*ds.GraphEdge[V]) {}
 	res.OnForwardEdge = func(*ds.GraphEdge[V]) {}
@@ -58,19 +58,8 @@ func NewDFSViz[V ds.Item](g *ds.Graph[V], f algo.DFSForest[V], e *algo.EdgeTypes
 	return res
 }
 
-/*
-Export traverses the results of a DFS execution, calling its hooks when appropriate.
-The graph is then exported to the given io.Writer, using the standard viz.Exporter.
-*/
-func (vi *DFSViz[V]) Export(w io.Writer) error {
-	ex := NewExporter(vi.Graph)
-
-	ex.DefaultGraphFmt = vi.DefaultGraphFmt
-	ex.DefaultVertexFmt = vi.DefaultVertexFmt
-	ex.DefaultEdgeFmt = vi.DefaultEdgeFmt
-
-	ResetGraphFmt(vi.Graph)
-
+// Traverse iterates over the results of a DFS execution, calling its hooks when appropriate.
+func (vi *DFSViz[V]) Traverse() error {
 	for v, node := range vi.Forest {
 		vtx, _, ok := vi.Graph.GetVertex(v)
 
@@ -105,8 +94,6 @@ func (vi *DFSViz[V]) Export(w io.Writer) error {
 	for _, e := range vi.Edges.Cross {
 		vi.OnCrossEdge(e)
 	}
-
-	ex.Export(w)
 
 	return nil
 }

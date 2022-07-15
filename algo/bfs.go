@@ -7,10 +7,11 @@ import (
 )
 
 /*
-A BFSNode holds the attributes produced by a BFS, for a particular vertex. At the end of the BFS,
-nodes with a distance < infinity are a part of a BFS tree, rooted at the source vertex.
+A BFNode represents a node in a Breadth-First tree, holding the attributes produced by a BFS,
+for a particular vertex. At the end of the BFS, nodes with a distance < infinity are a part
+of a BF tree, rooted at the source vertex.
 */
-type BFSNode[V ds.Item] struct {
+type BFNode[V ds.Item] struct {
 	/*
 		Distance is the length of the shortest path (edge count), from the source to this vertex.
 		If the vertex is unreachable from the source, this value will be math.Inf(1).
@@ -18,15 +19,8 @@ type BFSNode[V ds.Item] struct {
 	Distance float64
 
 	/*
-		Color holds the current color of the vertex.
-			- White vertices are undiscovered, and might remain so if unreachable.
-			- Gray vertices are discovered and either being explored or fully explored.
-	*/
-	Color int
-
-	/*
 		Parent holds the vertex that discovered this vertex, with the edge (v.Parent, v) being called a tree edge.
-		This is how the BFS tree is encoded: by following the parent pointers from any reachable vertex back to
+		This is how the BF tree is encoded: by following the parent pointers from any reachable vertex back to
 		the source, one can generate a shortest path from the source to the vertex.
 
 		After a BFS, both the source and all unreachable vertices have a nil Parent.
@@ -35,17 +29,18 @@ type BFSNode[V ds.Item] struct {
 }
 
 /*
-A BFSTree is the result of a BFS, representing a tree (connected acyclic subgraph) rooted at the source,
-and containing every vertex that is reachable from the source. A BFS tree encodes both the length of the
-shortest path between the source and each reachable vertex (Distance) and the path itself (Parent pointer).
+A BFTree (Breadth-First Tree) is the result of a BFS, representing a tree (connected acyclic subgraph)
+rooted at the source, and containing every vertex that is reachable from the source. A BF tree encodes
+both the length of the shortest path between the source and each reachable vertex (Distance)
+and the path itself (Parent pointer).
 
 Slightly different trees can be generated for the same graph and source, if the visiting order for
 either vertices or edges is changed, but the optimal distances are guaranteed to remain the same.
 
 The gga graph implementation guarantees both vertex and edge traversal in insertion order,
-so repeated BFS calls always produce the same BFS tree.
+so repeated BFS calls always produce the same BF tree.
 */
-type BFSTree[V ds.Item] map[*V]*BFSNode[V]
+type BFTree[V ds.Item] map[*V]*BFNode[V]
 
 /*
 BFS implements the Breadth-First Search (BFS) algorithm.
@@ -64,21 +59,20 @@ Complexity:
 	- Time:  Θ(V + E)
 	- Space: Θ(V)
 */
-func BFS[V ds.Item](g *ds.Graph[V], src *V) (BFSTree[V], error) {
-	tree := BFSTree[V]{}
+func BFS[V ds.Item](g *ds.Graph[V], src *V) (BFTree[V], error) {
+	queue := ds.Queue[*V](new(ds.Deque[*V]))
+
+	visited := map[*V]bool{}
+	tree := BFTree[V]{}
 
 	for v := range g.Adj {
-		tree[v] = &BFSNode[V]{
+		tree[v] = &BFNode[V]{
 			Distance: math.Inf(1),
-			Color:    ColorWhite,
 		}
 	}
 
-	tree[src].Color = ColorGray
 	tree[src].Distance = 0
-
-	// only using the ds.Queue interface
-	queue := ds.Queue[*V](new(ds.Deque[*V]))
+	visited[src] = true
 
 	queue.Enqueue(src)
 
@@ -86,14 +80,14 @@ func BFS[V ds.Item](g *ds.Graph[V], src *V) (BFSTree[V], error) {
 		curr, _ := queue.Dequeue()
 
 		for _, edge := range g.Adj[curr] {
-			if tree[edge.Dst].Color != ColorWhite {
+			if visited[edge.Dst] {
 				continue
 			}
 
 			// found a tree edge
 			tree[edge.Dst].Distance = tree[curr].Distance + 1
-			tree[edge.Dst].Color = ColorGray
 			tree[edge.Dst].Parent = curr
+			visited[edge.Dst] = true
 
 			queue.Enqueue(edge.Dst)
 		}

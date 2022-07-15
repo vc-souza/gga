@@ -21,7 +21,7 @@ func TestDFSViz(t *testing.T) {
 	}{
 		{
 			desc:     "graph",
-			input:    ut.BasicUUG,
+			input:    ut.UUGSimple,
 			expectTV: 8,
 			expectRV: 1,
 			expectTE: 7,
@@ -31,7 +31,7 @@ func TestDFSViz(t *testing.T) {
 		},
 		{
 			desc:     "digraph",
-			input:    ut.BasicUDG,
+			input:    ut.UDGSimple,
 			expectTV: 6,
 			expectRV: 2,
 			expectTE: 4,
@@ -47,7 +47,7 @@ func TestDFSViz(t *testing.T) {
 
 			ut.AssertEqual(t, true, err == nil)
 
-			fst, tps, err := algo.DFS(g)
+			fst, tps, err := algo.DFS(g, true)
 
 			ut.AssertEqual(t, true, err == nil)
 
@@ -58,17 +58,17 @@ func TestDFSViz(t *testing.T) {
 			beCount := 0
 			ceCount := 0
 
-			vi := NewDFSViz(g, fst, tps)
+			vi := NewDFSViz(g, fst, tps, nil)
 
-			vi.OnTreeVertex = func(*ds.GraphVertex[ds.Text], *algo.DFSNode[ds.Text]) { tvCount++ }
-			vi.OnRootVertex = func(*ds.GraphVertex[ds.Text], *algo.DFSNode[ds.Text]) { rvCount++ }
+			vi.OnTreeVertex = func(*ds.GraphVertex[ds.Text], *algo.DFNode[ds.Text]) { tvCount++ }
+			vi.OnRootVertex = func(*ds.GraphVertex[ds.Text], *algo.DFNode[ds.Text]) { rvCount++ }
 
 			vi.OnTreeEdge = func(*ds.GraphEdge[ds.Text]) { teCount++ }
 			vi.OnForwardEdge = func(*ds.GraphEdge[ds.Text]) { feCount++ }
 			vi.OnBackEdge = func(*ds.GraphEdge[ds.Text]) { beCount++ }
 			vi.OnCrossEdge = func(*ds.GraphEdge[ds.Text]) { ceCount++ }
 
-			vi.Export(ut.DummyWriter{})
+			ExportViz[ds.Text](vi, ut.DummyWriter{})
 
 			ut.AssertEqual(t, tc.expectTV, tvCount)
 			ut.AssertEqual(t, tc.expectRV, rvCount)

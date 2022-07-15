@@ -19,6 +19,7 @@ https://graphviz.org/doc/info/lang.html
 type Exporter[V ds.Item] struct {
 	Graph *ds.Graph[V]
 	Lines []string
+	Extra []string
 
 	DefaultGraphFmt  ds.FmtAttrs
 	DefaultVertexFmt ds.FmtAttrs
@@ -33,7 +34,6 @@ func NewExporter[V ds.Item](graph *ds.Graph[V]) *Exporter[V] {
 	res := Exporter[V]{}
 
 	res.Graph = graph
-	res.Lines = []string{}
 
 	res.UndirectedArrow = "--"
 	res.DirectedArrow = "->"
@@ -41,8 +41,8 @@ func NewExporter[V ds.Item](graph *ds.Graph[V]) *Exporter[V] {
 	return &res
 }
 
-func (d *Exporter[V]) add(s string) {
-	d.Lines = append(d.Lines, s)
+func (d *Exporter[V]) add(s ...string) {
+	d.Lines = append(d.Lines, s...)
 }
 
 func (d *Exporter[V]) addDefault(pfx string, attrs ds.FmtAttrs) {
@@ -59,10 +59,23 @@ func (d *Exporter[V]) addDefaults() {
 	d.addDefault("edge", d.DefaultEdgeFmt)
 }
 
+/*
+AddExtra adds extra lines to the end of the DOT file, which is a feature
+needed by more complex visualizations that need to control more precisely
+how a graph is rendered, like adding invisible, structural edges, etc.
+*/
+func (d *Exporter[V]) AddExtra(s ...string) {
+	d.Extra = append(d.Extra, s...)
+}
+
 // Export writes the data it has accumulated to an io.Writer.
 func (d *Exporter[V]) Export(w io.Writer) {
 	d.Graph.Accept(d)
-	io.Copy(w, strings.NewReader(strings.Join(d.Lines, "\n")))
+
+	s := strings.Join(d.Lines, "\n")
+	r := strings.NewReader(s)
+
+	io.Copy(w, r)
 }
 
 func (d *Exporter[V]) VisitGraphStart(g *ds.Graph[V]) {
@@ -79,6 +92,10 @@ func (d *Exporter[V]) VisitGraphStart(g *ds.Graph[V]) {
 }
 
 func (d *Exporter[V]) VisitGraphEnd(g *ds.Graph[V]) {
+	if len(d.Extra) != 0 {
+		d.add(d.Extra...)
+	}
+
 	d.add("}\n")
 }
 
@@ -86,9 +103,9 @@ func (d *Exporter[V]) VisitVertex(v *ds.GraphVertex[V]) {
 	var line string
 
 	if len(v.Fmt) == 0 {
-		line = quote(v.Label())
+		line = Quoted(v.Val)
 	} else {
-		line = fmt.Sprintf("%s %s", quote(v.Label()), DotAttrs(v.Fmt))
+		line = fmt.Sprintf("%s %s", Quoted(v.Val), DotAttrs(v.Fmt))
 	}
 
 	d.add(line)
@@ -104,7 +121,7 @@ func (d *Exporter[V]) VisitEdge(e *ds.GraphEdge[V]) {
 		op = d.UndirectedArrow
 	}
 
-	rel := fmt.Sprintf("%s %s %s", quote((*e.Src).Label()), op, quote((*e.Dst).Label()))
+	rel := fmt.Sprintf("%s %s %s", Quoted(e.Src), op, Quoted(e.Dst))
 
 	if e.Wt != 0 {
 		e.AppendFmtAttr("label", fmt.Sprintf(" %.2f", e.Wt))
@@ -152,6 +169,14 @@ func ResetGraphFmt[V ds.Item](g *ds.Graph[V]) {
 	}
 }
 
-func quote(s string) string {
-	return fmt.Sprintf(`"%s"`, s)
+// Snapshot implements a shorthand for the quick export of a graph, using a theme.
+func Snapshot[V ds.Item](g *ds.Graph[V], w io.Writer, t Theme) {
+	ex := NewExporter(g)
+	SetTheme(ex, t)
+	ex.Export(w)
+}
+
+// Quoted adds quotes to the label of a ds.Item, which is useful for labels containing special characters.
+func Quoted[V ds.Item](v *V) string {
+	return fmt.Sprintf(`"%s"`, (*v).Label())
 }
