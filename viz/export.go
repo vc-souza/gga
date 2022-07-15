@@ -59,7 +59,11 @@ func (d *Exporter[V]) addDefaults() {
 	d.addDefault("edge", d.DefaultEdgeFmt)
 }
 
-// TODO: docs
+/*
+AddExtra adds extra lines to the end of the DOT file, which is a feature
+needed by more complex visualizations that need to control more precisely
+how a graph is rendered, like adding invisible, structural edges, etc.
+*/
 func (d *Exporter[V]) AddExtra(s ...string) {
 	d.Extra = append(d.Extra, s...)
 }
@@ -169,7 +173,7 @@ func Snapshot[V ds.Item](g *ds.Graph[V], w io.Writer, t Theme) {
 	ex.Export(w)
 }
 
-// TODO: docs
+// Quoted adds quotes to the label of a ds.Item, which is useful for labels containing special characters.
 func Quoted[V ds.Item](v *V) string {
 	return fmt.Sprintf(`"%s"`, (*v).Label())
 }

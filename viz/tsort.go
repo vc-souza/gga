@@ -23,7 +23,12 @@ type TSortViz[V ds.Item] struct {
 	*/
 	OnVertexRank func(*ds.GraphVertex[V], int)
 
-	// TODO: docs
+	/*
+		OnOrderEdge is called for every edge that connects two contiguous vertices
+		in the final topological ordering. Note that such an edge might not actually
+		exist in the graph, which gives the caller the opportunity to either create
+		it or take any other action.
+	*/
 	OnOrderEdge func(*ds.GraphEdge[V], bool)
 }
 
