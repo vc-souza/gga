@@ -55,6 +55,17 @@ func exportEnd(v viz.AlgoViz[ds.Text]) {
 	}
 }
 
+type customTheme struct {
+	viz.LightBreezeTheme
+}
+
+func (t customTheme) SetGraphFmt(attrs ds.FmtAttrs) {
+	t.LightBreezeTheme.SetGraphFmt(attrs)
+
+	attrs["nodesep"] = "0.2"
+	attrs["ranksep"] = "0.3"
+}
+
 func main() {
 	g := input()
 
@@ -66,10 +77,20 @@ func main() {
 		panic(err)
 	}
 
-	vi := viz.NewTSortViz(g, ord, viz.Themes.LightBreeze)
+	vi := viz.NewTSortViz(g, ord, customTheme{})
 
 	vi.OnVertexRank = func(v *ds.GraphVertex[ds.Text], rank int) {
 		v.SetFmtAttr("label", fmt.Sprintf(`%s | %d`, v.Label(), rank))
+	}
+
+	vi.OnOrderEdge = func(e *ds.GraphEdge[ds.Text], exists bool) {
+		if exists {
+			return
+		}
+
+		// TODO: better somewhere else?
+		line := fmt.Sprintf("%s -> %s [style=invis]", viz.Quoted(e.Src), viz.Quoted(e.Dst))
+		vi.Extra = append(vi.Extra, line)
 	}
 
 	exportEnd(vi)

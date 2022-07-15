@@ -3,7 +3,7 @@ package viz
 import "github.com/vc-souza/gga/ds"
 
 var Themes = struct {
-	LightBreeze lightBreezeTheme
+	LightBreeze LightBreezeTheme
 }{}
 
 // A Theme implementation is capable of setting default formatting for a graph, its vertices and edges.
@@ -29,9 +29,9 @@ func SetTheme[V ds.Item](e *Exporter[V], t Theme) {
 	t.SetEdgeFmt(e.DefaultEdgeFmt)
 }
 
-type lightBreezeTheme struct{}
+type LightBreezeTheme struct{}
 
-func (t lightBreezeTheme) SetGraphFmt(attrs ds.FmtAttrs) {
+func (t LightBreezeTheme) SetGraphFmt(attrs ds.FmtAttrs) {
 	attrs["bgcolor"] = "#ffffff"
 	attrs["layout"] = "dot"
 	attrs["nodesep"] = "0.8"
@@ -39,7 +39,7 @@ func (t lightBreezeTheme) SetGraphFmt(attrs ds.FmtAttrs) {
 	attrs["pad"] = "0.2"
 }
 
-func (t lightBreezeTheme) SetVertexFmt(attrs ds.FmtAttrs) {
+func (t LightBreezeTheme) SetVertexFmt(attrs ds.FmtAttrs) {
 	attrs["shape"] = "Mrecord"
 	attrs["style"] = "filled"
 	attrs["fillcolor"] = "#7289da"
@@ -48,7 +48,7 @@ func (t lightBreezeTheme) SetVertexFmt(attrs ds.FmtAttrs) {
 	attrs["penwidth"] = "1.1"
 }
 
-func (t lightBreezeTheme) SetEdgeFmt(attrs ds.FmtAttrs) {
+func (t LightBreezeTheme) SetEdgeFmt(attrs ds.FmtAttrs) {
 	attrs["penwidth"] = "0.9"
 	attrs["arrowsize"] = "0.8"
 }

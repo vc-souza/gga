@@ -12,11 +12,16 @@ When embedded, it also provides a good part of the AlgoViz interface for free.
 */
 type ThemedGraphViz[V ds.Item] struct {
 	Graph *ds.Graph[V]
+	Extra []string
 	Theme Theme
 }
 
 func (v *ThemedGraphViz[V]) GetGraph() *ds.Graph[V] {
 	return v.Graph
+}
+
+func (v *ThemedGraphViz[V]) GetExtra() []string {
+	return v.Extra
 }
 
 func (v *ThemedGraphViz[V]) GetTheme() Theme {
@@ -29,6 +34,7 @@ provide its input graph, and also support theming.
 */
 type AlgoViz[V ds.Item] interface {
 	GetGraph() *ds.Graph[V]
+	GetExtra() []string
 	GetTheme() Theme
 	Traverse() error
 }
@@ -42,6 +48,10 @@ func ExportViz[V ds.Item](vi AlgoViz[V], w io.Writer) error {
 
 	if err := vi.Traverse(); err != nil {
 		return err
+	}
+
+	if len(vi.GetExtra()) != 0 {
+		ex.AddExtra(vi.GetExtra()...)
 	}
 
 	ex.Export(w)

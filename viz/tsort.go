@@ -22,6 +22,9 @@ type TSortViz[V ds.Item] struct {
 		of the vertex in the final topological ordering of vertices.
 	*/
 	OnVertexRank func(*ds.GraphVertex[V], int)
+
+	// TODO: docs
+	OnOrderEdge func(*ds.GraphEdge[V], bool)
 }
 
 // NewTSortViz initializes a new TSortViz with NOOP hooks.
@@ -34,29 +37,47 @@ func NewTSortViz[V ds.Item](g *ds.Graph[V], ord *list.List, theme Theme) *TSortV
 	res.Theme = theme
 
 	res.OnVertexRank = func(*ds.GraphVertex[V], int) {}
+	res.OnOrderEdge = func(*ds.GraphEdge[V], bool) {}
 
 	return res
 }
 
 // Traverse iterates over the results of a Topological Sort execution, calling its hooks when appropriate.
 func (vi *TSortViz[V]) Traverse() error {
-	rank := 0
+	var rank int
+	var prev *V
+	var next *V
 
 	for elem := vi.Order.Front(); elem != nil; elem = elem.Next() {
 		rank++
 
-		if val, ok := elem.Value.(*V); ok {
+		val, ok := elem.Value.(*V)
 
-			if vtx, _, ok := vi.Graph.GetVertex(val); ok {
-				vi.OnVertexRank(vtx, rank)
-			} else {
-				return errors.New("could not find vertex")
-			}
-
-		} else {
+		if !ok {
 			return ds.ErrInvalidType
 		}
 
+		vtx, _, ok := vi.Graph.GetVertex(val)
+
+		if !ok {
+			return errors.New("could not find vertex")
+		}
+
+		vi.OnVertexRank(vtx, rank)
+
+		next = val
+
+		if prev != nil && next != nil {
+			e, _, ok := vi.Graph.GetEdge(prev, next)
+
+			if !ok {
+				e = &ds.GraphEdge[V]{Src: prev, Dst: next}
+			}
+
+			vi.OnOrderEdge(e, ok)
+		}
+
+		prev = next
 	}
 
 	return nil
