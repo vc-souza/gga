@@ -4,10 +4,40 @@ import (
 	"github.com/vc-souza/gga/ds"
 )
 
-// TODO: docs
+// An SCC holds the vertices in a strongly connected component of a graph.
 type SCC[V ds.Item] []*V
 
-// TODO: docs
+/*
+SCCKosaraju implements Kosaraju's algorithm for finding the strongly connected
+components of a directed graph. A strongly connected component of a graph being
+a subgraph where every vertex is reachable from every other vertex. Such
+a subgraph is maximal: no other vertex or edge from the graph can be added
+to the subgraph without breaking its property of being strongly connected.
+
+Given a directed graph, SCCKosaraju will obtain an ordering of the vertices,
+in decreasing order of finish time in a DFS. This is implemented as a call
+to TSort (Topological Sort), even if the final sorting might not be an
+actual topological sorting (undefined for cyclic graphs), it will still
+return an ordering of vertices in decreasing order of finish time in a DFS.
+
+A transpose of the original graph is then calculated (same graph with the direction
+of every edge reversed), and a second DFS is executed on it (TSort being a DFS itself).
+The second DFS uses the ordering obtained from the Topological Sort to calculate
+the DF forest of the transpose (the main loop of the DFS will visit the vertices in
+that order), and each DF tree in the forest will correspond to an SCC of the transpose.
+Since a graph and its transpose share the same SCCs, after the second DFS, the
+algorith will have found the SCCs of the original graph.
+
+Link: https://en.wikipedia.org/wiki/Kosaraju%27s_algorithm
+
+Expectations:
+	- The graph is correctly built.
+	- The graph is directed.
+
+Complexity:
+	- Time:  Θ(V + E)
+	- Space: Θ(V)
+*/
 func SCCKosaraju[V ds.Item](g *ds.Graph[V]) ([]SCC[V], error) {
 	if g.Undirected() {
 		return nil, ds.ErrUndefOp

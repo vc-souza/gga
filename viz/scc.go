@@ -7,23 +7,28 @@ import (
 	"github.com/vc-souza/gga/ds"
 )
 
-// TODO: docs
+/*
+SCCViz formats and exports a graph after an execution of any algorithm that discovers
+the strongly connected components of a graph. The output of the algorithm is traversed,
+and hooks are provided so that custom formatting can be applied to the graph,
+its vertices and edges.
+*/
 type SCCViz[V ds.Item] struct {
 	ThemedGraphViz[V]
 
 	SCCs []algo.SCC[V]
 
-	// TODO: docs
+	// OnVertex is called for every vertex, along with the index of its SCC.
 	OnVertex func(*ds.GraphVertex[V], int)
 
-	// TODO: docs
+	// OnEdge is called for any edge connecting vertices in the same SCC.
 	OnEdge func(*ds.GraphEdge[V], int)
 
-	// TODO: docs
+	// OnCrossEdge is called for any edge connecting vertices in different SCCs.
 	OnCrossEdge func(*ds.GraphEdge[V], int, int)
 }
 
-// TODO: docs
+// NewSCCViz initializes a new SCCViz with NOOP hooks.
 func NewSCCViz[V ds.Item](g *ds.Graph[V], sccs []algo.SCC[V], t Theme) *SCCViz[V] {
 	res := &SCCViz[V]{}
 
@@ -39,7 +44,7 @@ func NewSCCViz[V ds.Item](g *ds.Graph[V], sccs []algo.SCC[V], t Theme) *SCCViz[V
 	return res
 }
 
-// TODO: docs
+// Traverse iterates over the results of any SCC algorithm, calling its hooks when appropriate.
 func (vi *SCCViz[V]) Traverse() error {
 	sets := map[*V]int{}
 
