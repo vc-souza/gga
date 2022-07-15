@@ -17,3 +17,7 @@ coverage.html
 
 # IDE settings
 .vscode/
+
+# Sample artifacts at the root of the repo
+/*.svg
+/*.dot
