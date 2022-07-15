@@ -39,7 +39,7 @@ type AlgoViz[V ds.Item] interface {
 	Traverse() error
 }
 
-// ExportViz can guide the execution of an AlgoViz implementation and then export its results.
+// ExportViz guides the execution of an AlgoViz implementation and then export its results.
 func ExportViz[V ds.Item](vi AlgoViz[V], w io.Writer) error {
 	ex := NewExporter(vi.GetGraph())
 
