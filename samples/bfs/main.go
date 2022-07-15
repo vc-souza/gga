@@ -48,8 +48,6 @@ func exportEnd(v viz.AlgoViz[ds.Text]) {
 
 	defer fOut.Close()
 
-	// annotate the input graph with the result of the DFS,
-	// then export the annotated version
 	if err := viz.ExportViz(v, fOut); err != nil {
 		panic(err)
 	}

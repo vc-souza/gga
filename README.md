@@ -20,15 +20,23 @@ Examples can be found in the [samples](/samples) folder.
 ### [BFS (Breadth-First Search)](/algo/bfs.go)
 
 ##### Before
-![BFS before](/res/img/BFS/before.svg)
+![BFS before](/res/img/bfs/before.svg)
 
 ##### After
-![BFS after](/res/img/BFS/after.svg)
+![BFS after](/res/img/bfs/after.svg)
 
 ### [DFS (Depth-First Search)](/algo/dfs.go)
 
 ##### Before
-![DFS before](/res/img/DFS/before.svg)
+![DFS before](/res/img/dfs/before.svg)
 
 ##### After
-![DFS after](/res/img/DFS/after.svg)
+![DFS after](/res/img/dfs/after.svg)
+
+### [Topological Sort](/algo/tsort.go)
+
+##### Before
+![DFS before](/res/img/tsort/before.svg)
+
+##### After
+![DFS after](/res/img/tsort/after.svg)

@@ -48,8 +48,6 @@ func exportEnd(v viz.AlgoViz[ds.Text]) {
 
 	defer fOut.Close()
 
-	// annotate the input graph with the result of the DFS,
-	// then export the annotated version
 	if err := viz.ExportViz(v, fOut); err != nil {
 		panic(err)
 	}
@@ -61,9 +59,8 @@ type customTheme struct {
 
 func (t customTheme) SetGraphFmt(attrs ds.FmtAttrs) {
 	t.LightBreezeTheme.SetGraphFmt(attrs)
-
-	attrs["nodesep"] = "0.2"
-	attrs["ranksep"] = "0.3"
+	attrs["nodesep"] = "0.1"
+	attrs["ranksep"] = "0.2"
 }
 
 func main() {
@@ -88,9 +85,14 @@ func main() {
 			return
 		}
 
-		// TODO: better somewhere else?
-		line := fmt.Sprintf("%s -> %s [style=invis]", viz.Quoted(e.Src), viz.Quoted(e.Dst))
-		vi.Extra = append(vi.Extra, line)
+		vi.Extra = append(
+			vi.Extra,
+			fmt.Sprintf(
+				"%s -> %s [style=invis]",
+				viz.Quoted(e.Src),
+				viz.Quoted(e.Dst),
+			),
+		)
 	}
 
 	exportEnd(vi)
