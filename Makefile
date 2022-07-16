@@ -5,6 +5,9 @@ endef
 test:
 	@go test -v -race -coverprofile coverage.out -tags test ./...
 
+test-short:
+	@go test -tags test ./...
+
 cov:
 	@go tool cover -html=coverage.out
 
