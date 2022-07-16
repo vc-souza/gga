@@ -114,39 +114,71 @@ func SCCKosaraju[V ds.Item](g *ds.Graph[V]) ([]SCC[V], error) {
 }
 
 // TODO: docs
-type tjData struct {
-	// TODO: docs
+type tjAttrs struct {
+	// index represents when the vertex was first discovered.
 	index int
 
-	// TODO: docs
+	/*
+		lowIndex represents the smallest index of any vertex currently on the stack
+		known to be reachable from v through v's DFS subtree, including v itself.
+	*/
 	lowIndex int
 
-	// TODO: docs
+	// next indicates the next adjacent vertex to explore.
 	next int
 
-	// TODO: docs
+	/*
+		waiting flags that the vertex is waiting for one of its adjacent vertices
+		to finish being explored, so that it can check their low index.
+	*/
 	waiting bool
 
-	// TODO: docs
+	// onStack flags that a vertex is on the stack.
 	onStack bool
 }
 
-// TODO: docs
+/*
+SCCTarjan implements Tarjan's algorithm for finding the strongly connected
+components of a directed graph. A strongly connected component of a graph being
+a subgraph where every vertex is reachable from every other vertex. Such
+a subgraph is maximal: no other vertex or edge from the graph can be added
+to the subgraph without breaking its property of being strongly connected.
+
+Given a directed graph, SCCTarjan will ...
+
+...
+
+Link: https://en.wikipedia.org/wiki/Tarjan%27s_strongly_connected_components_algorithm
+
+Expectations:
+	- The graph is correctly built.
+	- The graph is directed.
+
+Complexity:
+	- Time:  Θ(V + E)
+	- Space: Θ(V)
+*/
 func SCCTarjan[V ds.Item](g *ds.Graph[V]) ([]SCC[V], error) {
 	if g.Undirected() {
 		return nil, ds.ErrUndefOp
 	}
 
+	// stack that simulates the call stack
+	// necessary for the iterative version
 	calls := ds.NewStack[*V]()
-	stack := ds.NewStack[*V]()
-	sccs := []SCC[V]{}
 
-	tj := map[*V]*tjData{}
+	// stack used by Tarjan's algorithm
+	stack := ds.NewStack[*V]()
+
+	sccs := []SCC[V]{}
+	att := map[*V]*tjAttrs{}
 
 	for v := range g.Adj {
-		tj[v] = &tjData{}
+		att[v] = &tjAttrs{}
 	}
 
+	// using 1 as the starting point so that the zero-value
+	// of tjAttrs.index (0) can indicate an unvisited vertex
 	i := 1
 
 	visit := func(root *V) {
@@ -156,44 +188,47 @@ func SCCTarjan[V ds.Item](g *ds.Graph[V]) ([]SCC[V], error) {
 			vtx, _ := calls.Peek()
 
 			// vertex is being discovered
-			if tj[vtx].index == 0 {
-				tj[vtx].index = i
-				tj[vtx].lowIndex = i
+			// assign a new index to it
+			if att[vtx].index == 0 {
+				att[vtx].index = i
+				att[vtx].lowIndex = i
 
 				stack.Push(vtx)
-				tj[vtx].onStack = true
+				att[vtx].onStack = true
 
 				i++
 			}
 
-			// looking at the low value that the previous child computed
-			// if next is not 0, then an unvisited child started
-			// calculating its low value, and the current vertex needs it
-			if tj[vtx].waiting {
+			// looking at the low value that the previous child
+			// finished computed if vtx is waiting for a result
+			if att[vtx].waiting {
 				// adj list for the current vertex
 				adj := g.Adj[vtx]
 
 				// index of the pending child
-				idx := tj[vtx].next - 1
+				idx := att[vtx].next - 1
 
 				// pending child
 				child := adj[idx].Dst
 
-				tj[vtx].lowIndex = Min(tj[vtx].lowIndex, tj[child].lowIndex)
-				tj[vtx].waiting = false
+				att[vtx].lowIndex = Min(att[vtx].lowIndex, att[child].lowIndex)
+				att[vtx].waiting = false
 			}
 
 			// finished exploring adj
-			if tj[vtx].next >= len(g.Adj[vtx]) {
+			if att[vtx].next >= len(g.Adj[vtx]) {
 				calls.Pop()
 
-				// root of a SCC
-				if tj[vtx].lowIndex == tj[vtx].index {
+				// root of an SCC, otherwise do not pop anything
+				if att[vtx].lowIndex == att[vtx].index {
 					scc := SCC[V]{}
 
+					// every node that is currently in the stack
+					// is a part of the SCC where vtx is the root,
+					// so we pop until we find vtx
 					for !stack.Empty() {
 						w, _ := stack.Pop()
-						tj[w].onStack = false
+						att[w].onStack = false
 
 						scc = append(scc, w)
 
@@ -209,19 +244,22 @@ func SCCTarjan[V ds.Item](g *ds.Graph[V]) ([]SCC[V], error) {
 			}
 
 			// visit adjacent vertices
-			for i := tj[vtx].next; i < len(g.Adj[vtx]); i++ {
+			for i := att[vtx].next; i < len(g.Adj[vtx]); i++ {
 				e := g.Adj[vtx][i]
-				tj[vtx].next++
+				att[vtx].next++
 
 				// will need to wait for the adjancent
 				// node to have its low value calculated,
 				// then it can be used to update vtx's
-				if tj[e.Dst].index == 0 {
+				if att[e.Dst].index == 0 {
 					calls.Push(e.Dst)
-					tj[vtx].waiting = true
+					att[vtx].waiting = true
 					break
-				} else if tj[e.Dst].onStack {
-					tj[vtx].lowIndex = Min(tj[vtx].lowIndex, tj[e.Dst].index)
+				} else if att[e.Dst].onStack {
+					// can't use the lowIndex of e.Dst since it is in the stack,
+					// and as such, not in vtx's subtree: using the index
+					// is the best we can do since we know vtx can reach e.Dst
+					att[vtx].lowIndex = Min(att[vtx].lowIndex, att[e.Dst].index)
 				}
 			}
 		}
@@ -230,7 +268,7 @@ func SCCTarjan[V ds.Item](g *ds.Graph[V]) ([]SCC[V], error) {
 	for _, vert := range g.Verts {
 		root := vert.Val
 
-		if tj[root].index != 0 {
+		if att[root].index != 0 {
 			continue
 		}
 

@@ -9,7 +9,7 @@ type EdgeTypes[V ds.Item] struct {
 	Cross   []*ds.GraphEdge[V]
 }
 
-// TODO: docs
+// Min returns the minimum value between its integer inputs.
 func Min(a, b int) int {
 	if a <= b {
 		return a
