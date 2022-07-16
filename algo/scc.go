@@ -10,7 +10,7 @@ strongly connected components in a graph. If a particular algorithm can
 only work on a particular type of graph, then undefined behavior is
 indicated by the ds.ErrUndefOp error being returned.
 */
-type SCCAlgorithm func(*ds.Graph[ds.Text]) ([]SCC[ds.Text], error)
+type SCCAlgorithm[V ds.Item] func(*ds.Graph[V]) ([]SCC[V], error)
 
 // An SCC holds the vertices in a strongly connected component of a graph.
 type SCC[V ds.Item] []*V

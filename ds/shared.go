@@ -1,5 +1,7 @@
 package ds
 
+import "strings"
+
 /*
 An Item implementation can be used as satellite data for an item in a gga data structure.
 The main feature of an Item is being able to provide a label for easy identification.
@@ -7,6 +9,25 @@ Some use cases would be logging and the generation of data visualizations using 
 */
 type Item interface {
 	Label() string
+}
+
+// TODO: docs
+type ItemList[V Item] []*V
+
+func (il ItemList[V]) Label() string {
+	ls := make([]string, 0, len(il))
+
+	for _, v := range il {
+		l := (*v).Label()
+
+		if len(l) >= 5 {
+			l = l[:5] + "..."
+		}
+
+		ls = append(ls, l)
+	}
+
+	return strings.Join(ls, ",")
 }
 
 /*

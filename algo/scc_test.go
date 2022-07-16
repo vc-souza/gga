@@ -11,7 +11,7 @@ import (
 func TestSCC_directed(t *testing.T) {
 	cases := []struct {
 		desc   string
-		algo   SCCAlgorithm
+		algo   SCCAlgorithm[ds.Text]
 		expect map[string]int
 	}{
 		{
@@ -76,7 +76,7 @@ func TestSCC_directed(t *testing.T) {
 func TestSCC_undirected(t *testing.T) {
 	cases := []struct {
 		desc string
-		algo SCCAlgorithm
+		algo SCCAlgorithm[ds.Text]
 	}{
 		{
 			desc: "Kosaraju",
