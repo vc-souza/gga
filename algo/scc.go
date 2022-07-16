@@ -149,12 +149,12 @@ vertices as soon as they are first visited during a modified DFS. The vertices
 are not necessarily popped from the stack after being fully explored, though,
 with the following invariant always holding:
 
-  A vertex remains in the stack after being explored IFF there exists a path from
-  the vertex to some other vertex earlier in the stack: meaning that a vertex is
+  A vertex remains on the stack after being explored IFF there exists a path from
+  the vertex to some other vertex earlier on the stack: meaning that a vertex is
   only removed from the stack after alls of its connected paths have been traversed.
 
 If after exploring a vertex and all of its descendants, the vertex still has no
-path to earlier vertices in the stack, then every vertex in the stack is popped
+path to earlier vertices on the stack, then every vertex on the stack is popped
 until the current vertex is reached (it is included): this set of vertices
 is an SCC rooted at the vertex.
 
@@ -233,7 +233,7 @@ func SCCTarjan[V ds.Item](g *ds.Graph[V]) ([]SCC[V], error) {
 				if att[vtx].lowIndex == att[vtx].index {
 					scc := SCC[V]{}
 
-					// every vertex that is currently in the stack
+					// every vertex that is currently on the stack
 					// is a part of the SCC where vtx is the root,
 					// so we pop until we find vtx
 					for !stack.Empty() {
@@ -266,7 +266,7 @@ func SCCTarjan[V ds.Item](g *ds.Graph[V]) ([]SCC[V], error) {
 					att[vtx].waiting = true
 					break
 				} else if att[e.Dst].onStack {
-					// can't use the lowIndex of e.Dst since it is in the stack,
+					// can't use the lowIndex of e.Dst since it is on the stack,
 					// and as such, not in vtx's subtree: using the index
 					// is the best we can do since we know vtx can reach e.Dst
 					att[vtx].lowIndex = Min(att[vtx].lowIndex, att[e.Dst].index)
