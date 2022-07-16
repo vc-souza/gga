@@ -34,7 +34,7 @@ The second DFS uses the ordering obtained from the Topological Sort to calculate
 the DF forest of the transpose (the main loop of the DFS will visit the vertices in
 that order), and each DF tree in the forest will correspond to an SCC of the transpose.
 Since a graph and its transpose share the same SCCs, after the second DFS, the
-algorith will have found the SCCs of the original graph.
+algorithm will have found the SCCs of the original graph.
 
 Link: https://en.wikipedia.org/wiki/Kosaraju%27s_algorithm
 
@@ -113,7 +113,7 @@ func SCCKosaraju[V ds.Item](g *ds.Graph[V]) ([]SCC[V], error) {
 	return sccs, nil
 }
 
-// TODO: docs
+// tjAttrs is an auxiliary type used only by SCCTarjan.
 type tjAttrs struct {
 	// index represents when the vertex was first discovered.
 	index int
@@ -144,9 +144,19 @@ a subgraph where every vertex is reachable from every other vertex. Such
 a subgraph is maximal: no other vertex or edge from the graph can be added
 to the subgraph without breaking its property of being strongly connected.
 
-Given a directed graph, SCCTarjan will ...
+Given a directed graph, SCCTarjan will keep an auxiliary stack where it pushes
+vertices as soon as they are first visited during a modified DFS. The vertices
+are not necessarily popped from the stack after being fully explored, though,
+with the following invariant always holding:
 
-...
+  A vertex remains in the stack after being explored IFF there exists a path from
+  the vertex to some other vertex earlier in the stack: meaning that a vertex is
+  only removed from the stack after alls of its connected paths have been traversed.
+
+If after exploring a vertex and all of its descendants, the vertex still has no
+path to earlier vertices in the stack, then every vertex in the stack is popped
+until the current vertex is reached (it is included): this set of vertices
+is an SCC rooted at the vertex.
 
 Link: https://en.wikipedia.org/wiki/Tarjan%27s_strongly_connected_components_algorithm
 
@@ -223,7 +233,7 @@ func SCCTarjan[V ds.Item](g *ds.Graph[V]) ([]SCC[V], error) {
 				if att[vtx].lowIndex == att[vtx].index {
 					scc := SCC[V]{}
 
-					// every node that is currently in the stack
+					// every vertex that is currently in the stack
 					// is a part of the SCC where vtx is the root,
 					// so we pop until we find vtx
 					for !stack.Empty() {
@@ -249,7 +259,7 @@ func SCCTarjan[V ds.Item](g *ds.Graph[V]) ([]SCC[V], error) {
 				att[vtx].next++
 
 				// will need to wait for the adjancent
-				// node to have its low value calculated,
+				// vertex to have its low value calculated,
 				// then it can be used to update vtx's
 				if att[e.Dst].index == 0 {
 					calls.Push(e.Dst)
