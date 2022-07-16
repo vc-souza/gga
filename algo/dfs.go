@@ -106,7 +106,7 @@ Complexity:
 	- Space (wit edge classification): O(V + E)
 */
 func DFS[V ds.Item](g *ds.Graph[V], classify bool) (DFForest[V], *EdgeTypes[V], error) {
-	stk := ds.NewStack[*V]()
+	calls := ds.NewStack[*V]()
 
 	fst := DFForest[V]{}
 	tps := &EdgeTypes[V]{}
@@ -123,10 +123,10 @@ func DFS[V ds.Item](g *ds.Graph[V], classify bool) (DFForest[V], *EdgeTypes[V], 
 	// build a DF tree rooted at the vertex being visited;
 	// the tree will be a part of the DF forest
 	visit := func(root *V) {
-		stk.Push(root)
+		calls.Push(root)
 
-		for !stk.Empty() {
-			vtx, _ := stk.Peek()
+		for !calls.Empty() {
+			vtx, _ := calls.Peek()
 
 			// vertex is being discovered
 			if !visited[vtx] {
@@ -139,7 +139,7 @@ func DFS[V ds.Item](g *ds.Graph[V], classify bool) (DFForest[V], *EdgeTypes[V], 
 			// all of its descendants have been
 			// discovered and fully explored
 			if next[vtx] >= len(g.Adj[vtx]) {
-				stk.Pop()
+				calls.Pop()
 				t++
 				fst[vtx].Finish = t
 
@@ -166,7 +166,7 @@ func DFS[V ds.Item](g *ds.Graph[V], classify bool) (DFForest[V], *EdgeTypes[V], 
 				} else {
 					// found a tree edge
 					fst[e.Dst].Parent = vtx
-					stk.Push(e.Dst)
+					calls.Push(e.Dst)
 
 					// depth-first means that a descendant needs to be fully explored
 					// before the next adjacent vertex is considered; whenever we run

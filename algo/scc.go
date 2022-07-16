@@ -51,7 +51,7 @@ func SCCKosaraju[V ds.Item](g *ds.Graph[V]) ([]SCC[V], error) {
 		return nil, ds.ErrUndefOp
 	}
 
-	stk := ds.NewStack[*V]()
+	calls := ds.NewStack[*V]()
 	sccs := []SCC[V]{}
 
 	visited := map[*V]bool{}
@@ -84,14 +84,14 @@ func SCCKosaraju[V ds.Item](g *ds.Graph[V]) ([]SCC[V], error) {
 
 		scc := SCC[V]{}
 
-		stk.Push(v)
+		calls.Push(v)
 
-		for !stk.Empty() {
-			vtx, _ := stk.Peek()
+		for !calls.Empty() {
+			vtx, _ := calls.Peek()
 			visited[vtx] = true
 
 			if next[vtx] >= len(tg.Adj[vtx]) {
-				stk.Pop()
+				calls.Pop()
 				scc = append(scc, vtx)
 				continue
 			}
@@ -101,13 +101,120 @@ func SCCKosaraju[V ds.Item](g *ds.Graph[V]) ([]SCC[V], error) {
 				next[vtx]++
 
 				if !visited[e.Dst] {
-					stk.Push(e.Dst)
+					calls.Push(e.Dst)
 					break
 				}
 			}
 		}
 
 		sccs = append(sccs, scc)
+	}
+
+	return sccs, nil
+}
+
+// TODO: docs
+func SCCTarjan[V ds.Item](g *ds.Graph[V]) ([]SCC[V], error) {
+	if g.Undirected() {
+		return nil, ds.ErrUndefOp
+	}
+
+	calls := ds.NewStack[*V]()
+	stack := ds.NewStack[*V]()
+	sccs := []SCC[V]{}
+
+	index := map[*V]int{}
+	low := map[*V]int{}
+	next := map[*V]int{}
+	wait := map[*V]int{}
+	on := map[*V]bool{}
+
+	i := 1
+
+	visit := func(root *V) {
+		calls.Push(root)
+
+		for !calls.Empty() {
+			vtx, _ := calls.Peek()
+
+			// vertex is being discovered
+			if index[vtx] == 0 {
+				index[vtx] = i
+				low[vtx] = i
+
+				stack.Push(vtx)
+				on[vtx] = true
+
+				i++
+			}
+
+			// looking at the low value that the previous child computed
+			// if next is not 0, then an unvisited child started
+			// calculating its low value, and the current vertex needs it
+			if next[vtx] != 0 {
+				// adj list for the current vertex
+				adj := g.Adj[vtx]
+
+				// index of the pending child
+				idx := next[vtx] - 1
+
+				// pending child
+				child := adj[idx].Dst
+
+				low[vtx] = Min(low[vtx], low[child])
+			}
+
+			// finished exploring adj
+			if next[vtx] >= len(g.Adj[vtx]) {
+				calls.Pop()
+
+				// root of a SCC
+				if low[vtx] == index[vtx] {
+					scc := SCC[V]{}
+
+					for !stack.Empty() {
+						w, _ := stack.Pop()
+						on[w] = false
+
+						scc = append(scc, w)
+
+						if w == vtx {
+							break
+						}
+					}
+
+					sccs = append(sccs, scc)
+				}
+
+				continue
+			}
+
+			// visit adjacent vertices
+			for i := next[vtx]; i < len(g.Adj[vtx]); i++ {
+				e := g.Adj[vtx][i]
+				next[vtx]++
+
+				// will need to wait for the adjancent
+				// node to have its low value calculated,
+				// then it can be used to update vtx's
+				if index[e.Dst] == 0 {
+					calls.Push(e.Dst)
+					break
+				} else if on[e.Dst] {
+					low[vtx] = Min(low[vtx], index[e.Dst])
+				}
+			}
+		}
+	}
+
+	for _, vert := range g.Verts {
+		root := vert.Val
+
+		if index[root] != 0 {
+			continue
+		}
+
+		visit(root)
 	}
 
 	return sccs, nil
