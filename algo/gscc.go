@@ -5,9 +5,9 @@ import (
 )
 
 // TODO: docs
-func Condensation[V ds.Item](g *ds.Graph[V], f SCCAlgorithm[V]) (*ds.Graph[ds.ItemList[V]], error) {
+func Condensation[V ds.Item](g *ds.Graph[V], f SCCAlgorithm[V]) (*ds.Graph[ds.ItemList[V]], []SCC[V], error) {
 	if g.Undirected() {
-		return nil, ds.ErrUndefOp
+		return nil, nil, ds.ErrUndefOp
 	}
 
 	if f == nil {
@@ -18,7 +18,7 @@ func Condensation[V ds.Item](g *ds.Graph[V], f SCCAlgorithm[V]) (*ds.Graph[ds.It
 	sccs, err := f(g)
 
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	vtxSCC := make(map[*V]int)
@@ -74,5 +74,5 @@ func Condensation[V ds.Item](g *ds.Graph[V], f SCCAlgorithm[V]) (*ds.Graph[ds.It
 		}
 	}
 
-	return gscc, nil
+	return gscc, sccs, nil
 }
