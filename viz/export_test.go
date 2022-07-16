@@ -191,3 +191,50 @@ func TestResetGraphFmt(t *testing.T) {
 		})
 	}
 }
+
+type exportTestTheme struct{}
+
+func (t exportTestTheme) SetGraphFmt(attrs ds.FmtAttrs) {
+	attrs["layout"] = "dot"
+}
+
+func (t exportTestTheme) SetVertexFmt(attrs ds.FmtAttrs) {
+	attrs["style"] = "filled"
+}
+
+func (t exportTestTheme) SetEdgeFmt(attrs ds.FmtAttrs) {
+	attrs["arrowhead"] = "vee"
+}
+
+var expectedSnapshot = `strict digraph {
+graph [ layout="dot" ]
+node [ style="filled" ]
+edge [ arrowhead="vee" ]
+"a"
+"a" -> "b"
+"a" -> "c"
+"b"
+"b" -> "d"
+"c"
+"d"
+"d" -> "b"
+}
+`
+
+func TestSnapshot(t *testing.T) {
+	g, _, err := ds.NewTextParser().Parse(`
+	digraph
+	a#b,c
+	b#d
+	c#
+	d#b
+	`)
+
+	ut.AssertEqual(t, true, err == nil)
+
+	buf := bytes.Buffer{}
+
+	Snapshot(g, &buf, exportTestTheme{})
+
+	ut.AssertEqual(t, expectedSnapshot, buf.String())
+}
