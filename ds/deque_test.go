@@ -12,15 +12,15 @@ func TestDequeGet(t *testing.T) {
 	d.PushFront(3)
 
 	v, ok := d.Get(0)
-	ut.AssertEqual(t, true, ok)
-	ut.AssertEqual(t, 3, v)
+	ut.AssertEQ(t, true, ok)
+	ut.AssertEQ(t, 3, v)
 }
 
 func TestDequeGet_invalid(t *testing.T) {
 	d := new(Deque[int])
 
 	_, ok := d.Get(-1)
-	ut.AssertEqual(t, false, ok)
+	ut.AssertEQ(t, false, ok)
 }
 
 func TestDequeGet_wrong_type(t *testing.T) {

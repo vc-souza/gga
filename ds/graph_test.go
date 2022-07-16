@@ -72,24 +72,24 @@ func addEdges(g *Graph[Text], edges edgeList) {
 
 func assertEdge(t *testing.T, g *Graph[Text], src, dst *Text, wt float64) {
 	e, _, ok := g.GetEdge(src, dst)
-	ut.AssertEqual(t, true, ok)
-	ut.AssertEqual(t, wt, e.Wt)
+	ut.AssertEQ(t, true, ok)
+	ut.AssertEQ(t, wt, e.Wt)
 }
 
 func TestNewDirectedGraph(t *testing.T) {
 	g := NewDirectedGraph[Text]()
 
-	ut.AssertEqual(t, true, g != nil)
-	ut.AssertEqual(t, true, g.Directed())
-	ut.AssertEqual(t, false, g.Undirected())
+	ut.AssertEQ(t, true, g != nil)
+	ut.AssertEQ(t, true, g.Directed())
+	ut.AssertEQ(t, false, g.Undirected())
 }
 
 func TestNewUndirectedGraph(t *testing.T) {
 	g := NewUndirectedGraph[Text]()
 
-	ut.AssertEqual(t, true, g != nil)
-	ut.AssertEqual(t, true, g.Undirected())
-	ut.AssertEqual(t, false, g.Directed())
+	ut.AssertEQ(t, true, g != nil)
+	ut.AssertEQ(t, true, g.Undirected())
+	ut.AssertEQ(t, false, g.Directed())
 }
 
 func TestGraphEmptyCopy(t *testing.T) {
@@ -98,10 +98,10 @@ func TestGraphEmptyCopy(t *testing.T) {
 			g := f()
 			cp := g.EmptyCopy()
 
-			ut.AssertEqual(t, g.Directed(), cp.Directed())
-			ut.AssertEqual(t, g.Undirected(), cp.Undirected())
-			ut.AssertEqual(t, 0, cp.VertexCount())
-			ut.AssertEqual(t, 0, cp.EdgeCount())
+			ut.AssertEQ(t, g.Directed(), cp.Directed())
+			ut.AssertEQ(t, g.Undirected(), cp.Undirected())
+			ut.AssertEQ(t, 0, cp.VertexCount())
+			ut.AssertEQ(t, 0, cp.EdgeCount())
 		})
 	}
 }
@@ -131,7 +131,7 @@ func TestGraphVertexCount(t *testing.T) {
 
 				addVerts(g, tc.verts)
 
-				ut.AssertEqual(t, tc.expect, g.VertexCount())
+				ut.AssertEQ(t, tc.expect, g.VertexCount())
 			})
 		}
 	}
@@ -162,7 +162,7 @@ func TestGraphEdgeCount(t *testing.T) {
 
 				addEdges(g, tc.edges)
 
-				ut.AssertEqual(t, tc.expect, g.EdgeCount())
+				ut.AssertEQ(t, tc.expect, g.EdgeCount())
 			})
 		}
 	}
@@ -202,7 +202,7 @@ func TestGraphVertexExists(t *testing.T) {
 
 				addVerts(g, tc.verts)
 
-				ut.AssertEqual(t, tc.expect, g.VertexExists(tc.vert))
+				ut.AssertEQ(t, tc.expect, g.VertexExists(tc.vert))
 			})
 		}
 	}
@@ -263,7 +263,7 @@ func TestGraphGetEdge(t *testing.T) {
 
 				_, _, ok := g.GetEdge(tc.edge.Src, tc.edge.Dst)
 
-				ut.AssertEqual(t, tc.expect, ok)
+				ut.AssertEQ(t, tc.expect, ok)
 			})
 		}
 	}
@@ -299,10 +299,10 @@ func TestGraphGetVertex(t *testing.T) {
 
 				vert, _, ok := g.GetVertex(tc.vert)
 
-				ut.AssertEqual(t, tc.expect, ok)
+				ut.AssertEQ(t, tc.expect, ok)
 
 				if vert != nil {
-					ut.AssertEqual(t, tc.vert, vert.Val)
+					ut.AssertEQ(t, tc.vert, vert.Val)
 				}
 			})
 		}
@@ -344,7 +344,7 @@ func TestGraphAddVertex(t *testing.T) {
 
 				addVerts(g, tc.verts)
 
-				ut.AssertEqual(t, tc.expect, g.VertexCount())
+				ut.AssertEQ(t, tc.expect, g.VertexCount())
 			})
 		}
 	}
@@ -430,10 +430,10 @@ func TestGraphAddWeightedEdge(t *testing.T) {
 
 				_, err := g.AddWeightedEdge(tc.edge.Src, tc.edge.Dst, tc.edge.Wt)
 
-				ut.AssertEqual(t, tc.expectErr == nil, err == nil)
+				ut.AssertEQ(t, tc.expectErr == nil, err == nil)
 
 				if tc.expectErr != nil {
-					ut.AssertEqual(t, true, errors.Is(err, tc.expectErr))
+					ut.AssertEQ(t, true, errors.Is(err, tc.expectErr))
 				}
 
 				if !tc.expectEdges {
@@ -456,7 +456,7 @@ func TestGraphAddUnweightedEdge(t *testing.T) {
 
 			_, err := g.AddUnweightedEdge(src, dst)
 
-			ut.AssertEqual(t, true, err == nil)
+			ut.AssertEQ(t, true, err == nil)
 
 			assertEdge(t, g, src, dst, 0)
 		})
@@ -532,22 +532,22 @@ func TestGraphRemoveVertex(t *testing.T) {
 
 				err := g.RemoveVertex(tc.vert)
 
-				ut.AssertEqual(t, tc.err == nil, err == nil)
+				ut.AssertEQ(t, tc.err == nil, err == nil)
 
 				if tc.err != nil {
-					ut.AssertEqual(t, true, errors.Is(err, tc.err))
+					ut.AssertEQ(t, true, errors.Is(err, tc.err))
 				}
 
 				// adjacency list removed
 				_, ok = g.Adj[tc.vert]
-				ut.AssertEqual(t, false, ok)
+				ut.AssertEQ(t, false, ok)
 
 				// vert mapping removed
 				_, ok = g.VertMap[tc.vert]
-				ut.AssertEqual(t, false, ok)
+				ut.AssertEQ(t, false, ok)
 
-				ut.AssertEqual(t, len(tc.expectVerts), g.VertexCount())
-				ut.AssertEqual(t, len(tc.expectEdges), g.EdgeCount())
+				ut.AssertEQ(t, len(tc.expectVerts), g.VertexCount())
+				ut.AssertEQ(t, len(tc.expectEdges), g.EdgeCount())
 
 				// vertices correctly rearranged, indexes updated
 				for i := 0; i < len(tc.expectVerts); i++ {
@@ -555,16 +555,16 @@ func TestGraphRemoveVertex(t *testing.T) {
 					actual := g.Verts[i]
 
 					// correct item at the correct position
-					ut.AssertEqual(t, expected, actual.Val)
+					ut.AssertEQ(t, expected, actual.Val)
 
 					// correct mapping for the item
-					ut.AssertEqual(t, i, g.VertMap[actual.Val])
+					ut.AssertEQ(t, i, g.VertMap[actual.Val])
 				}
 
 				// correct edges still in place
 				for _, e := range tc.expectEdges {
 					_, _, ok := g.GetEdge(e.Src, e.Dst)
-					ut.AssertEqual(t, true, ok)
+					ut.AssertEQ(t, true, ok)
 				}
 			})
 		}
@@ -619,23 +619,23 @@ func TestGraphRemoveEdge(t *testing.T) {
 
 				if tc.exists {
 					_, _, ok := g.GetEdge(tc.edge.Src, tc.edge.Dst)
-					ut.AssertEqual(t, true, ok)
+					ut.AssertEQ(t, true, ok)
 				}
 
 				err := g.RemoveEdge(tc.edge.Src, tc.edge.Dst)
 
-				ut.AssertEqual(t, tc.err, err != nil)
-				ut.AssertEqual(t, tc.expectCount, g.EdgeCount())
+				ut.AssertEQ(t, tc.err, err != nil)
+				ut.AssertEQ(t, tc.expectCount, g.EdgeCount())
 
 				_, _, ok := g.GetEdge(tc.edge.Src, tc.edge.Dst)
-				ut.AssertEqual(t, false, ok)
+				ut.AssertEQ(t, false, ok)
 
 				if g.Directed() {
 					return
 				}
 
 				_, _, ok = g.GetEdge(tc.edge.Dst, tc.edge.Src)
-				ut.AssertEqual(t, false, ok)
+				ut.AssertEQ(t, false, ok)
 			})
 		}
 	}
@@ -684,13 +684,13 @@ func TestGraphVisitor(t *testing.T) {
 
 				g.Accept(&v)
 
-				ut.AssertEqual(t, tc.expectG, v.gCalls)
-				ut.AssertEqual(t, tc.expectV, v.vCalls)
+				ut.AssertEQ(t, tc.expectG, v.gCalls)
+				ut.AssertEQ(t, tc.expectV, v.vCalls)
 
 				if g.Directed() {
-					ut.AssertEqual(t, tc.expectE, v.eCalls)
+					ut.AssertEQ(t, tc.expectE, v.eCalls)
 				} else {
-					ut.AssertEqual(t, tc.expectE*2, v.eCalls)
+					ut.AssertEQ(t, tc.expectE*2, v.eCalls)
 				}
 			})
 		}
@@ -715,15 +715,15 @@ func TestGraphTranspose_directed(t *testing.T) {
 	//      ^---------|
 	tp, err := g.Transpose()
 
-	ut.AssertEqual(t, true, err == nil)
-	ut.AssertEqual(t, g.VertexCount(), tp.VertexCount())
-	ut.AssertEqual(t, g.EdgeCount(), tp.EdgeCount())
+	ut.AssertEQ(t, true, err == nil)
+	ut.AssertEQ(t, g.VertexCount(), tp.VertexCount())
+	ut.AssertEQ(t, g.EdgeCount(), tp.EdgeCount())
 
-	ut.AssertEqual(t, true, tp.VertexExists(&vA))
-	ut.AssertEqual(t, true, tp.VertexExists(&vB))
-	ut.AssertEqual(t, true, tp.VertexExists(&vC))
-	ut.AssertEqual(t, true, tp.VertexExists(&vD))
-	ut.AssertEqual(t, true, tp.VertexExists(&vE))
+	ut.AssertEQ(t, true, tp.VertexExists(&vA))
+	ut.AssertEQ(t, true, tp.VertexExists(&vB))
+	ut.AssertEQ(t, true, tp.VertexExists(&vC))
+	ut.AssertEQ(t, true, tp.VertexExists(&vD))
+	ut.AssertEQ(t, true, tp.VertexExists(&vE))
 
 	assertEdge(t, tp, &vA, &vA, 1)
 	assertEdge(t, tp, &vC, &vB, 2)
@@ -737,6 +737,6 @@ func TestGraphTranspose_undirected(t *testing.T) {
 	g := NewUndirectedGraph[Text]()
 	_, err := g.Transpose()
 
-	ut.AssertEqual(t, true, err != nil)
-	ut.AssertEqual(t, true, errors.Is(err, ErrUndefOp))
+	ut.AssertEQ(t, true, err != nil)
+	ut.AssertEQ(t, true, errors.Is(err, ErrUndefOp))
 }

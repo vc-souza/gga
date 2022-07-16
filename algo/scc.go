@@ -209,8 +209,9 @@ func SCCTarjan[V ds.Item](g *ds.Graph[V]) ([]SCC[V], error) {
 				i++
 			}
 
-			// looking at the low value that the previous child
-			// finished computed if vtx is waiting for a result
+			// if vtx is waiting for a result from a child,
+			// retrieve the low index of that child and then
+			// compare with your own low index
 			if att[vtx].waiting {
 				// adj list for the current vertex
 				adj := g.Adj[vtx]
@@ -258,15 +259,15 @@ func SCCTarjan[V ds.Item](g *ds.Graph[V]) ([]SCC[V], error) {
 				e := g.Adj[vtx][i]
 				att[vtx].next++
 
-				// will need to wait for the adjancent
-				// vertex to have its low value calculated,
+				// will need to wait for the adjacent
+				// vertex to have its low index calculated,
 				// then it can be used to update vtx's
 				if att[e.Dst].index == 0 {
 					calls.Push(e.Dst)
 					att[vtx].waiting = true
 					break
 				} else if att[e.Dst].onStack {
-					// can't use the lowIndex of e.Dst since it is on the stack,
+					// can't use the low index of e.Dst since it is on the stack,
 					// and as such, not in vtx's subtree: using the index
 					// is the best we can do since we know vtx can reach e.Dst
 					att[vtx].lowIndex = Min(att[vtx].lowIndex, att[e.Dst].index)
