@@ -113,6 +113,14 @@ func SCCKosaraju[V ds.Item](g *ds.Graph[V]) ([]SCC[V], error) {
 	return sccs, nil
 }
 
+type tarjanBK struct {
+	index int
+	low   int
+	next  int
+	wait  bool
+	on    bool
+}
+
 // TODO: docs
 func SCCTarjan[V ds.Item](g *ds.Graph[V]) ([]SCC[V], error) {
 	if g.Undirected() {
@@ -126,7 +134,7 @@ func SCCTarjan[V ds.Item](g *ds.Graph[V]) ([]SCC[V], error) {
 	index := map[*V]int{}
 	low := map[*V]int{}
 	next := map[*V]int{}
-	wait := map[*V]int{}
+	wait := map[*V]bool{}
 	on := map[*V]bool{}
 
 	i := 1
@@ -151,7 +159,7 @@ func SCCTarjan[V ds.Item](g *ds.Graph[V]) ([]SCC[V], error) {
 			// looking at the low value that the previous child computed
 			// if next is not 0, then an unvisited child started
 			// calculating its low value, and the current vertex needs it
-			if next[vtx] != 0 {
+			if wait[vtx] {
 				// adj list for the current vertex
 				adj := g.Adj[vtx]
 
@@ -162,6 +170,8 @@ func SCCTarjan[V ds.Item](g *ds.Graph[V]) ([]SCC[V], error) {
 				child := adj[idx].Dst
 
 				low[vtx] = Min(low[vtx], low[child])
+
+				wait[vtx] = false
 			}
 
 			// finished exploring adj
@@ -199,6 +209,7 @@ func SCCTarjan[V ds.Item](g *ds.Graph[V]) ([]SCC[V], error) {
 				// then it can be used to update vtx's
 				if index[e.Dst] == 0 {
 					calls.Push(e.Dst)
+					wait[vtx] = true
 					break
 				} else if on[e.Dst] {
 					low[vtx] = Min(low[vtx], index[e.Dst])
