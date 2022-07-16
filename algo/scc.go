@@ -113,12 +113,21 @@ func SCCKosaraju[V ds.Item](g *ds.Graph[V]) ([]SCC[V], error) {
 	return sccs, nil
 }
 
-type tarjanBK struct {
+type tjSCCData struct {
+	// TODO: docs
 	index int
-	low   int
-	next  int
-	wait  bool
-	on    bool
+
+	// TODO: docs
+	lowIndex int
+
+	// TODO: docs
+	next int
+
+	// TODO: docs
+	waiting bool
+
+	// TODO: docs
+	onStack bool
 }
 
 // TODO: docs
@@ -131,11 +140,11 @@ func SCCTarjan[V ds.Item](g *ds.Graph[V]) ([]SCC[V], error) {
 	stack := ds.NewStack[*V]()
 	sccs := []SCC[V]{}
 
-	index := map[*V]int{}
-	low := map[*V]int{}
-	next := map[*V]int{}
-	wait := map[*V]bool{}
-	on := map[*V]bool{}
+	dat := map[*V]*tjSCCData{}
+
+	for v := range g.Adj {
+		dat[v] = &tjSCCData{}
+	}
 
 	i := 1
 
@@ -146,12 +155,12 @@ func SCCTarjan[V ds.Item](g *ds.Graph[V]) ([]SCC[V], error) {
 			vtx, _ := calls.Peek()
 
 			// vertex is being discovered
-			if index[vtx] == 0 {
-				index[vtx] = i
-				low[vtx] = i
+			if dat[vtx].index == 0 {
+				dat[vtx].index = i
+				dat[vtx].lowIndex = i
 
 				stack.Push(vtx)
-				on[vtx] = true
+				dat[vtx].onStack = true
 
 				i++
 			}
@@ -159,32 +168,31 @@ func SCCTarjan[V ds.Item](g *ds.Graph[V]) ([]SCC[V], error) {
 			// looking at the low value that the previous child computed
 			// if next is not 0, then an unvisited child started
 			// calculating its low value, and the current vertex needs it
-			if wait[vtx] {
+			if dat[vtx].waiting {
 				// adj list for the current vertex
 				adj := g.Adj[vtx]
 
 				// index of the pending child
-				idx := next[vtx] - 1
+				idx := dat[vtx].next - 1
 
 				// pending child
 				child := adj[idx].Dst
 
-				low[vtx] = Min(low[vtx], low[child])
-
-				wait[vtx] = false
+				dat[vtx].lowIndex = Min(dat[vtx].lowIndex, dat[child].lowIndex)
+				dat[vtx].waiting = false
 			}
 
 			// finished exploring adj
-			if next[vtx] >= len(g.Adj[vtx]) {
+			if dat[vtx].next >= len(g.Adj[vtx]) {
 				calls.Pop()
 
 				// root of a SCC
-				if low[vtx] == index[vtx] {
+				if dat[vtx].lowIndex == dat[vtx].index {
 					scc := SCC[V]{}
 
 					for !stack.Empty() {
 						w, _ := stack.Pop()
-						on[w] = false
+						dat[w].onStack = false
 
 						scc = append(scc, w)
 
@@ -200,19 +208,19 @@ func SCCTarjan[V ds.Item](g *ds.Graph[V]) ([]SCC[V], error) {
 			}
 
 			// visit adjacent vertices
-			for i := next[vtx]; i < len(g.Adj[vtx]); i++ {
+			for i := dat[vtx].next; i < len(g.Adj[vtx]); i++ {
 				e := g.Adj[vtx][i]
-				next[vtx]++
+				dat[vtx].next++
 
 				// will need to wait for the adjancent
 				// node to have its low value calculated,
 				// then it can be used to update vtx's
-				if index[e.Dst] == 0 {
+				if dat[e.Dst].index == 0 {
 					calls.Push(e.Dst)
-					wait[vtx] = true
+					dat[vtx].waiting = true
 					break
-				} else if on[e.Dst] {
-					low[vtx] = Min(low[vtx], index[e.Dst])
+				} else if dat[e.Dst].onStack {
+					dat[vtx].lowIndex = Min(dat[vtx].lowIndex, dat[e.Dst].index)
 				}
 			}
 		}
@@ -221,7 +229,7 @@ func SCCTarjan[V ds.Item](g *ds.Graph[V]) ([]SCC[V], error) {
 	for _, vert := range g.Verts {
 		root := vert.Val
 
-		if index[root] != 0 {
+		if dat[root].index != 0 {
 			continue
 		}
 

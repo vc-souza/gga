@@ -19,6 +19,7 @@ const (
 
 var algos = map[string]algo.SCCAlgorithm{
 	"kosaraju": algo.SCCKosaraju[ds.Text],
+	"tarjan":   algo.SCCTarjan[ds.Text],
 }
 
 func input() *ds.Graph[ds.Text] {
