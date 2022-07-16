@@ -21,3 +21,6 @@ coverage.html
 # Sample artifacts at the root of the repo
 /*.svg
 /*.dot
+
+# No main.go file at the root
+/main.go

@@ -46,3 +46,37 @@ func TestSetTheme(t *testing.T) {
 	ut.AssertEqual(t, "test", e.DefaultVertexFmt["vattr"])
 	ut.AssertEqual(t, "test", e.DefaultEdgeFmt["eattr"])
 }
+
+func TestThemes(t *testing.T) {
+	cases := []struct {
+		desc    string
+		theme   Theme
+		gEdited bool
+		vEdited bool
+		eEdited bool
+	}{
+		{
+			desc:    "Light Breeze",
+			theme:   Themes.LightBreeze,
+			gEdited: true,
+			vEdited: true,
+			eEdited: true,
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.desc, func(t *testing.T) {
+			g, _, err := ds.NewTextParser().Parse(ut.UDGSimple)
+
+			ut.AssertEqual(t, true, err == nil)
+
+			ex := NewExporter(g)
+
+			SetTheme(ex, tc.theme)
+
+			ut.AssertEqual(t, tc.gEdited, len(ex.DefaultGraphFmt) >= 0)
+			ut.AssertEqual(t, tc.vEdited, len(ex.DefaultVertexFmt) >= 0)
+			ut.AssertEqual(t, tc.eEdited, len(ex.DefaultEdgeFmt) >= 0)
+		})
+	}
+}

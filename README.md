@@ -13,7 +13,7 @@ The goal of this package is to provide implementations for both graphs and graph
 
 At any point, a graph can be exported to a DOT file, which can then be processed by [Graphviz](https://graphviz.org/). This makes it easy to take a snapshot of a graph before and after the execution of an algorithm, formatting the output as desired. Any particular DOT language feature that is not supported by the module can be added/modified in the resulting DOT files.
 
-Examples can be found in the [samples](/samples) folder.
+Examples can be found in the [samples](/internal/samples) folder.
 
 ## Algorithms
 
@@ -40,3 +40,11 @@ Examples can be found in the [samples](/samples) folder.
 
 ##### After
 ![DFS after](/res/img/tsort/after.svg)
+
+### [Strongly Connected Components (Directed)](/algo/scc.go)
+
+##### Before
+![DFS before](/res/img/scc/d/before.svg)
+
+##### After
+![DFS after](/res/img/scc/d/after.svg)

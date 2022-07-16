@@ -8,3 +8,12 @@ type EdgeTypes[V ds.Item] struct {
 	Back    []*ds.GraphEdge[V]
 	Cross   []*ds.GraphEdge[V]
 }
+
+// Min returns the minimum value between its integer inputs.
+func Min(a, b int) int {
+	if a <= b {
+		return a
+	} else {
+		return b
+	}
+}

@@ -19,6 +19,7 @@ Link: https://en.wikipedia.org/wiki/Topological_sorting
 
 Expectations:
 	- The graph is correctly built.
+	- The graph is directed.
 
 Complexity:
 	- Time:  Θ(V + E)
@@ -29,7 +30,7 @@ func TSort[V ds.Item](g *ds.Graph[V]) (*list.List, error) {
 		return nil, ds.ErrUndefOp
 	}
 
-	stk := ds.Stack[*V](new(ds.Deque[*V]))
+	calls := ds.NewStack[*V]()
 	ord := list.New()
 
 	visited := map[*V]bool{}
@@ -40,14 +41,14 @@ func TSort[V ds.Item](g *ds.Graph[V]) (*list.List, error) {
 			continue
 		}
 
-		stk.Push(vert.Val)
+		calls.Push(vert.Val)
 
-		for !stk.Empty() {
-			vtx, _ := stk.Peek()
+		for !calls.Empty() {
+			vtx, _ := calls.Peek()
 			visited[vtx] = true
 
 			if next[vtx] >= len(g.Adj[vtx]) {
-				stk.Pop()
+				calls.Pop()
 				ord.PushFront(vtx)
 				continue
 			}
@@ -57,8 +58,7 @@ func TSort[V ds.Item](g *ds.Graph[V]) (*list.List, error) {
 				next[vtx]++
 
 				if !visited[e.Dst] {
-					stk.Push(e.Dst)
-
+					calls.Push(e.Dst)
 					break
 				}
 			}
