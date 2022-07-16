@@ -4,6 +4,14 @@ import (
 	"github.com/vc-souza/gga/ds"
 )
 
+/*
+SCCAlgorithm describes the signature of an algorithm that can discover all
+strongly connected components in a graph. If a particular algorithm can
+only work on a particular type of graph, then undefined behavior is
+indicated by the ds.ErrUndefOp error being returned.
+*/
+type SCCAlgorithm func(*ds.Graph[ds.Text]) ([]SCC[ds.Text], error)
+
 // An SCC holds the vertices in a strongly connected component of a graph.
 type SCC[V ds.Item] []*V
 

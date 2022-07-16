@@ -17,9 +17,7 @@ const (
 	fileOut = "SCC-after.dot"
 )
 
-type SCCAlgo func(*ds.Graph[ds.Text]) ([]algo.SCC[ds.Text], error)
-
-var algos = map[string]SCCAlgo{
+var algos = map[string]algo.SCCAlgorithm{
 	"kosaraju": algo.SCCKosaraju[ds.Text],
 }
 
@@ -86,15 +84,15 @@ func main() {
 
 	vi := viz.NewSCCViz(g, sccs, viz.Themes.LightBreeze)
 
-	vi.OnVertex = func(v *ds.GraphVertex[ds.Text], c int) {
+	vi.OnSCCVertex = func(v *ds.GraphVertex[ds.Text], c int) {
 		v.SetFmtAttr("label", fmt.Sprintf(`{ %s | cc #%d }`, v.Label(), c))
 	}
 
-	vi.OnEdge = func(e *ds.GraphEdge[ds.Text], c int) {
+	vi.OnSCCEdge = func(e *ds.GraphEdge[ds.Text], c int) {
 		e.SetFmtAttr("penwidth", "2.0")
 	}
 
-	vi.OnCrossEdge = func(e *ds.GraphEdge[ds.Text], cSrc, cDst int) {
+	vi.OnCrossSCCEdge = func(e *ds.GraphEdge[ds.Text], cSrc, cDst int) {
 		e.SetFmtAttr("penwidth", "0.5")
 		e.SetFmtAttr("style", "dotted")
 	}

@@ -18,14 +18,14 @@ type SCCViz[V ds.Item] struct {
 
 	SCCs []algo.SCC[V]
 
-	// OnVertex is called for every vertex, along with the index of its SCC.
-	OnVertex func(*ds.GraphVertex[V], int)
+	// OnSCCVertex is called for every vertex, along with the index of its SCC.
+	OnSCCVertex func(*ds.GraphVertex[V], int)
 
-	// OnEdge is called for any edge connecting vertices in the same SCC.
-	OnEdge func(*ds.GraphEdge[V], int)
+	// OnSCCEdge is called for any edge connecting vertices in the same SCC.
+	OnSCCEdge func(*ds.GraphEdge[V], int)
 
-	// OnCrossEdge is called for any edge connecting vertices in different SCCs.
-	OnCrossEdge func(*ds.GraphEdge[V], int, int)
+	// OnCrossSCCEdge is called for any edge connecting vertices in different SCCs.
+	OnCrossSCCEdge func(*ds.GraphEdge[V], int, int)
 }
 
 // NewSCCViz initializes a new SCCViz with NOOP hooks.
@@ -37,9 +37,9 @@ func NewSCCViz[V ds.Item](g *ds.Graph[V], sccs []algo.SCC[V], t Theme) *SCCViz[V
 	res.Graph = g
 	res.Theme = t
 
-	res.OnVertex = func(*ds.GraphVertex[V], int) {}
-	res.OnEdge = func(*ds.GraphEdge[V], int) {}
-	res.OnCrossEdge = func(*ds.GraphEdge[V], int, int) {}
+	res.OnSCCVertex = func(*ds.GraphVertex[V], int) {}
+	res.OnSCCEdge = func(*ds.GraphEdge[V], int) {}
+	res.OnCrossSCCEdge = func(*ds.GraphEdge[V], int, int) {}
 
 	return res
 }
@@ -60,7 +60,7 @@ func (vi *SCCViz[V]) Traverse() error {
 				return errors.New("could not find vertex")
 			}
 
-			vi.OnVertex(vtx, cc)
+			vi.OnSCCVertex(vtx, cc)
 		}
 	}
 
@@ -70,9 +70,9 @@ func (vi *SCCViz[V]) Traverse() error {
 			cDst := sets[e.Dst]
 
 			if cSrc == cDst {
-				vi.OnEdge(e, cSrc)
+				vi.OnSCCEdge(e, cSrc)
 			} else {
-				vi.OnCrossEdge(e, cSrc, cDst)
+				vi.OnCrossSCCEdge(e, cSrc, cDst)
 			}
 		}
 	}

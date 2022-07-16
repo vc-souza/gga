@@ -19,6 +19,7 @@ Link: https://en.wikipedia.org/wiki/Topological_sorting
 
 Expectations:
 	- The graph is correctly built.
+	- The graph is directed.
 
 Complexity:
 	- Time:  Θ(V + E)
