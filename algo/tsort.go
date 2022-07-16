@@ -1,8 +1,6 @@
 package algo
 
 import (
-	"container/list"
-
 	"github.com/vc-souza/gga/ds"
 )
 
@@ -25,13 +23,17 @@ Complexity:
 	- Time:  Θ(V + E)
 	- Space: O(V)
 */
-func TSort[V ds.Item](g *ds.Graph[V]) (*list.List, error) {
+func TSort[V ds.Item](g *ds.Graph[V]) ([]*V, error) {
 	if g.Undirected() {
 		return nil, ds.ErrUndefOp
 	}
 
 	calls := ds.NewStack[*V]()
-	ord := list.New()
+
+	count := g.VertexCount()
+	idx := count - 1
+
+	ord := make([]*V, count)
 
 	visited := map[*V]bool{}
 	next := map[*V]int{}
@@ -49,7 +51,10 @@ func TSort[V ds.Item](g *ds.Graph[V]) (*list.List, error) {
 
 			if next[vtx] >= len(g.Adj[vtx]) {
 				calls.Pop()
-				ord.PushFront(vtx)
+
+				ord[idx] = vtx
+				idx--
+
 				continue
 			}
 
@@ -59,6 +64,7 @@ func TSort[V ds.Item](g *ds.Graph[V]) (*list.List, error) {
 
 				if !visited[e.Dst] {
 					calls.Push(e.Dst)
+
 					break
 				}
 			}

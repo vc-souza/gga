@@ -1,7 +1,6 @@
 package viz
 
 import (
-	"container/list"
 	"errors"
 
 	"github.com/vc-souza/gga/ds"
@@ -15,7 +14,7 @@ can be applied to the graph, its vertices and edges.
 type TSortViz[V ds.Item] struct {
 	ThemedGraphViz[V]
 
-	Order *list.List
+	Order []*V
 
 	/*
 		OnVertexRank is called for every vertex in the graph, along with the rank
@@ -33,7 +32,7 @@ type TSortViz[V ds.Item] struct {
 }
 
 // NewTSortViz initializes a new TSortViz with NOOP hooks.
-func NewTSortViz[V ds.Item](g *ds.Graph[V], ord *list.List, t Theme) *TSortViz[V] {
+func NewTSortViz[V ds.Item](g *ds.Graph[V], ord []*V, t Theme) *TSortViz[V] {
 	res := &TSortViz[V]{}
 
 	res.Order = ord
@@ -53,16 +52,10 @@ func (vi *TSortViz[V]) Traverse() error {
 	var prev *V
 	var next *V
 
-	for elem := vi.Order.Front(); elem != nil; elem = elem.Next() {
+	for _, v := range vi.Order {
 		rank++
 
-		val, ok := elem.Value.(*V)
-
-		if !ok {
-			return ds.ErrInvalidType
-		}
-
-		vtx, _, ok := vi.Graph.GetVertex(val)
+		vtx, _, ok := vi.Graph.GetVertex(v)
 
 		if !ok {
 			return errors.New("could not find vertex")
@@ -70,7 +63,7 @@ func (vi *TSortViz[V]) Traverse() error {
 
 		vi.OnVertexRank(vtx, rank)
 
-		next = val
+		next = v
 
 		if prev != nil && next != nil {
 			e, _, ok := vi.Graph.GetEdge(prev, next)

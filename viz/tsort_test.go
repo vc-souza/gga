@@ -11,11 +11,11 @@ import (
 func TestTSortViz(t *testing.T) {
 	g, _, err := ds.NewTextParser().Parse(ut.UDGDress)
 
-	ut.AssertEQ(t, true, err == nil)
+	ut.Equal(t, true, err == nil)
 
 	ord, err := algo.TSort(g)
 
-	ut.AssertEQ(t, true, err == nil)
+	ut.Equal(t, true, err == nil)
 
 	vi := NewTSortViz(g, ord, nil)
 
@@ -40,8 +40,8 @@ func TestTSortViz(t *testing.T) {
 
 	ExportViz[ds.Text](vi, ut.DummyWriter{})
 
-	ut.AssertEQ(t, g.VertexCount(), vCount)
-	ut.AssertEQ(t, g.VertexCount()-1, eCount)
-	ut.AssertEQ(t, 4, eExitsCount)
-	ut.AssertEQ(t, 4, eNotExistsCount)
+	ut.Equal(t, g.VertexCount(), vCount)
+	ut.Equal(t, g.VertexCount()-1, eCount)
+	ut.Equal(t, 4, eExitsCount)
+	ut.Equal(t, 4, eNotExistsCount)
 }

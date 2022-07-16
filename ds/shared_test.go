@@ -75,10 +75,10 @@ func TestRemoveFromPointersSlice(t *testing.T) {
 				s = RemoveFromPointersSlice(s, idx)
 			}
 
-			ut.AssertEQ(t, len(tc.expect), len(s))
+			ut.Equal(t, len(tc.expect), len(s))
 
 			for i := 0; i < len(tc.expect); i++ {
-				ut.AssertEQ(t, tc.expect[i], s[i])
+				ut.Equal(t, tc.expect[i], s[i])
 			}
 		})
 	}

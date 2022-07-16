@@ -78,7 +78,7 @@ func TestGraphVisitor(t *testing.T) {
 
 			vJohn, err := g.AddVertex(john)
 
-			ut.AssertEQ(t, true, err == nil)
+			ut.Equal(t, true, err == nil)
 
 			vJohn.SetFmtAttr("shape", "hexagon")
 
@@ -90,7 +90,7 @@ func TestGraphVisitor(t *testing.T) {
 
 			e.Export(&buf)
 
-			ut.AssertEQ(t, tc.expect, buf.String())
+			ut.Equal(t, tc.expect, buf.String())
 		})
 	}
 }
@@ -115,7 +115,7 @@ func TestDotAttrs(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
-			ut.AssertEQ(t, tc.expect, DotAttrs(tc.attrs))
+			ut.Equal(t, tc.expect, DotAttrs(tc.attrs))
 		})
 	}
 }
@@ -160,34 +160,34 @@ func TestResetGraphFmt(t *testing.T) {
 		t.Run(tc.desc, func(t *testing.T) {
 			g := tc.gen()
 
-			ut.AssertEQ(t, true, isClear(g))
+			ut.Equal(t, true, isClear(g))
 
 			john := &person{"John"}
 			jane := &person{"Jane"}
 
 			vJohn, err := g.AddVertex(john)
 
-			ut.AssertEQ(t, true, err == nil)
+			ut.Equal(t, true, err == nil)
 
 			vJohn.SetFmtAttr("label", "John is here")
 
 			vJane, err := g.AddVertex(jane)
 
-			ut.AssertEQ(t, true, err == nil)
+			ut.Equal(t, true, err == nil)
 
 			vJane.SetFmtAttr("label", "Jane is here")
 
 			edg, err := g.AddUnweightedEdge(john, jane)
 
-			ut.AssertEQ(t, true, err == nil)
+			ut.Equal(t, true, err == nil)
 
 			edg.SetFmtAttr("label", "Connection")
 
-			ut.AssertEQ(t, false, isClear(g))
+			ut.Equal(t, false, isClear(g))
 
 			ResetGraphFmt(g)
 
-			ut.AssertEQ(t, true, isClear(g))
+			ut.Equal(t, true, isClear(g))
 		})
 	}
 }
@@ -230,11 +230,11 @@ func TestSnapshot(t *testing.T) {
 	d#b
 	`)
 
-	ut.AssertEQ(t, true, err == nil)
+	ut.Equal(t, true, err == nil)
 
 	buf := bytes.Buffer{}
 
 	Snapshot(g, &buf, exportTestTheme{})
 
-	ut.AssertEQ(t, expectedSnapshot, buf.String())
+	ut.Equal(t, expectedSnapshot, buf.String())
 }

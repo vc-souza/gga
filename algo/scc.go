@@ -71,13 +71,7 @@ func SCCKosaraju[V ds.Item](g *ds.Graph[V]) ([]SCC[V], error) {
 		return nil, err
 	}
 
-	for e := ord.Front(); e != nil; e = e.Next() {
-		v, ok := e.Value.(*V)
-
-		if !ok {
-			return nil, ds.ErrInvalidType
-		}
-
+	for _, v := range ord {
 		if visited[v] {
 			continue
 		}
@@ -157,6 +151,10 @@ If after exploring a vertex and all of its descendants, the vertex still has no
 path to earlier vertices on the stack, then every vertex on the stack is popped
 until the current vertex is reached (it is included): this set of vertices
 is an SCC rooted at the vertex.
+
+An important property of Tarjan's algorithm is that the SCCs are discovered
+in reverse topological order of the condensation graph of the input, which
+is a DAG obtained by contracting every vertex in a SCC into a single vertex.
 
 Link: https://en.wikipedia.org/wiki/Tarjan%27s_strongly_connected_components_algorithm
 
