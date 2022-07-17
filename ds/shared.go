@@ -1,7 +1,5 @@
 package ds
 
-import "strings"
-
 /*
 An Item implementation can be used as satellite data for an item in a gga data structure.
 The main feature of an Item is being able to provide a label for easy identification.
@@ -12,22 +10,13 @@ type Item interface {
 }
 
 // TODO: docs
-type Items[V Item] []*V
+type ItemGroup[V Item] struct {
+	Id    string
+	Items []*V
+}
 
-func (il Items[V]) Label() string {
-	ls := make([]string, 0, len(il))
-
-	for _, v := range il {
-		l := (*v).Label()
-
-		if len(l) >= 5 {
-			l = l[:5] + "..."
-		}
-
-		ls = append(ls, l)
-	}
-
-	return strings.Join(ls, ",")
+func (z ItemGroup[V]) Label() string {
+	return z.Id
 }
 
 /*

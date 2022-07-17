@@ -1,11 +1,13 @@
 package algo
 
 import (
+	"strconv"
+
 	"github.com/vc-souza/gga/ds"
 )
 
 // TODO: docs
-func Condensation[V ds.Item](g *ds.Graph[V]) (*ds.Graph[ds.Items[V]], []SCC[V], error) {
+func Condensation[V ds.Item](g *ds.Graph[V]) (*ds.Graph[ds.ItemGroup[V]], []SCC[V], error) {
 	if g.Undirected() {
 		return nil, nil, ds.ErrUndefOp
 	}
@@ -27,10 +29,10 @@ func Condensation[V ds.Item](g *ds.Graph[V]) (*ds.Graph[ds.Items[V]], []SCC[V], 
 	}
 
 	// TODO: explain
-	gscc := ds.NewDirectedGraph[ds.Items[V]]()
+	gscc := ds.NewDirectedGraph[ds.ItemGroup[V]]()
 
 	// TODO: explain, O(V) space
-	idToPtr := make([]*ds.Items[V], len(sccs))
+	idToPtr := make([]*ds.ItemGroup[V], len(sccs))
 
 	// TODO: explain, O(V) space
 	gsccAdj := make([]int, len(sccs)-1)
@@ -41,11 +43,12 @@ func Condensation[V ds.Item](g *ds.Graph[V]) (*ds.Graph[ds.Items[V]], []SCC[V], 
 			return
 		}
 
-		vtx := ds.Items[V](sccs[id])
+		idToPtr[id] = &ds.ItemGroup[V]{
+			Id:    strconv.Itoa(id),
+			Items: sccs[id],
+		}
 
-		idToPtr[id] = &vtx
-
-		gscc.UnsafeAddVertex(&vtx)
+		gscc.UnsafeAddVertex(idToPtr[id])
 	}
 
 	// TODO: explain
