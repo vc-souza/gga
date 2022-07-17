@@ -20,11 +20,11 @@ func GSCC[V ds.Item](g *ds.Graph[V]) (*ds.Graph[ds.ItemGroup[V]], []SCC[V], erro
 	}
 
 	// TODO: explain, Θ(V) space
-	vtxToId := make(map[*V]int)
+	vtxSCC := make(map[*V]int)
 
 	for id, scc := range sccs {
 		for _, v := range scc {
-			vtxToId[v] = id
+			vtxSCC[v] = id
 		}
 	}
 
@@ -49,7 +49,7 @@ func GSCC[V ds.Item](g *ds.Graph[V]) (*ds.Graph[ds.ItemGroup[V]], []SCC[V], erro
 		// TODO: explain
 		for _, v := range sccs[srcId] {
 			for _, e := range g.Adj[v] {
-				dstId := vtxToId[e.Dst]
+				dstId := vtxSCC[e.Dst]
 
 				// same SCC, bail
 				if srcId == dstId {
@@ -65,6 +65,7 @@ func GSCC[V ds.Item](g *ds.Graph[V]) (*ds.Graph[ds.ItemGroup[V]], []SCC[V], erro
 				// TODO: explain: topo sort,
 				// one edges now are going forwards
 
+				// TODO: explain
 				gscc.UnsafeAddWeightedEdge(
 					gscc.Verts[srcId].Val,
 					gscc.Verts[dstId].Val,
@@ -75,6 +76,9 @@ func GSCC[V ds.Item](g *ds.Graph[V]) (*ds.Graph[ds.ItemGroup[V]], []SCC[V], erro
 				gsccAdj[dstId] = srcId
 			}
 		}
+
+		// TODO: explain
+		gsccAdj = gsccAdj[:srcId-1]
 	}
 
 	return gscc, sccs, nil
