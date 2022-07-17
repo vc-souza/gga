@@ -55,6 +55,15 @@ func exportEnd[V ds.Item](v viz.AlgoViz[V], path string) {
 	}
 }
 
+type customTheme struct {
+	viz.LightBreezeTheme
+}
+
+func (t customTheme) SetGraphFmt(attrs ds.FmtAttrs) {
+	t.LightBreezeTheme.SetGraphFmt(attrs)
+	attrs["rankdir"] = "LR"
+}
+
 func main() {
 	g := input()
 
@@ -81,7 +90,7 @@ func main() {
 		e.SetFmtAttr("style", "dotted")
 	}
 
-	vi := viz.NewGSCCViz(gscc, viz.Themes.LightBreeze)
+	vi := viz.NewGSCCViz(gscc, customTheme{})
 
 	vi.OnGSCCVertex = func(v *ds.GraphVertex[ds.ItemGroup[ds.Text]]) {
 		s := make([]string, 0, len(v.Val.Items))
@@ -90,7 +99,7 @@ func main() {
 			s = append(s, item.Label())
 		}
 
-		v.SetFmtAttr("label", strings.Join(s, " | "))
+		v.SetFmtAttr("label", fmt.Sprintf("{ %s }", strings.Join(s, " | ")))
 	}
 
 	exportEnd[ds.Text](viSCC, fileOutSCC)
