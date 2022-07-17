@@ -5,17 +5,13 @@ import (
 )
 
 // TODO: docs
-func Condensation[V ds.Item](g *ds.Graph[V], f SCCAlgorithm[V]) (*ds.Graph[ds.ItemList[V]], []SCC[V], error) {
+func Condensation[V ds.Item](g *ds.Graph[V]) (*ds.Graph[ds.ItemList[V]], []SCC[V], error) {
 	if g.Undirected() {
 		return nil, nil, ds.ErrUndefOp
 	}
 
-	if f == nil {
-		f = SCCTarjan[V]
-	}
-
 	// Θ(V + E)
-	sccs, err := f(g)
+	sccs, err := SCCTarjan(g)
 
 	if err != nil {
 		return nil, nil, err
@@ -29,48 +25,52 @@ func Condensation[V ds.Item](g *ds.Graph[V], f SCCAlgorithm[V]) (*ds.Graph[ds.It
 		}
 	}
 
-	vCount := g.VertexCount()
-	adjMtx := make([][]int, vCount)
-
-	for i := range adjMtx {
-		adjMtx[i] = make([]int, vCount)
-	}
-
 	gscc := ds.NewDirectedGraph[ds.ItemList[V]]()
 
 	sccAddr := map[int]*ds.ItemList[V]{}
 
-	for i := len(sccs) - 1; i >= 0; i-- {
-		ls := ds.ItemList[V](sccs[i])
+	for sccId := len(sccs) - 1; sccId >= 0; sccId-- {
+		ls := ds.ItemList[V](sccs[sccId])
 
-		sccAddr[i] = &ls
+		sccAddr[sccId] = &ls
 
 		gscc.UnsafeAddVertex(&ls)
 	}
 
-	for v, es := range g.Adj {
-		srcSCC := vtxSCC[v]
+	// TODO: explain
+	adj := make([]int, len(sccs)-1)
 
-		for _, e := range es {
-			dstSCC := vtxSCC[e.Dst]
+	// TODO: explain
+	for sccId := len(sccs) - 1; sccId > 0; sccId-- {
+		scc := sccs[sccId]
 
-			// same SCC, bail
-			if srcSCC == dstSCC {
-				continue
+		// TODO: explain
+		for _, v := range scc {
+			srcSCC := vtxSCC[v]
+
+			for _, e := range g.Adj[v] {
+				dstSCC := vtxSCC[e.Dst]
+
+				// same SCC, bail
+				if srcSCC == dstSCC {
+					continue
+				}
+
+				// TODO: explain
+				// edge already exists, bail
+				if adj[dstSCC] == sccId {
+					continue
+				}
+
+				gscc.UnsafeAddWeightedEdge(
+					sccAddr[srcSCC],
+					sccAddr[dstSCC],
+					0,
+				)
+
+				// TODO: explain
+				adj[dstSCC] = sccId
 			}
-
-			// edge already exists, bail
-			if adjMtx[srcSCC][dstSCC] == 1 {
-				continue
-			}
-
-			gscc.UnsafeAddWeightedEdge(
-				sccAddr[srcSCC],
-				sccAddr[dstSCC],
-				0,
-			)
-
-			adjMtx[srcSCC][dstSCC] = 1
 		}
 	}
 
