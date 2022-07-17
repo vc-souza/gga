@@ -31,49 +31,21 @@ func GSCC[V ds.Item](g *ds.Graph[V]) (*ds.Graph[ds.ItemGroup[V]], []SCC[V], erro
 	// TODO: explain
 	gscc := ds.NewDirectedGraph[ds.ItemGroup[V]]()
 
-	// TODO: explain, O(V) space
-	idToPtr := make([]*ds.ItemGroup[V], len(sccs))
+	// TODO: explain (cc id == vtx id int he GSCC)
+	for id := range sccs {
+		gscc.UnsafeAddVertex(
+			&ds.ItemGroup[V]{
+				Id:    strconv.Itoa(id),
+				Items: sccs[id],
+			},
+		)
+	}
 
 	// TODO: explain, O(V) space
 	gsccAdj := make([]int, len(sccs)-1)
 
-	// TODO: explain
-	newGSCCVtx := func(id int) {
-		if idToPtr[id] != nil {
-			return
-		}
-
-		idToPtr[id] = &ds.ItemGroup[V]{
-			Id:    strconv.Itoa(id),
-			Items: sccs[id],
-		}
-
-		gscc.UnsafeAddVertex(idToPtr[id])
-	}
-
-	// TODO: explain
-	newGSCCEdge := func(srcId, dstId int) {
-		newGSCCVtx(dstId)
-
-		gscc.UnsafeAddWeightedEdge(
-			idToPtr[srcId],
-			idToPtr[dstId],
-			0,
-		)
-
-		// TODO: explain
-		gsccAdj[dstId] = srcId
-	}
-
-	// TODO: explain
-	for srcId := len(sccs) - 1; srcId >= 0; srcId-- {
-		newGSCCVtx(srcId)
-
-		// TODO: explain
-		if srcId == 0 {
-			break
-		}
-
+	// TODO: explain (also, why not 0?)
+	for srcId := len(sccs) - 1; srcId > 0; srcId-- {
 		// TODO: explain
 		for _, v := range sccs[srcId] {
 			for _, e := range g.Adj[v] {
@@ -90,12 +62,19 @@ func GSCC[V ds.Item](g *ds.Graph[V]) (*ds.Graph[ds.ItemGroup[V]], []SCC[V], erro
 					continue
 				}
 
-				newGSCCEdge(srcId, dstId)
+				// TODO: explain: topo sort,
+				// one edges now are going forwards
+
+				gscc.UnsafeAddWeightedEdge(
+					gscc.Verts[srcId].Val,
+					gscc.Verts[dstId].Val,
+					0,
+				)
+
+				// TODO: explain
+				gsccAdj[dstId] = srcId
 			}
 		}
-
-		// TODO: explain
-		gsccAdj = gsccAdj[: srcId-1 : srcId]
 	}
 
 	return gscc, sccs, nil
