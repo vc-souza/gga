@@ -17,65 +17,82 @@ func Condensation[V ds.Item](g *ds.Graph[V]) (*ds.Graph[ds.Items[V]], []SCC[V], 
 		return nil, nil, err
 	}
 
-	vtxSCC := make(map[*V]int)
+	// TODO: explain, Θ(V) space
+	vtxToId := make(map[*V]int)
 
 	for id, scc := range sccs {
 		for _, v := range scc {
-			vtxSCC[v] = id
+			vtxToId[v] = id
 		}
 	}
 
+	// TODO: explain
 	gscc := ds.NewDirectedGraph[ds.Items[V]]()
 
-	// TODO: explain
-	ptrs := map[int]*ds.Items[V]{}
+	// TODO: explain, O(V) space
+	idToPtr := make([]*ds.Items[V], len(sccs))
 
-	// TODO: explain
-	for sccId := len(sccs) - 1; sccId >= 0; sccId-- {
-		ls := ds.Items[V](sccs[sccId])
-		ptrs[sccId] = &ls
-
-		gscc.UnsafeAddVertex(&ls)
-	}
-
-	// TODO: explain
+	// TODO: explain, O(V) space
 	gsccAdj := make([]int, len(sccs)-1)
 
 	// TODO: explain
-	for sccId := len(sccs) - 1; sccId > 0; sccId-- {
-		scc := sccs[sccId]
+	newGSCCVtx := func(id int) {
+		if idToPtr[id] != nil {
+			return
+		}
+
+		vtx := ds.Items[V](sccs[id])
+
+		idToPtr[id] = &vtx
+
+		gscc.UnsafeAddVertex(&vtx)
+	}
+
+	// TODO: explain
+	newGSCCEdge := func(srcId, dstId int) {
+		newGSCCVtx(dstId)
+
+		gscc.UnsafeAddWeightedEdge(
+			idToPtr[srcId],
+			idToPtr[dstId],
+			0,
+		)
 
 		// TODO: explain
-		for _, v := range scc {
-			srcSCC := vtxSCC[v]
+		gsccAdj[dstId] = srcId
+	}
 
+	// TODO: explain
+	for srcId := len(sccs) - 1; srcId >= 0; srcId-- {
+		newGSCCVtx(srcId)
+
+		// TODO: explain
+		if srcId == 0 {
+			break
+		}
+
+		// TODO: explain
+		for _, v := range sccs[srcId] {
 			for _, e := range g.Adj[v] {
-				dstSCC := vtxSCC[e.Dst]
+				dstId := vtxToId[e.Dst]
 
 				// same SCC, bail
-				if srcSCC == dstSCC {
+				if srcId == dstId {
 					continue
 				}
 
 				// TODO: explain
 				// edge already exists, bail
-				if gsccAdj[dstSCC] == sccId {
+				if gsccAdj[dstId] == srcId {
 					continue
 				}
 
-				gscc.UnsafeAddWeightedEdge(
-					ptrs[srcSCC],
-					ptrs[dstSCC],
-					0,
-				)
-
-				// TODO: explain
-				gsccAdj[dstSCC] = sccId
+				newGSCCEdge(srcId, dstId)
 			}
 		}
 
 		// TODO: explain
-		gsccAdj = gsccAdj[: sccId-1 : sccId]
+		gsccAdj = gsccAdj[: srcId-1 : srcId]
 	}
 
 	return gscc, sccs, nil
