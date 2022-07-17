@@ -5,6 +5,9 @@ endef
 test:
 	@go test -v -race -coverprofile coverage.out -tags test ./...
 
+test-short:
+	@go test -tags test ./...
+
 cov:
 	@go tool cover -html=coverage.out
 
@@ -22,6 +25,8 @@ run-samples:
 	go run internal/samples/bfs/main.go
 	go run internal/samples/dfs/main.go
 	go run internal/samples/tsort/main.go
+	go run internal/samples/scc/main.go tarjan
+	go run internal/samples/gscc/main.go
 
 open-samples:
 	@for f in `find . -maxdepth 1 -type f -name "*.svg"`; do \

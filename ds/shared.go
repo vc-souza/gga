@@ -10,6 +10,23 @@ type Item interface {
 }
 
 /*
+ItemGroup groups items of a type that implements the Item interface, and also implements
+the Item interface itself, using an id assigned during the creation of the ItemGroup,
+so data structures that can hold Item implementations can also hold ItemGroup values.
+
+Such a capability is useful for some algorithms that group items together and then
+create a new data structure that holds the groups as new elements (e.g.: GSCC).
+*/
+type ItemGroup[V Item] struct {
+	Id    string
+	Items []*V
+}
+
+func (z ItemGroup[V]) Label() string {
+	return z.Id
+}
+
+/*
 RemoveFromPointersSlice removes the element at a given index, from a slice of pointers.
 If an element from a slice of pointers is removed using the usual way of deleting an
 element from a slice:

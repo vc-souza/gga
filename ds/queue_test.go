@@ -14,26 +14,26 @@ func TestQueueEnqueue(t *testing.T) {
 	q.Enqueue(1, 2, 3)
 
 	item, ok = q.(*Deque[int]).Get(0)
-	ut.AssertEqual(t, true, ok)
-	ut.AssertEqual(t, 1, item)
+	ut.Equal(t, true, ok)
+	ut.Equal(t, 1, item)
 
 	item, ok = q.(*Deque[int]).Get(1)
-	ut.AssertEqual(t, true, ok)
-	ut.AssertEqual(t, 2, item)
+	ut.Equal(t, true, ok)
+	ut.Equal(t, 2, item)
 
 	item, ok = q.(*Deque[int]).Get(2)
-	ut.AssertEqual(t, true, ok)
-	ut.AssertEqual(t, 3, item)
+	ut.Equal(t, true, ok)
+	ut.Equal(t, 3, item)
 }
 
 func TestQueueEmpty(t *testing.T) {
 	var q Queue[int] = new(Deque[int])
 
-	ut.AssertEqual(t, true, q.Empty())
+	ut.Equal(t, true, q.Empty())
 
 	q.Enqueue(1)
 
-	ut.AssertEqual(t, false, q.Empty())
+	ut.Equal(t, false, q.Empty())
 }
 
 func TestQueueDequeue(t *testing.T) {
@@ -41,34 +41,34 @@ func TestQueueDequeue(t *testing.T) {
 	var item int
 	var ok bool
 
-	ut.AssertEqual(t, true, q.Empty())
+	ut.Equal(t, true, q.Empty())
 
 	q.Enqueue(1, 2, 3)
 
-	ut.AssertEqual(t, false, q.Empty())
+	ut.Equal(t, false, q.Empty())
 
 	item, ok = q.Dequeue()
-	ut.AssertEqual(t, true, ok)
-	ut.AssertEqual(t, 1, item)
+	ut.Equal(t, true, ok)
+	ut.Equal(t, 1, item)
 
 	item, ok = q.Dequeue()
-	ut.AssertEqual(t, true, ok)
-	ut.AssertEqual(t, 2, item)
+	ut.Equal(t, true, ok)
+	ut.Equal(t, 2, item)
 
 	item, ok = q.Dequeue()
-	ut.AssertEqual(t, true, ok)
-	ut.AssertEqual(t, 3, item)
+	ut.Equal(t, true, ok)
+	ut.Equal(t, 3, item)
 
-	ut.AssertEqual(t, true, q.Empty())
+	ut.Equal(t, true, q.Empty())
 }
 
 func TestQueueDequeue_empty(t *testing.T) {
 	var q Queue[int] = new(Deque[int])
 
-	ut.AssertEqual(t, true, q.Empty())
+	ut.Equal(t, true, q.Empty())
 
 	_, ok := q.Dequeue()
-	ut.AssertEqual(t, false, ok)
+	ut.Equal(t, false, ok)
 }
 
 func TestQueueDequeue_wrong_type(t *testing.T) {

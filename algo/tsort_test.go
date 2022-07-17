@@ -23,28 +23,24 @@ func TestTSort_directed(t *testing.T) {
 
 	g, vars, err := ds.NewTextParser().Parse(ut.UDGDress)
 
-	ut.AssertEqual(t, true, err == nil)
+	ut.Equal(t, true, err == nil)
 
 	ord, err := TSort(g)
 
-	ut.AssertEqual(t, true, err == nil)
+	ut.Equal(t, true, err == nil)
 
-	for i, e := 0, ord.Front(); e != nil; i, e = i+1, e.Next() {
-		val, ok := e.Value.(*ds.Text)
-
-		ut.AssertEqual(t, true, ok)
-
-		ut.AssertEqual(t, vars[expect[i]], val)
+	for i, v := range ord {
+		ut.Equal(t, vars[expect[i]], v)
 	}
 }
 
 func TestTSort_undirected(t *testing.T) {
 	g, _, err := ds.NewTextParser().Parse(ut.UUGSimple)
 
-	ut.AssertEqual(t, true, err == nil)
+	ut.Equal(t, true, err == nil)
 
 	_, err = TSort(g)
 
-	ut.AssertEqual(t, true, err != nil)
-	ut.AssertEqual(t, true, errors.Is(err, ds.ErrUndefOp))
+	ut.Equal(t, true, err != nil)
+	ut.Equal(t, true, errors.Is(err, ds.ErrUndefOp))
 }

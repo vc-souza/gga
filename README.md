@@ -20,31 +20,42 @@ Examples can be found in the [samples](/internal/samples) folder.
 ### [BFS (Breadth-First Search)](/algo/bfs.go)
 
 ##### Before
-![BFS before](/res/img/bfs/before.svg)
+![before](/res/img/bfs/before.svg)
 
 ##### After
-![BFS after](/res/img/bfs/after.svg)
+![after](/res/img/bfs/after.svg)
 
 ### [DFS (Depth-First Search)](/algo/dfs.go)
 
 ##### Before
-![DFS before](/res/img/dfs/before.svg)
+![before](/res/img/dfs/before.svg)
 
 ##### After
-![DFS after](/res/img/dfs/after.svg)
+![after](/res/img/dfs/after.svg)
 
 ### [Topological Sort](/algo/tsort.go)
 
 ##### Before
-![DFS before](/res/img/tsort/before.svg)
+![before](/res/img/tsort/before.svg)
 
 ##### After
-![DFS after](/res/img/tsort/after.svg)
+![after](/res/img/tsort/after.svg)
 
 ### [Strongly Connected Components (Directed)](/algo/scc.go)
 
 ##### Before
-![DFS before](/res/img/scc/d/before.svg)
+![before](/res/img/scc/d/before.svg)
 
 ##### After
-![DFS after](/res/img/scc/d/after.svg)
+![after](/res/img/scc/d/after.svg)
+
+### [Condensation Graph](/algo/gscc.go)
+
+#### Before
+![before](/res/img/gscc/before.svg)
+
+#### Strongly Connected Components (Tarjan's)
+![after scc](/res/img/gscc/after-scc.svg)
+
+##### After
+![after](/res/img/gscc/after.svg)

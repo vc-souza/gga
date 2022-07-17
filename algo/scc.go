@@ -10,7 +10,7 @@ strongly connected components in a graph. If a particular algorithm can
 only work on a particular type of graph, then undefined behavior is
 indicated by the ds.ErrUndefOp error being returned.
 */
-type SCCAlgorithm func(*ds.Graph[ds.Text]) ([]SCC[ds.Text], error)
+type SCCAlgorithm[V ds.Item] func(*ds.Graph[V]) ([]SCC[V], error)
 
 // An SCC holds the vertices in a strongly connected component of a graph.
 type SCC[V ds.Item] []*V
@@ -71,13 +71,7 @@ func SCCKosaraju[V ds.Item](g *ds.Graph[V]) ([]SCC[V], error) {
 		return nil, err
 	}
 
-	for e := ord.Front(); e != nil; e = e.Next() {
-		v, ok := e.Value.(*V)
-
-		if !ok {
-			return nil, ds.ErrInvalidType
-		}
-
+	for _, v := range ord {
 		if visited[v] {
 			continue
 		}
@@ -149,14 +143,18 @@ vertices as soon as they are first visited during a modified DFS. The vertices
 are not necessarily popped from the stack after being fully explored, though,
 with the following invariant always holding:
 
-  A vertex remains in the stack after being explored IFF there exists a path from
-  the vertex to some other vertex earlier in the stack: meaning that a vertex is
+  A vertex remains on the stack after being explored IFF there exists a path from
+  the vertex to some other vertex earlier on the stack: meaning that a vertex is
   only removed from the stack after alls of its connected paths have been traversed.
 
 If after exploring a vertex and all of its descendants, the vertex still has no
-path to earlier vertices in the stack, then every vertex in the stack is popped
+path to earlier vertices on the stack, then every vertex on the stack is popped
 until the current vertex is reached (it is included): this set of vertices
 is an SCC rooted at the vertex.
+
+An important property of Tarjan's algorithm is that the SCCs are discovered
+in reverse topological order of the condensation graph of the input, which
+is a DAG obtained by contracting every vertex in a SCC into a single vertex.
 
 Link: https://en.wikipedia.org/wiki/Tarjan%27s_strongly_connected_components_algorithm
 
@@ -209,8 +207,9 @@ func SCCTarjan[V ds.Item](g *ds.Graph[V]) ([]SCC[V], error) {
 				i++
 			}
 
-			// looking at the low value that the previous child
-			// finished computed if vtx is waiting for a result
+			// if vtx is waiting for a result from a child,
+			// retrieve the low index of that child and then
+			// compare with your own low index
 			if att[vtx].waiting {
 				// adj list for the current vertex
 				adj := g.Adj[vtx]
@@ -233,7 +232,7 @@ func SCCTarjan[V ds.Item](g *ds.Graph[V]) ([]SCC[V], error) {
 				if att[vtx].lowIndex == att[vtx].index {
 					scc := SCC[V]{}
 
-					// every vertex that is currently in the stack
+					// every vertex that is currently on the stack
 					// is a part of the SCC where vtx is the root,
 					// so we pop until we find vtx
 					for !stack.Empty() {
@@ -258,15 +257,15 @@ func SCCTarjan[V ds.Item](g *ds.Graph[V]) ([]SCC[V], error) {
 				e := g.Adj[vtx][i]
 				att[vtx].next++
 
-				// will need to wait for the adjancent
-				// vertex to have its low value calculated,
+				// will need to wait for the adjacent
+				// vertex to have its low index calculated,
 				// then it can be used to update vtx's
 				if att[e.Dst].index == 0 {
 					calls.Push(e.Dst)
 					att[vtx].waiting = true
 					break
 				} else if att[e.Dst].onStack {
-					// can't use the lowIndex of e.Dst since it is in the stack,
+					// can't use the low index of e.Dst since it is on the stack,
 					// and as such, not in vtx's subtree: using the index
 					// is the best we can do since we know vtx can reach e.Dst
 					att[vtx].lowIndex = Min(att[vtx].lowIndex, att[e.Dst].index)
