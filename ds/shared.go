@@ -12,9 +12,9 @@ type Item interface {
 }
 
 // TODO: docs
-type ItemList[V Item] []*V
+type Items[V Item] []*V
 
-func (il ItemList[V]) Label() string {
+func (il Items[V]) Label() string {
 	ls := make([]string, 0, len(il))
 
 	for _, v := range il {

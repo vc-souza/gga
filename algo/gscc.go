@@ -5,7 +5,7 @@ import (
 )
 
 // TODO: docs
-func Condensation[V ds.Item](g *ds.Graph[V]) (*ds.Graph[ds.ItemList[V]], []SCC[V], error) {
+func Condensation[V ds.Item](g *ds.Graph[V]) (*ds.Graph[ds.Items[V]], []SCC[V], error) {
 	if g.Undirected() {
 		return nil, nil, ds.ErrUndefOp
 	}
@@ -25,20 +25,21 @@ func Condensation[V ds.Item](g *ds.Graph[V]) (*ds.Graph[ds.ItemList[V]], []SCC[V
 		}
 	}
 
-	gscc := ds.NewDirectedGraph[ds.ItemList[V]]()
+	gscc := ds.NewDirectedGraph[ds.Items[V]]()
 
-	sccAddr := map[int]*ds.ItemList[V]{}
+	// TODO: explain
+	ptrs := map[int]*ds.Items[V]{}
 
+	// TODO: explain
 	for sccId := len(sccs) - 1; sccId >= 0; sccId-- {
-		ls := ds.ItemList[V](sccs[sccId])
-
-		sccAddr[sccId] = &ls
+		ls := ds.Items[V](sccs[sccId])
+		ptrs[sccId] = &ls
 
 		gscc.UnsafeAddVertex(&ls)
 	}
 
 	// TODO: explain
-	adj := make([]int, len(sccs)-1)
+	gsccAdj := make([]int, len(sccs)-1)
 
 	// TODO: explain
 	for sccId := len(sccs) - 1; sccId > 0; sccId-- {
@@ -58,20 +59,23 @@ func Condensation[V ds.Item](g *ds.Graph[V]) (*ds.Graph[ds.ItemList[V]], []SCC[V
 
 				// TODO: explain
 				// edge already exists, bail
-				if adj[dstSCC] == sccId {
+				if gsccAdj[dstSCC] == sccId {
 					continue
 				}
 
 				gscc.UnsafeAddWeightedEdge(
-					sccAddr[srcSCC],
-					sccAddr[dstSCC],
+					ptrs[srcSCC],
+					ptrs[dstSCC],
 					0,
 				)
 
 				// TODO: explain
-				adj[dstSCC] = sccId
+				gsccAdj[dstSCC] = sccId
 			}
 		}
+
+		// TODO: explain
+		gsccAdj = gsccAdj[: sccId-1 : sccId]
 	}
 
 	return gscc, sccs, nil
