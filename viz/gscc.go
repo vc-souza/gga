@@ -4,12 +4,15 @@ import (
 	"github.com/vc-souza/gga/ds"
 )
 
-// TODO: docs
+/*
+GSCCViz formats and exports a GSCC graph after it has been calculated. Its vertices
+are traversed, and hooks are provided so that custom formatting can be applied.
+*/
 type GSCCViz[V ds.Item] struct {
 	Graph *ds.Graph[ds.ItemGroup[V]]
 	Theme Theme
 
-	// TODO: docs
+	// OnGSCCVertex is called for every vertex of the GSCC.
 	OnGSCCVertex func(*ds.GraphVertex[ds.ItemGroup[V]])
 }
 
@@ -25,7 +28,7 @@ func (v *GSCCViz[V]) GetTheme() Theme {
 	return v.Theme
 }
 
-// TODO: docs
+// NewGSCCViz initializes a new GSCCViz with NOOP hooks.
 func NewGSCCViz[V ds.Item](g *ds.Graph[ds.ItemGroup[V]], t Theme) *GSCCViz[V] {
 	res := &GSCCViz[V]{}
 
@@ -37,7 +40,7 @@ func NewGSCCViz[V ds.Item](g *ds.Graph[ds.ItemGroup[V]], t Theme) *GSCCViz[V] {
 	return res
 }
 
-// TODO: docs
+// Traverse iterates over the vertices of a GSCC graph, calling its hooks when appropriate.
 func (vi *GSCCViz[V]) Traverse() error {
 	for _, vtx := range vi.Graph.Verts {
 		vi.OnGSCCVertex(vtx)
