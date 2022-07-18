@@ -12,7 +12,7 @@ import (
 )
 
 func export(src string) {
-	g, _, err := ds.NewTextParser().Parse(src)
+	g, _, err := ds.Parse(src)
 
 	if err != nil {
 		panic(err)

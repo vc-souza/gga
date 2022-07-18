@@ -43,7 +43,7 @@ func TestDFSViz(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
-			g, _, err := ds.NewTextParser().Parse(tc.input)
+			g, _, err := ds.Parse(tc.input)
 
 			ut.Equal(t, true, err == nil)
 

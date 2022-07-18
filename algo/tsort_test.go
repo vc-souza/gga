@@ -21,7 +21,7 @@ func TestTSort_directed(t *testing.T) {
 		"shoes",
 	}
 
-	g, vars, err := ds.NewTextParser().Parse(ut.UDGDress)
+	g, vars, err := ds.Parse(ut.UDGDress)
 
 	ut.Equal(t, true, err == nil)
 
@@ -35,7 +35,7 @@ func TestTSort_directed(t *testing.T) {
 }
 
 func TestTSort_undirected(t *testing.T) {
-	g, _, err := ds.NewTextParser().Parse(ut.UUGSimple)
+	g, _, err := ds.Parse(ut.UUGSimple)
 
 	ut.Equal(t, true, err == nil)
 

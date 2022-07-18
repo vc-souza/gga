@@ -18,7 +18,7 @@ const (
 )
 
 func input() *ds.G[ds.Text] {
-	g, _, err := ds.NewTextParser().Parse(ut.UDGSimple + "\n7#")
+	g, _, err := ds.Parse(ut.UDGSimple + "\n7#")
 
 	if err != nil {
 		panic(err)

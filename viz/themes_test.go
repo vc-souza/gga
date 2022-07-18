@@ -22,7 +22,7 @@ func (t testTheme) SetEdgeFmt(attrs ds.FAttrs) {
 }
 
 func TestSetTheme(t *testing.T) {
-	g, _, err := ds.NewTextParser().Parse(ut.UDGSimple)
+	g, _, err := ds.Parse(ut.UDGSimple)
 
 	ut.Equal(t, true, err == nil)
 
@@ -66,7 +66,7 @@ func TestThemes(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
-			g, _, err := ds.NewTextParser().Parse(ut.UDGSimple)
+			g, _, err := ds.Parse(ut.UDGSimple)
 
 			ut.Equal(t, true, err == nil)
 

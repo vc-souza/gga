@@ -9,7 +9,7 @@ import (
 )
 
 func TestSCCViz(t *testing.T) {
-	g, _, err := ds.NewTextParser().Parse(ut.UDGDeps)
+	g, _, err := ds.Parse(ut.UDGDeps)
 
 	ut.Equal(t, true, err == nil)
 

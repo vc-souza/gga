@@ -9,14 +9,14 @@ GSCCViz formats and exports a GSCC graph after it has been calculated. Its verti
 are traversed, and hooks are provided so that custom formatting can be applied.
 */
 type GSCCViz[V ds.Item] struct {
-	Graph *ds.G[ds.ItemGroup[V]]
+	Graph *ds.G[ds.Group[V]]
 	Theme Theme
 
 	// OnGSCCVertex is called for every vertex of the GSCC.
-	OnGSCCVertex func(*ds.GV[ds.ItemGroup[V]])
+	OnGSCCVertex func(*ds.GV[ds.Group[V]])
 }
 
-func (v *GSCCViz[V]) GetGraph() *ds.G[ds.ItemGroup[V]] {
+func (v *GSCCViz[V]) GetGraph() *ds.G[ds.Group[V]] {
 	return v.Graph
 }
 
@@ -29,13 +29,13 @@ func (v *GSCCViz[V]) GetTheme() Theme {
 }
 
 // NewGSCCViz initializes a new GSCCViz with NOOP hooks.
-func NewGSCCViz[V ds.Item](g *ds.G[ds.ItemGroup[V]], t Theme) *GSCCViz[V] {
+func NewGSCCViz[V ds.Item](g *ds.G[ds.Group[V]], t Theme) *GSCCViz[V] {
 	res := &GSCCViz[V]{}
 
 	res.Graph = g
 	res.Theme = t
 
-	res.OnGSCCVertex = func(*ds.GV[ds.ItemGroup[V]]) {}
+	res.OnGSCCVertex = func(*ds.GV[ds.Group[V]]) {}
 
 	return res
 }

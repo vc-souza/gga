@@ -50,7 +50,7 @@ func TestSCC_directed(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
-			g, _, err := ds.NewTextParser().Parse(ut.UDGDeps)
+			g, _, err := ds.Parse(ut.UDGDeps)
 
 			ut.Equal(t, true, err == nil)
 
@@ -90,7 +90,7 @@ func TestSCC_undirected(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
-			g, _, err := ds.NewTextParser().Parse(ut.UUGSimple)
+			g, _, err := ds.Parse(ut.UUGSimple)
 
 			ut.Equal(t, true, err == nil)
 

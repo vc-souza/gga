@@ -9,7 +9,7 @@ import (
 )
 
 func TestTSortViz(t *testing.T) {
-	g, _, err := ds.NewTextParser().Parse(ut.UDGDress)
+	g, _, err := ds.Parse(ut.UDGDress)
 
 	ut.Equal(t, true, err == nil)
 

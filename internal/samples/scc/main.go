@@ -23,7 +23,7 @@ var algos = map[string]algo.SCCAlgorithm[ds.Text]{
 }
 
 func input() *ds.G[ds.Text] {
-	g, _, err := ds.NewTextParser().Parse(ut.UDGDeps)
+	g, _, err := ds.Parse(ut.UDGDeps)
 
 	if err != nil {
 		panic(err)

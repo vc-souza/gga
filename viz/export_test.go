@@ -222,7 +222,7 @@ edge [ arrowhead="vee" ]
 `
 
 func TestSnapshot(t *testing.T) {
-	g, _, err := ds.NewTextParser().Parse(`
+	g, _, err := ds.Parse(`
 	digraph
 	a#b,c
 	b#d

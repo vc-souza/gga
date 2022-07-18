@@ -9,7 +9,7 @@ import (
 )
 
 func TestBFS_directed(t *testing.T) {
-	g, vars, err := ds.NewTextParser().Parse(ut.UDGSimple)
+	g, vars, err := ds.Parse(ut.UDGSimple)
 
 	ut.Equal(t, true, err == nil)
 
@@ -44,7 +44,7 @@ func TestBFS_directed(t *testing.T) {
 }
 
 func TestBFS_undirected(t *testing.T) {
-	g, vars, err := ds.NewTextParser().Parse(ut.UUGSimple)
+	g, vars, err := ds.Parse(ut.UUGSimple)
 
 	ut.Equal(t, true, err == nil)
 

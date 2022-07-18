@@ -20,7 +20,7 @@ const (
 )
 
 func input() *ds.G[ds.Text] {
-	g, _, err := ds.NewTextParser().Parse(ut.UDGDeps)
+	g, _, err := ds.Parse(ut.UDGDeps)
 
 	if err != nil {
 		panic(err)
@@ -92,7 +92,7 @@ func main() {
 
 	vi := viz.NewGSCCViz(gscc, customTheme{})
 
-	vi.OnGSCCVertex = func(v *ds.GV[ds.ItemGroup[ds.Text]]) {
+	vi.OnGSCCVertex = func(v *ds.GV[ds.Group[ds.Text]]) {
 		s := make([]string, 0, len(v.Ptr.Items))
 
 		for _, item := range v.Ptr.Items {
@@ -103,5 +103,5 @@ func main() {
 	}
 
 	exportEnd[ds.Text](viSCC, fileOutSCC)
-	exportEnd[ds.ItemGroup[ds.Text]](vi, fileOut)
+	exportEnd[ds.Group[ds.Text]](vi, fileOut)
 }

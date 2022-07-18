@@ -80,11 +80,6 @@ type TextParser struct {
 	pending map[*Text]string
 }
 
-// NewTextParser creates and returns a new TextParser.
-func NewTextParser() *TextParser {
-	return &TextParser{}
-}
-
 func (p *TextParser) parseGraphType(raw string) error {
 	switch raw {
 
@@ -226,4 +221,9 @@ func (p *TextParser) Parse(s string) (*G[Text], map[string]*Text, error) {
 	}
 
 	return p.graph, p.vars, nil
+}
+
+// Parse is a shorthand for creating a new TextParser and then using it to parse the input.
+func Parse(s string) (*G[Text], map[string]*Text, error) {
+	return (&TextParser{}).Parse(s)
 }

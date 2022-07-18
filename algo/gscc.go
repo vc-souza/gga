@@ -1,8 +1,6 @@
 package algo
 
 import (
-	"strconv"
-
 	"github.com/vc-souza/gga/ds"
 )
 
@@ -34,7 +32,7 @@ Complexity:
 	- Time:  Θ(V + E)
 	- Space: Θ(V)
 */
-func GSCC[V ds.Item](g *ds.G[V]) (*ds.G[ds.ItemGroup[V]], []SCC[V], error) {
+func GSCC[V ds.Item](g *ds.G[V]) (*ds.G[ds.Group[V]], []SCC[V], error) {
 	if g.Undirected() {
 		return nil, nil, ds.ErrUndefOp
 	}
@@ -58,18 +56,18 @@ func GSCC[V ds.Item](g *ds.G[V]) (*ds.G[ds.ItemGroup[V]], []SCC[V], error) {
 		}
 	}
 
-	gscc := ds.NewDirectedGraph[ds.ItemGroup[V]]()
+	gscc := ds.NewDirectedGraph[ds.Group[V]]()
 
 	// By aligning the SCC id with the id of their
-	// vertex in the GSCC we can get the ItemGroup
+	// vertex in the GSCC we can get the Group
 	// in O(1) amortized time later, without having
 	// to use any extra space to map SCC ids to their
-	// respective ItemGroup.
+	// respective Group.
 	for id := range sccs {
 		gscc.UnsafeAddVertex(
-			&ds.ItemGroup[V]{
-				Id:    strconv.Itoa(id),
+			&ds.Group[V]{
 				Items: sccs[id],
+				Id:    id,
 			},
 		)
 	}
@@ -110,7 +108,7 @@ func GSCC[V ds.Item](g *ds.G[V]) (*ds.G[ds.ItemGroup[V]], []SCC[V], error) {
 				}
 
 				// Since the SCC list and the GSCC vertex list are aligned,
-				// we can find the ItemGroup assigned to SCC x by looking
+				// we can find the Group assigned to SCC x by looking
 				// at the vertex of GSCC at index x.
 				gscc.UnsafeAddWeightedEdge(
 					gscc.V[srcId].Ptr,

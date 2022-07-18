@@ -40,7 +40,7 @@ func TestBFSViz(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
-			g, vars, err := ds.NewTextParser().Parse(tc.input)
+			g, vars, err := ds.Parse(tc.input)
 
 			ut.Equal(t, true, err == nil)
 
