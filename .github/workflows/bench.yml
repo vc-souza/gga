@@ -11,6 +11,10 @@ on:
         description: "Timeout (-timeout)"
         default: "0"
         required: true
+      regex:
+        description: "Pattern"
+        default: "."
+        required: true
 
 jobs:
   bench:
@@ -33,7 +37,7 @@ jobs:
         check-latest: true
 
     - name: Benchmark
-      run: go test -benchmem -memprofile mem.out -cpuprofile cpu.out -benchtime ${{ inputs.benchtime }} -timeout ${{ inputs.timeout }} -bench . ./${{ matrix.pkg }}
+      run: go test -benchmem -memprofile mem.out -cpuprofile cpu.out -benchtime ${{ inputs.benchtime }} -timeout ${{ inputs.timeout }} -bench ${{ inputs.pattern }} ./${{ matrix.pkg }}
 
     - name: Upload Memory Profile
       uses: actions/upload-artifact@v3

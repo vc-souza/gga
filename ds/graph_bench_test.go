@@ -22,9 +22,9 @@ var gens = []struct {
 }
 
 var sizes = []int{
-	int(math.Pow(32, 1)),
+	int(math.Pow(16, 1)),
+	int(math.Pow(16, 2)),
 	int(math.Pow(32, 2)),
-	int(math.Pow(32, 3)),
 }
 
 func tagGraphBench(gType, mode string, size int) string {

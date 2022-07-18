@@ -2,6 +2,9 @@ define rmftype
 	@find . -type f -name "*.$(1)" -exec rm {} +
 endef
 
+bench:
+	go test -benchmem -memprofile mem.out -cpuprofile cpu.out -bench . ./$(PKG)
+
 test:
 	@go test -v -race -coverprofile coverage.out -tags test ./...
 
