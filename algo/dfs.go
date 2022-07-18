@@ -10,6 +10,8 @@ the attributes produced by a DFS, for a particular vertex. At the end of the DFS
 vertex is part of one of the DF trees in the DF forest produced by the algorithm.
 */
 type DFNode[V ds.Item] struct {
+	iDFS
+
 	// Discovery records when the vertex was marked as discovered.
 	Discovery int
 
@@ -107,12 +109,8 @@ Complexity:
 */
 func DFS[V ds.Item](g *ds.G[V], classify bool) (DFForest[V], *EdgeTypes[V], error) {
 	calls := ds.NewStack[*V]()
-
 	fst := DFForest[V]{}
 	tps := &EdgeTypes[V]{}
-
-	visited := map[*V]bool{}
-	next := map[*V]int{}
 
 	t := 0
 
@@ -129,19 +127,20 @@ func DFS[V ds.Item](g *ds.G[V], classify bool) (DFForest[V], *EdgeTypes[V], erro
 			vtx, _ := calls.Peek()
 
 			// vertex is being discovered
-			if !visited[vtx] {
+			if !fst[vtx].visited {
 				t++
 				fst[vtx].Discovery = t
-				visited[vtx] = true
+				fst[vtx].visited = true
 			}
 
 			// vertex has exhausted its adjacency list:
 			// all of its descendants have been
 			// discovered and fully explored
-			if next[vtx] >= len(g.E[vtx]) {
-				calls.Pop()
+			if fst[vtx].next >= len(g.E[vtx]) {
 				t++
 				fst[vtx].Finish = t
+
+				calls.Pop()
 
 				continue
 			}
@@ -149,11 +148,11 @@ func DFS[V ds.Item](g *ds.G[V], classify bool) (DFForest[V], *EdgeTypes[V], erro
 			// explore what remains of the adjacency list of the vertex:
 			// new nodes will be pushed to the stack and old ones will
 			// trigger the classification of the edge that connects them
-			for i := next[vtx]; i < len(g.E[vtx]); i++ {
+			for i := fst[vtx].next; i < len(g.E[vtx]); i++ {
 				e := g.E[vtx][i]
-				next[vtx]++
+				fst[vtx].next++
 
-				if visited[e.Dst] {
+				if fst[e.Dst].visited {
 					if !classify {
 						continue
 					}
@@ -184,14 +183,12 @@ func DFS[V ds.Item](g *ds.G[V], classify bool) (DFForest[V], *EdgeTypes[V], erro
 	// vertex will be left without being assign to a DF tree, even
 	// if its tree ends up only containing the vertex itself.
 	for _, vert := range g.V {
-		root := vert.Ptr
-
 		// skip: already part of another tree
-		if visited[root] {
+		if fst[vert.Ptr].visited {
 			continue
 		}
 
-		visit(root)
+		visit(vert.Ptr)
 	}
 
 	return fst, tps, nil

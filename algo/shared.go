@@ -9,6 +9,15 @@ type EdgeTypes[V ds.Item] struct {
 	Cross   []*ds.GE[V]
 }
 
+/*
+iDFS stores attributes used by any algorithm that is based
+on an iterative version of a DFS (Depth-First Search).
+*/
+type iDFS struct {
+	visited bool
+	next    int
+}
+
 // Min returns the minimum value between its integer inputs.
 func Min(a, b int) int {
 	if a <= b {

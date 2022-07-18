@@ -195,8 +195,8 @@ func (p *TextParser) parseAdjEntry(raw string) error {
 
 // Parse parses the input string, generating a new graph.
 func (p *TextParser) Parse(s string) (*G[Text], map[string]*Text, error) {
-	p.vars = make(map[string]*Text)
-	p.pending = make(map[*Text]string)
+	p.vars = map[string]*Text{}
+	p.pending = map[*Text]string{}
 	p.graph = nil
 
 	for _, l := range strings.Split(s, "\n") {

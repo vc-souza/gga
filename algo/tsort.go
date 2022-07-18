@@ -21,25 +21,26 @@ Expectations:
 
 Complexity:
 	- Time:  Θ(V + E)
-	- Space: O(V)
+	- Space: Θ(V)
 */
 func TSort[V ds.Item](g *ds.G[V]) ([]*V, error) {
 	if g.Undirected() {
 		return nil, ds.ErrUndefOp
 	}
 
-	calls := ds.NewStack[*V]()
-
 	count := g.VertexCount()
-	idx := count - 1
+	ordIdx := count - 1
 
 	ord := make([]*V, count)
+	calls := ds.NewStack[*V]()
+	attr := map[*V]*iDFS{}
 
-	visited := map[*V]bool{}
-	next := map[*V]int{}
+	for v := range g.E {
+		attr[v] = &iDFS{}
+	}
 
 	for _, vert := range g.V {
-		if visited[vert.Ptr] {
+		if attr[vert.Ptr].visited {
 			continue
 		}
 
@@ -47,22 +48,22 @@ func TSort[V ds.Item](g *ds.G[V]) ([]*V, error) {
 
 		for !calls.Empty() {
 			vtx, _ := calls.Peek()
-			visited[vtx] = true
+			attr[vtx].visited = true
 
-			if next[vtx] >= len(g.E[vtx]) {
+			if attr[vtx].next >= len(g.E[vtx]) {
 				calls.Pop()
 
-				ord[idx] = vtx
-				idx--
+				ord[ordIdx] = vtx
+				ordIdx--
 
 				continue
 			}
 
-			for i := next[vtx]; i < len(g.E[vtx]); i++ {
+			for i := attr[vtx].next; i < len(g.E[vtx]); i++ {
 				e := g.E[vtx][i]
-				next[vtx]++
+				attr[vtx].next++
 
-				if !visited[e.Dst] {
+				if !attr[e.Dst].visited {
 					calls.Push(e.Dst)
 
 					break

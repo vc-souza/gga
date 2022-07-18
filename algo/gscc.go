@@ -50,7 +50,7 @@ func GSCC[V ds.Item](g *ds.G[V]) (*ds.G[ds.ItemGroup[V]], []SCC[V], error) {
 	// query time later, when the SCC that a vertex
 	// belongs to will need to be queried Θ(E) times,
 	// when building the adjacency list of the GSCC.
-	vtxSCC := make(map[*V]int)
+	vtxSCC := map[*V]int{}
 
 	for id, scc := range sccs {
 		for _, v := range scc {

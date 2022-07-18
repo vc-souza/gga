@@ -53,9 +53,11 @@ func SCCKosaraju[V ds.Item](g *ds.G[V]) ([]SCC[V], error) {
 
 	calls := ds.NewStack[*V]()
 	sccs := []SCC[V]{}
+	attr := map[*V]*iDFS{}
 
-	visited := map[*V]bool{}
-	next := map[*V]int{}
+	for v := range g.E {
+		attr[v] = &iDFS{}
+	}
 
 	// Θ(V + E)
 	ord, err := TSort(g)
@@ -72,7 +74,7 @@ func SCCKosaraju[V ds.Item](g *ds.G[V]) ([]SCC[V], error) {
 	}
 
 	for _, v := range ord {
-		if visited[v] {
+		if attr[v].visited {
 			continue
 		}
 
@@ -82,19 +84,19 @@ func SCCKosaraju[V ds.Item](g *ds.G[V]) ([]SCC[V], error) {
 
 		for !calls.Empty() {
 			vtx, _ := calls.Peek()
-			visited[vtx] = true
+			attr[vtx].visited = true
 
-			if next[vtx] >= len(tg.E[vtx]) {
+			if attr[vtx].next >= len(tg.E[vtx]) {
 				calls.Pop()
 				scc = append(scc, vtx)
 				continue
 			}
 
-			for i := next[vtx]; i < len(tg.E[vtx]); i++ {
+			for i := attr[vtx].next; i < len(tg.E[vtx]); i++ {
 				e := tg.E[vtx][i]
-				next[vtx]++
+				attr[vtx].next++
 
-				if !visited[e.Dst] {
+				if !attr[e.Dst].visited {
 					calls.Push(e.Dst)
 					break
 				}
@@ -107,8 +109,8 @@ func SCCKosaraju[V ds.Item](g *ds.G[V]) ([]SCC[V], error) {
 	return sccs, nil
 }
 
-// tjAttrs is an auxiliary type used only by SCCTarjan.
-type tjAttrs struct {
+// tjSCC is an auxiliary type used only by SCCTarjan.
+type tjSCC struct {
 	// index represents when the vertex was first discovered.
 	index int
 
@@ -179,10 +181,10 @@ func SCCTarjan[V ds.Item](g *ds.G[V]) ([]SCC[V], error) {
 	stack := ds.NewStack[*V]()
 
 	sccs := []SCC[V]{}
-	att := map[*V]*tjAttrs{}
+	att := map[*V]*tjSCC{}
 
 	for v := range g.E {
-		att[v] = &tjAttrs{}
+		att[v] = &tjSCC{}
 	}
 
 	// using 1 as the starting point so that the zero-value

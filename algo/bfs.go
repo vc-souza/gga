@@ -26,6 +26,8 @@ type BFNode[V ds.Item] struct {
 		After a BFS, both the source and all unreachable vertices have a nil Parent.
 	*/
 	Parent *V
+
+	visited bool
 }
 
 /*
@@ -61,8 +63,6 @@ Complexity:
 */
 func BFS[V ds.Item](g *ds.G[V], src *V) (BFTree[V], error) {
 	queue := ds.NewQueue[*V]()
-
-	visited := map[*V]bool{}
 	tree := BFTree[V]{}
 
 	for v := range g.E {
@@ -72,7 +72,7 @@ func BFS[V ds.Item](g *ds.G[V], src *V) (BFTree[V], error) {
 	}
 
 	tree[src].Distance = 0
-	visited[src] = true
+	tree[src].visited = true
 
 	queue.Enqueue(src)
 
@@ -80,14 +80,14 @@ func BFS[V ds.Item](g *ds.G[V], src *V) (BFTree[V], error) {
 		curr, _ := queue.Dequeue()
 
 		for _, edge := range g.E[curr] {
-			if visited[edge.Dst] {
+			if tree[edge.Dst].visited {
 				continue
 			}
 
 			// found a tree edge
 			tree[edge.Dst].Distance = tree[curr].Distance + 1
 			tree[edge.Dst].Parent = curr
-			visited[edge.Dst] = true
+			tree[edge.Dst].visited = true
 
 			queue.Enqueue(edge.Dst)
 		}

@@ -91,10 +91,10 @@ type G[V Item] struct {
 func newGraph[V Item](dir bool) *G[V] {
 	g := G[V]{}
 
-	g.V = make([]*GV[V], 0)
-	g.E = make(map[*V][]*GE[V])
+	g.V = []*GV[V]{}
+	g.E = map[*V][]*GE[V]{}
 
-	g.vMap = make(map[*V]int)
+	g.vMap = map[*V]int{}
 	g.dir = dir
 
 	return &g
