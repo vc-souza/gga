@@ -37,21 +37,20 @@ func (f DisjointSetForest[T]) FindSet(x *T) *T {
 		return node.ptr
 	}
 
-	// path compression heuristic
 	f.compress(node)
 
 	return node.parent.ptr
 }
 
 func (f DisjointSetForest[T]) Union(x, y *T) {
-	f.Link(f.FindSet(x), f.FindSet(y))
+	f.link(f.FindSet(x), f.FindSet(y))
 }
 
-func (f DisjointSetForest[T]) Link(x, y *T) {
+// union-by-rank heuristic
+func (f DisjointSetForest[T]) link(x, y *T) {
 	parent := f[y]
 	child := f[x]
 
-	// union-by-rank heuristic
 	if child.rank > parent.rank {
 		parent, child = child, parent
 	}
@@ -63,6 +62,7 @@ func (f DisjointSetForest[T]) Link(x, y *T) {
 	}
 }
 
+// path compression heuristic
 func (f DisjointSetForest[T]) compress(node *dsfNode[T]) {
 	root := node
 
