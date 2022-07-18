@@ -1,10 +1,5 @@
 package ds
 
-import (
-	"fmt"
-	"strings"
-)
-
 type dsfNode[T any] struct {
 	// TODO: docs
 	Parent *dsfNode[T]
@@ -14,18 +9,6 @@ type dsfNode[T any] struct {
 
 	// TODO: docs
 	Ptr *T
-}
-
-func (n *dsfNode[T]) String() string {
-	var arrow string
-
-	if n.Parent == n {
-		arrow = "↺"
-	} else {
-		arrow = "→ "
-	}
-
-	return fmt.Sprintf("%v[r=%d] %s", *(n.Ptr), n.Rank, arrow)
 }
 
 // TODO: docs
@@ -87,26 +70,4 @@ func (f DSForest[T]) Link(x, y *T) {
 	if parent.Rank == child.Rank {
 		parent.Rank++
 	}
-}
-
-func (f DSForest[T]) String() string {
-	s := strings.Builder{}
-
-	for _, node := range f {
-		curr := node
-
-		for {
-			s.WriteString(curr.String())
-
-			if curr.Parent == curr {
-				break
-			}
-
-			curr = curr.Parent
-		}
-
-		s.WriteString("\n")
-	}
-
-	return s.String()
 }

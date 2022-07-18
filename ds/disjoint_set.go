@@ -1,11 +1,7 @@
 package ds
 
-import "fmt"
-
 // TODO: docs
 type DisjointSet[T any] interface {
-	fmt.Stringer
-
 	// TODO: docs
 	MakeSet(x *T)
 
