@@ -11,7 +11,7 @@ on:
         description: "Timeout (-timeout)"
         default: "0"
         required: true
-      regex:
+      pattern:
         description: "Pattern"
         default: "."
         required: true
