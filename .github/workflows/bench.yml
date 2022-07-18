@@ -5,7 +5,7 @@ on:
     inputs:
       benchtime:
         description: "Iterations (-benchtime)"
-        default: "5000x"
+        default: "1s"
         required: true
       timeout:
         description: "Timeout (-timeout)"
