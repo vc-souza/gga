@@ -19,26 +19,26 @@ type DFSViz[V ds.Item] struct {
 	Edges  *algo.EdgeTypes[V]
 
 	// OnTreeVertex is called for every vertex in the graph.
-	OnTreeVertex func(*ds.GraphVertex[V], *algo.DFNode[V])
+	OnTreeVertex func(*ds.GV[V], *algo.DFNode[V])
 
 	// OnRootVertex is called when the root of a DF tree is found.
-	OnRootVertex func(*ds.GraphVertex[V], *algo.DFNode[V])
+	OnRootVertex func(*ds.GV[V], *algo.DFNode[V])
 
 	// OnTreeEdge is called when a tree edge is found.
-	OnTreeEdge func(*ds.GraphEdge[V])
+	OnTreeEdge func(*ds.GE[V])
 
 	// OnForwardEdge is called when a forward edge is found.
-	OnForwardEdge func(*ds.GraphEdge[V])
+	OnForwardEdge func(*ds.GE[V])
 
 	// OnBackEdge is called when a back edge is found.
-	OnBackEdge func(*ds.GraphEdge[V])
+	OnBackEdge func(*ds.GE[V])
 
 	// OnCrossEdge is called when a cross edge is found.
-	OnCrossEdge func(*ds.GraphEdge[V])
+	OnCrossEdge func(*ds.GE[V])
 }
 
 // NewDFSViz initializes a new DFSViz with NOOP hooks.
-func NewDFSViz[V ds.Item](g *ds.Graph[V], f algo.DFForest[V], e *algo.EdgeTypes[V], t Theme) *DFSViz[V] {
+func NewDFSViz[V ds.Item](g *ds.G[V], f algo.DFForest[V], e *algo.EdgeTypes[V], t Theme) *DFSViz[V] {
 	res := &DFSViz[V]{}
 
 	res.Forest = f
@@ -47,13 +47,13 @@ func NewDFSViz[V ds.Item](g *ds.Graph[V], f algo.DFForest[V], e *algo.EdgeTypes[
 	res.Graph = g
 	res.Theme = t
 
-	res.OnTreeVertex = func(*ds.GraphVertex[V], *algo.DFNode[V]) {}
-	res.OnRootVertex = func(*ds.GraphVertex[V], *algo.DFNode[V]) {}
+	res.OnTreeVertex = func(*ds.GV[V], *algo.DFNode[V]) {}
+	res.OnRootVertex = func(*ds.GV[V], *algo.DFNode[V]) {}
 
-	res.OnTreeEdge = func(*ds.GraphEdge[V]) {}
-	res.OnForwardEdge = func(*ds.GraphEdge[V]) {}
-	res.OnBackEdge = func(*ds.GraphEdge[V]) {}
-	res.OnCrossEdge = func(*ds.GraphEdge[V]) {}
+	res.OnTreeEdge = func(*ds.GE[V]) {}
+	res.OnForwardEdge = func(*ds.GE[V]) {}
+	res.OnBackEdge = func(*ds.GE[V]) {}
+	res.OnCrossEdge = func(*ds.GE[V]) {}
 
 	return res
 }

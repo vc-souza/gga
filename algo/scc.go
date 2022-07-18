@@ -10,7 +10,7 @@ strongly connected components in a graph. If a particular algorithm can
 only work on a particular type of graph, then undefined behavior is
 indicated by the ds.ErrUndefOp error being returned.
 */
-type SCCAlgorithm[V ds.Item] func(*ds.Graph[V]) ([]SCC[V], error)
+type SCCAlgorithm[V ds.Item] func(*ds.G[V]) ([]SCC[V], error)
 
 // An SCC holds the vertices in a strongly connected component of a graph.
 type SCC[V ds.Item] []*V
@@ -46,7 +46,7 @@ Complexity:
 	- Time:  Θ(V + E)
 	- Space: Θ(V)
 */
-func SCCKosaraju[V ds.Item](g *ds.Graph[V]) ([]SCC[V], error) {
+func SCCKosaraju[V ds.Item](g *ds.G[V]) ([]SCC[V], error) {
 	if g.Undirected() {
 		return nil, ds.ErrUndefOp
 	}
@@ -84,14 +84,14 @@ func SCCKosaraju[V ds.Item](g *ds.Graph[V]) ([]SCC[V], error) {
 			vtx, _ := calls.Peek()
 			visited[vtx] = true
 
-			if next[vtx] >= len(tg.Adj[vtx]) {
+			if next[vtx] >= len(tg.E[vtx]) {
 				calls.Pop()
 				scc = append(scc, vtx)
 				continue
 			}
 
-			for i := next[vtx]; i < len(tg.Adj[vtx]); i++ {
-				e := tg.Adj[vtx][i]
+			for i := next[vtx]; i < len(tg.E[vtx]); i++ {
+				e := tg.E[vtx][i]
 				next[vtx]++
 
 				if !visited[e.Dst] {
@@ -166,7 +166,7 @@ Complexity:
 	- Time:  Θ(V + E)
 	- Space: Θ(V)
 */
-func SCCTarjan[V ds.Item](g *ds.Graph[V]) ([]SCC[V], error) {
+func SCCTarjan[V ds.Item](g *ds.G[V]) ([]SCC[V], error) {
 	if g.Undirected() {
 		return nil, ds.ErrUndefOp
 	}
@@ -181,7 +181,7 @@ func SCCTarjan[V ds.Item](g *ds.Graph[V]) ([]SCC[V], error) {
 	sccs := []SCC[V]{}
 	att := map[*V]*tjAttrs{}
 
-	for v := range g.Adj {
+	for v := range g.E {
 		att[v] = &tjAttrs{}
 	}
 
@@ -212,7 +212,7 @@ func SCCTarjan[V ds.Item](g *ds.Graph[V]) ([]SCC[V], error) {
 			// compare with your own low index
 			if att[vtx].waiting {
 				// adj list for the current vertex
-				adj := g.Adj[vtx]
+				adj := g.E[vtx]
 
 				// index of the pending child
 				idx := att[vtx].next - 1
@@ -225,7 +225,7 @@ func SCCTarjan[V ds.Item](g *ds.Graph[V]) ([]SCC[V], error) {
 			}
 
 			// finished exploring adj
-			if att[vtx].next >= len(g.Adj[vtx]) {
+			if att[vtx].next >= len(g.E[vtx]) {
 				calls.Pop()
 
 				// root of an SCC, otherwise do not pop anything
@@ -253,8 +253,8 @@ func SCCTarjan[V ds.Item](g *ds.Graph[V]) ([]SCC[V], error) {
 			}
 
 			// visit adjacent vertices
-			for i := att[vtx].next; i < len(g.Adj[vtx]); i++ {
-				e := g.Adj[vtx][i]
+			for i := att[vtx].next; i < len(g.E[vtx]); i++ {
+				e := g.E[vtx][i]
 				att[vtx].next++
 
 				// will need to wait for the adjacent
@@ -274,8 +274,8 @@ func SCCTarjan[V ds.Item](g *ds.Graph[V]) ([]SCC[V], error) {
 		}
 	}
 
-	for _, vert := range g.Verts {
-		root := vert.Val
+	for _, vert := range g.V {
+		root := vert.Ptr
 
 		if att[root].index != 0 {
 			continue

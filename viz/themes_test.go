@@ -9,15 +9,15 @@ import (
 
 type testTheme struct{}
 
-func (t testTheme) SetGraphFmt(attrs ds.FmtAttrs) {
+func (t testTheme) SetGraphFmt(attrs ds.FAttrs) {
 	attrs["gattr"] = "test"
 }
 
-func (t testTheme) SetVertexFmt(attrs ds.FmtAttrs) {
+func (t testTheme) SetVertexFmt(attrs ds.FAttrs) {
 	attrs["vattr"] = "test"
 }
 
-func (t testTheme) SetEdgeFmt(attrs ds.FmtAttrs) {
+func (t testTheme) SetEdgeFmt(attrs ds.FAttrs) {
 	attrs["eattr"] = "test"
 }
 
@@ -28,15 +28,15 @@ func TestSetTheme(t *testing.T) {
 
 	e := NewExporter(g)
 
-	e.DefaultGraphFmt = make(ds.FmtAttrs)
+	e.DefaultGraphFmt = make(ds.FAttrs)
 	e.DefaultGraphFmt["gattr"] = "init"
 	ut.Equal(t, "init", e.DefaultGraphFmt["gattr"])
 
-	e.DefaultVertexFmt = make(ds.FmtAttrs)
+	e.DefaultVertexFmt = make(ds.FAttrs)
 	e.DefaultVertexFmt["vattr"] = "init"
 	ut.Equal(t, "init", e.DefaultVertexFmt["vattr"])
 
-	e.DefaultEdgeFmt = make(ds.FmtAttrs)
+	e.DefaultEdgeFmt = make(ds.FAttrs)
 	e.DefaultEdgeFmt["eattr"] = "init"
 	ut.Equal(t, "init", e.DefaultEdgeFmt["eattr"])
 

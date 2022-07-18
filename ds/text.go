@@ -76,7 +76,7 @@ Sample (Directed)
 */
 type TextParser struct {
 	vars    map[string]*Text
-	graph   *Graph[Text]
+	graph   *G[Text]
 	pending map[*Text]string
 }
 
@@ -194,7 +194,7 @@ func (p *TextParser) parseAdjEntry(raw string) error {
 }
 
 // Parse parses the input string, generating a new graph.
-func (p *TextParser) Parse(s string) (*Graph[Text], map[string]*Text, error) {
+func (p *TextParser) Parse(s string) (*G[Text], map[string]*Text, error) {
 	p.vars = make(map[string]*Text)
 	p.pending = make(map[*Text]string)
 	p.graph = nil

@@ -23,7 +23,7 @@ Complexity:
 	- Time:  Θ(V + E)
 	- Space: O(V)
 */
-func TSort[V ds.Item](g *ds.Graph[V]) ([]*V, error) {
+func TSort[V ds.Item](g *ds.G[V]) ([]*V, error) {
 	if g.Undirected() {
 		return nil, ds.ErrUndefOp
 	}
@@ -38,18 +38,18 @@ func TSort[V ds.Item](g *ds.Graph[V]) ([]*V, error) {
 	visited := map[*V]bool{}
 	next := map[*V]int{}
 
-	for _, vert := range g.Verts {
-		if visited[vert.Val] {
+	for _, vert := range g.V {
+		if visited[vert.Ptr] {
 			continue
 		}
 
-		calls.Push(vert.Val)
+		calls.Push(vert.Ptr)
 
 		for !calls.Empty() {
 			vtx, _ := calls.Peek()
 			visited[vtx] = true
 
-			if next[vtx] >= len(g.Adj[vtx]) {
+			if next[vtx] >= len(g.E[vtx]) {
 				calls.Pop()
 
 				ord[idx] = vtx
@@ -58,8 +58,8 @@ func TSort[V ds.Item](g *ds.Graph[V]) ([]*V, error) {
 				continue
 			}
 
-			for i := next[vtx]; i < len(g.Adj[vtx]); i++ {
-				e := g.Adj[vtx][i]
+			for i := next[vtx]; i < len(g.E[vtx]); i++ {
+				e := g.E[vtx][i]
 				next[vtx]++
 
 				if !visited[e.Dst] {

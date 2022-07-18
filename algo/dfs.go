@@ -39,7 +39,7 @@ so repeated DFS calls always produce the same DF forest.
 */
 type DFForest[V ds.Item] map[*V]*DFNode[V]
 
-func classifyDirectedEdge[V ds.Item](fst DFForest[V], tps *EdgeTypes[V], e *ds.GraphEdge[V]) {
+func classifyDirectedEdge[V ds.Item](fst DFForest[V], tps *EdgeTypes[V], e *ds.GE[V]) {
 	// the vertex being reached (Dst) was discovered before
 	// the vertex being explored (Src), so Dst is either
 	// an ancestor of Src, or they do not have a direct
@@ -59,7 +59,7 @@ func classifyDirectedEdge[V ds.Item](fst DFForest[V], tps *EdgeTypes[V], e *ds.G
 	}
 }
 
-func classifyUndirectedEdge[V ds.Item](fst DFForest[V], tps *EdgeTypes[V], e *ds.GraphEdge[V]) {
+func classifyUndirectedEdge[V ds.Item](fst DFForest[V], tps *EdgeTypes[V], e *ds.GE[V]) {
 	// due to how adjacency lists work, undirected
 	// graphs represent the same edge twice, so
 	// if we're dealing with the reverse of a tree
@@ -105,7 +105,7 @@ Complexity:
 	- Space (without edge classification): Θ(V)
 	- Space (wit edge classification): O(V + E)
 */
-func DFS[V ds.Item](g *ds.Graph[V], classify bool) (DFForest[V], *EdgeTypes[V], error) {
+func DFS[V ds.Item](g *ds.G[V], classify bool) (DFForest[V], *EdgeTypes[V], error) {
 	calls := ds.NewStack[*V]()
 
 	fst := DFForest[V]{}
@@ -116,7 +116,7 @@ func DFS[V ds.Item](g *ds.Graph[V], classify bool) (DFForest[V], *EdgeTypes[V], 
 
 	t := 0
 
-	for v := range g.Adj {
+	for v := range g.E {
 		fst[v] = &DFNode[V]{}
 	}
 
@@ -138,7 +138,7 @@ func DFS[V ds.Item](g *ds.Graph[V], classify bool) (DFForest[V], *EdgeTypes[V], 
 			// vertex has exhausted its adjacency list:
 			// all of its descendants have been
 			// discovered and fully explored
-			if next[vtx] >= len(g.Adj[vtx]) {
+			if next[vtx] >= len(g.E[vtx]) {
 				calls.Pop()
 				t++
 				fst[vtx].Finish = t
@@ -149,8 +149,8 @@ func DFS[V ds.Item](g *ds.Graph[V], classify bool) (DFForest[V], *EdgeTypes[V], 
 			// explore what remains of the adjacency list of the vertex:
 			// new nodes will be pushed to the stack and old ones will
 			// trigger the classification of the edge that connects them
-			for i := next[vtx]; i < len(g.Adj[vtx]); i++ {
-				e := g.Adj[vtx][i]
+			for i := next[vtx]; i < len(g.E[vtx]); i++ {
+				e := g.E[vtx][i]
 				next[vtx]++
 
 				if visited[e.Dst] {
@@ -183,8 +183,8 @@ func DFS[V ds.Item](g *ds.Graph[V], classify bool) (DFForest[V], *EdgeTypes[V], 
 	// by iterating over all unvisited vertices, we assure that no
 	// vertex will be left without being assign to a DF tree, even
 	// if its tree ends up only containing the vertex itself.
-	for _, vert := range g.Verts {
-		root := vert.Val
+	for _, vert := range g.V {
+		root := vert.Ptr
 
 		// skip: already part of another tree
 		if visited[root] {

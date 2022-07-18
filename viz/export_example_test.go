@@ -29,15 +29,15 @@ func ExampleExporter() {
 	g.AddUnweightedEdge(pwl, pot)
 	g.AddUnweightedEdge(pwl, pow)
 
-	e.DefaultGraphFmt = ds.FmtAttrs{
+	e.DefaultGraphFmt = ds.FAttrs{
 		"rankdir": "LR",
 	}
 
-	e.DefaultVertexFmt = ds.FmtAttrs{
+	e.DefaultVertexFmt = ds.FAttrs{
 		"style": "filled",
 	}
 
-	e.DefaultEdgeFmt = ds.FmtAttrs{
+	e.DefaultEdgeFmt = ds.FAttrs{
 		"arrowhead": "open",
 	}
 

@@ -40,7 +40,7 @@ func TestGSCC_directed(t *testing.T) {
 	ut.Equal(t, 5, gscc.EdgeCount())
 
 	for i := range expect {
-		ut.Equal(t, expect[i], itemGroupTag(gscc.Verts[i].Val))
+		ut.Equal(t, expect[i], itemGroupTag(gscc.V[i].Ptr))
 	}
 }
 

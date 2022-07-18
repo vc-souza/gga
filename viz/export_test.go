@@ -42,7 +42,7 @@ func (p person) Label() string {
 func TestGraphVisitor(t *testing.T) {
 	cases := []struct {
 		desc   string
-		gen    func() *ds.Graph[person]
+		gen    func() *ds.G[person]
 		expect string
 	}{
 		{
@@ -66,11 +66,11 @@ func TestGraphVisitor(t *testing.T) {
 			jane := &person{"Jane"}
 			jonas := &person{"Jonas"}
 
-			e.DefaultGraphFmt = ds.FmtAttrs{
+			e.DefaultGraphFmt = ds.FAttrs{
 				"label": "A Test",
 			}
 
-			e.DefaultEdgeFmt = ds.FmtAttrs{
+			e.DefaultEdgeFmt = ds.FAttrs{
 				"arrowhead": "vee",
 			}
 
@@ -98,17 +98,17 @@ func TestGraphVisitor(t *testing.T) {
 func TestDotAttrs(t *testing.T) {
 	cases := []struct {
 		desc   string
-		attrs  ds.FmtAttrs
+		attrs  ds.FAttrs
 		expect string
 	}{
 		{
 			desc:   "empty",
-			attrs:  ds.FmtAttrs{},
+			attrs:  ds.FAttrs{},
 			expect: "",
 		},
 		{
 			desc:   "single pair",
-			attrs:  ds.FmtAttrs{"a": "b"},
+			attrs:  ds.FAttrs{"a": "b"},
 			expect: `[ a="b" ]`,
 		},
 	}
@@ -121,16 +121,16 @@ func TestDotAttrs(t *testing.T) {
 }
 
 func TestResetGraphFmt(t *testing.T) {
-	isClear := func(g *ds.Graph[person]) bool {
-		for _, vtx := range g.Verts {
-			if len(vtx.Fmt) != 0 {
+	isClear := func(g *ds.G[person]) bool {
+		for _, vtx := range g.V {
+			if len(vtx.F) != 0 {
 				return false
 			}
 		}
 
-		for _, es := range g.Adj {
+		for _, es := range g.E {
 			for _, e := range es {
-				if len(e.Fmt) != 0 {
+				if len(e.F) != 0 {
 					return false
 				}
 			}
@@ -141,7 +141,7 @@ func TestResetGraphFmt(t *testing.T) {
 
 	cases := []struct {
 		desc   string
-		gen    func() *ds.Graph[person]
+		gen    func() *ds.G[person]
 		expect string
 	}{
 		{
@@ -194,15 +194,15 @@ func TestResetGraphFmt(t *testing.T) {
 
 type exportTestTheme struct{}
 
-func (t exportTestTheme) SetGraphFmt(attrs ds.FmtAttrs) {
+func (t exportTestTheme) SetGraphFmt(attrs ds.FAttrs) {
 	attrs["layout"] = "dot"
 }
 
-func (t exportTestTheme) SetVertexFmt(attrs ds.FmtAttrs) {
+func (t exportTestTheme) SetVertexFmt(attrs ds.FAttrs) {
 	attrs["style"] = "filled"
 }
 
-func (t exportTestTheme) SetEdgeFmt(attrs ds.FmtAttrs) {
+func (t exportTestTheme) SetEdgeFmt(attrs ds.FAttrs) {
 	attrs["arrowhead"] = "vee"
 }
 

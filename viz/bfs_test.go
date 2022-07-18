@@ -57,13 +57,13 @@ func TestBFSViz(t *testing.T) {
 
 			vi := NewBFSViz(g, tree, src, nil)
 
-			vi.OnUnVertex = func(d *ds.GraphVertex[ds.Text], a *algo.BFNode[ds.Text]) { uvCount++ }
+			vi.OnUnVertex = func(d *ds.GV[ds.Text], a *algo.BFNode[ds.Text]) { uvCount++ }
 
-			vi.OnTreeVertex = func(d *ds.GraphVertex[ds.Text], a *algo.BFNode[ds.Text]) { tvCount++ }
+			vi.OnTreeVertex = func(d *ds.GV[ds.Text], a *algo.BFNode[ds.Text]) { tvCount++ }
 
-			vi.OnSourceVertex = func(d *ds.GraphVertex[ds.Text], a *algo.BFNode[ds.Text]) { svCount++ }
+			vi.OnSourceVertex = func(d *ds.GV[ds.Text], a *algo.BFNode[ds.Text]) { svCount++ }
 
-			vi.OnTreeEdge = func(d *ds.GraphEdge[ds.Text]) { teCount++ }
+			vi.OnTreeEdge = func(d *ds.GE[ds.Text]) { teCount++ }
 
 			ExportViz[ds.Text](vi, ut.DummyWriter{})
 

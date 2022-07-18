@@ -17,7 +17,7 @@ const (
 	fileOut = "TSort-after.dot"
 )
 
-func input() *ds.Graph[ds.Text] {
+func input() *ds.G[ds.Text] {
 	g, _, err := ds.NewTextParser().Parse(ut.UDGDress)
 
 	if err != nil {
@@ -27,7 +27,7 @@ func input() *ds.Graph[ds.Text] {
 	return g
 }
 
-func exportStart(g *ds.Graph[ds.Text]) {
+func exportStart(g *ds.G[ds.Text]) {
 	fIn, err := os.Create(fileIn)
 
 	if err != nil {
@@ -57,7 +57,7 @@ type customTheme struct {
 	viz.LightBreezeTheme
 }
 
-func (t customTheme) SetGraphFmt(attrs ds.FmtAttrs) {
+func (t customTheme) SetGraphFmt(attrs ds.FAttrs) {
 	t.LightBreezeTheme.SetGraphFmt(attrs)
 	attrs["nodesep"] = "0.1"
 	attrs["ranksep"] = "0.2"
@@ -76,11 +76,11 @@ func main() {
 
 	vi := viz.NewTSortViz(g, ord, customTheme{})
 
-	vi.OnVertexRank = func(v *ds.GraphVertex[ds.Text], rank int) {
+	vi.OnVertexRank = func(v *ds.GV[ds.Text], rank int) {
 		v.SetFmtAttr("label", fmt.Sprintf(`%s | %d`, v.Label(), rank))
 	}
 
-	vi.OnOrderEdge = func(e *ds.GraphEdge[ds.Text], exists bool) {
+	vi.OnOrderEdge = func(e *ds.GE[ds.Text], exists bool) {
 		if exists {
 			return
 		}

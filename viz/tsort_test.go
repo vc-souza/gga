@@ -24,11 +24,11 @@ func TestTSortViz(t *testing.T) {
 	eCount := 0
 	vCount := 0
 
-	vi.OnVertexRank = func(*ds.GraphVertex[ds.Text], int) {
+	vi.OnVertexRank = func(*ds.GV[ds.Text], int) {
 		vCount++
 	}
 
-	vi.OnOrderEdge = func(d *ds.GraphEdge[ds.Text], b bool) {
+	vi.OnOrderEdge = func(d *ds.GE[ds.Text], b bool) {
 		if b {
 			eExitsCount++
 		} else {

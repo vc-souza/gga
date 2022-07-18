@@ -12,19 +12,19 @@ func (p person) Label() string {
 
 type ConsoleVisitor struct{}
 
-func (cv *ConsoleVisitor) VisitGraphStart(g *Graph[person]) {
+func (cv *ConsoleVisitor) VisitGraphStart(g *G[person]) {
 	fmt.Println("graph start")
 }
 
-func (cv *ConsoleVisitor) VisitGraphEnd(*Graph[person]) {
+func (cv *ConsoleVisitor) VisitGraphEnd(*G[person]) {
 	fmt.Println("graph end")
 }
 
-func (cv *ConsoleVisitor) VisitVertex(v *GraphVertex[person]) {
+func (cv *ConsoleVisitor) VisitVertex(v *GV[person]) {
 	fmt.Println("vertex", v.Label())
 }
 
-func (cv *ConsoleVisitor) VisitEdge(e *GraphEdge[person]) {
+func (cv *ConsoleVisitor) VisitEdge(e *GE[person]) {
 	fmt.Println("edge,", e.Src.Label(), "to", e.Dst.Label())
 }
 

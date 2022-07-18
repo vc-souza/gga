@@ -34,7 +34,7 @@ Complexity:
 	- Time:  Θ(V + E)
 	- Space: Θ(V)
 */
-func GSCC[V ds.Item](g *ds.Graph[V]) (*ds.Graph[ds.ItemGroup[V]], []SCC[V], error) {
+func GSCC[V ds.Item](g *ds.G[V]) (*ds.G[ds.ItemGroup[V]], []SCC[V], error) {
 	if g.Undirected() {
 		return nil, nil, ds.ErrUndefOp
 	}
@@ -85,7 +85,7 @@ func GSCC[V ds.Item](g *ds.Graph[V]) (*ds.Graph[ds.ItemGroup[V]], []SCC[V], erro
 	// skipped, since it is the last one in that order.
 	for srcId := len(sccs) - 1; srcId > 0; srcId-- {
 		for _, v := range sccs[srcId] {
-			for _, e := range g.Adj[v] {
+			for _, e := range g.E[v] {
 				dstId := vtxSCC[e.Dst]
 
 				// vertices in the same SCC, skip.
@@ -113,8 +113,8 @@ func GSCC[V ds.Item](g *ds.Graph[V]) (*ds.Graph[ds.ItemGroup[V]], []SCC[V], erro
 				// we can find the ItemGroup assigned to SCC x by looking
 				// at the vertex of GSCC at index x.
 				gscc.UnsafeAddWeightedEdge(
-					gscc.Verts[srcId].Val,
-					gscc.Verts[dstId].Val,
+					gscc.V[srcId].Ptr,
+					gscc.V[dstId].Ptr,
 					0,
 				)
 

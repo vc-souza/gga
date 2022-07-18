@@ -23,15 +23,15 @@ func TestSCCViz(t *testing.T) {
 	sECount := 0
 	cECount := 0
 
-	vi.OnSCCVertex = func(v *ds.GraphVertex[ds.Text], c int) {
+	vi.OnSCCVertex = func(v *ds.GV[ds.Text], c int) {
 		vCount++
 	}
 
-	vi.OnSCCEdge = func(e *ds.GraphEdge[ds.Text], c int) {
+	vi.OnSCCEdge = func(e *ds.GE[ds.Text], c int) {
 		sECount++
 	}
 
-	vi.OnCrossSCCEdge = func(e *ds.GraphEdge[ds.Text], cSrc, cDst int) {
+	vi.OnCrossSCCEdge = func(e *ds.GE[ds.Text], cSrc, cDst int) {
 		cECount++
 	}
 

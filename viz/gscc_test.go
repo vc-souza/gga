@@ -21,7 +21,7 @@ func TestGSCCViz(t *testing.T) {
 
 	vCount := 0
 
-	vi.OnGSCCVertex = func(v *ds.GraphVertex[ds.ItemGroup[ds.Text]]) {
+	vi.OnGSCCVertex = func(v *ds.GV[ds.ItemGroup[ds.Text]]) {
 		vCount++
 	}
 

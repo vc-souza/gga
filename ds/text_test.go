@@ -175,7 +175,7 @@ func TestTextParser(t *testing.T) {
 
 				// actual order in the graph (insertion)
 				for i := 0; i < tc.vertCount; i++ {
-					ut.Equal(t, expectVerts[i], g.Verts[i].Label())
+					ut.Equal(t, expectVerts[i], g.V[i].Label())
 				}
 
 				if g.Directed() {

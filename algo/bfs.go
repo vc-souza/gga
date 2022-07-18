@@ -59,13 +59,13 @@ Complexity:
 	- Time:  Θ(V + E)
 	- Space: Θ(V)
 */
-func BFS[V ds.Item](g *ds.Graph[V], src *V) (BFTree[V], error) {
+func BFS[V ds.Item](g *ds.G[V], src *V) (BFTree[V], error) {
 	queue := ds.NewQueue[*V]()
 
 	visited := map[*V]bool{}
 	tree := BFTree[V]{}
 
-	for v := range g.Adj {
+	for v := range g.E {
 		tree[v] = &BFNode[V]{
 			Distance: math.Inf(1),
 		}
@@ -79,7 +79,7 @@ func BFS[V ds.Item](g *ds.Graph[V], src *V) (BFTree[V], error) {
 	for !queue.Empty() {
 		curr, _ := queue.Dequeue()
 
-		for _, edge := range g.Adj[curr] {
+		for _, edge := range g.E[curr] {
 			if visited[edge.Dst] {
 				continue
 			}

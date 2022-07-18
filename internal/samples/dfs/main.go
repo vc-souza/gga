@@ -17,7 +17,7 @@ const (
 	fileOut = "DFS-after.dot"
 )
 
-func input() *ds.Graph[ds.Text] {
+func input() *ds.G[ds.Text] {
 	g, _, err := ds.NewTextParser().Parse(ut.UDGSimple + "\n7#")
 
 	if err != nil {
@@ -27,7 +27,7 @@ func input() *ds.Graph[ds.Text] {
 	return g
 }
 
-func exportStart(g *ds.Graph[ds.Text]) {
+func exportStart(g *ds.G[ds.Text]) {
 	fIn, err := os.Create(fileIn)
 
 	if err != nil {
@@ -66,28 +66,28 @@ func main() {
 
 	vi := viz.NewDFSViz(g, fst, edges, viz.Themes.LightBreeze)
 
-	vi.OnTreeVertex = func(v *ds.GraphVertex[ds.Text], n *algo.DFNode[ds.Text]) {
+	vi.OnTreeVertex = func(v *ds.GV[ds.Text], n *algo.DFNode[ds.Text]) {
 		v.SetFmtAttr("label", fmt.Sprintf(`%s | { d = %d | f = %d }`, v.Label(), n.Discovery, n.Finish))
 	}
 
-	vi.OnRootVertex = func(v *ds.GraphVertex[ds.Text], n *algo.DFNode[ds.Text]) {
+	vi.OnRootVertex = func(v *ds.GV[ds.Text], n *algo.DFNode[ds.Text]) {
 		v.SetFmtAttr("penwidth", "1.7")
 		v.SetFmtAttr("color", "#000000")
 	}
 
-	vi.OnTreeEdge = func(e *ds.GraphEdge[ds.Text]) {
+	vi.OnTreeEdge = func(e *ds.GE[ds.Text]) {
 		e.SetFmtAttr("penwidth", "3.0")
 	}
 
-	vi.OnForwardEdge = func(e *ds.GraphEdge[ds.Text]) {
+	vi.OnForwardEdge = func(e *ds.GE[ds.Text]) {
 		e.SetFmtAttr("label", "F")
 	}
 
-	vi.OnBackEdge = func(e *ds.GraphEdge[ds.Text]) {
+	vi.OnBackEdge = func(e *ds.GE[ds.Text]) {
 		e.SetFmtAttr("label", "B")
 	}
 
-	vi.OnCrossEdge = func(e *ds.GraphEdge[ds.Text]) {
+	vi.OnCrossEdge = func(e *ds.GE[ds.Text]) {
 		e.SetFmtAttr("label", "C")
 	}
 

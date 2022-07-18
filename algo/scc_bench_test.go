@@ -13,7 +13,7 @@ type id int
 func (i id) Label() string { return strconv.Itoa(int(i)) }
 
 func BenchmarkSCC(b *testing.B) {
-	gen := func(n int) *ds.Graph[id] {
+	gen := func(n int) *ds.G[id] {
 		g := ds.NewDirectedGraph[id]()
 
 		for i := 0; i < n; i++ {
@@ -24,8 +24,8 @@ func BenchmarkSCC(b *testing.B) {
 		for i := 0; i < n; i++ {
 			for j := 0; j < n; j++ {
 				g.UnsafeAddWeightedEdge(
-					g.Verts[i].Val,
-					g.Verts[j].Val,
+					g.V[i].Ptr,
+					g.V[j].Ptr,
 					0,
 				)
 			}
@@ -35,7 +35,7 @@ func BenchmarkSCC(b *testing.B) {
 	}
 
 	inputs := []struct {
-		g *ds.Graph[id]
+		g *ds.G[id]
 		n int
 	}{
 		{
