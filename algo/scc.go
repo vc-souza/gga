@@ -110,15 +110,6 @@ type tjSCC struct {
 	*/
 	lowIndex int
 
-	// next indicates the next adjacent vertex to explore.
-	next int
-
-	/*
-		waiting flags that the vertex is waiting for one of its adjacent vertices
-		to finish being explored, so that it can check their low index.
-	*/
-	waiting bool
-
 	// onStack flags that a vertex is on the stack.
 	onStack bool
 }
@@ -161,15 +152,11 @@ func SCCTarjan[V ds.Item](g *ds.G[V]) ([]SCC[V], error) {
 		return nil, ds.ErrUndefOp
 	}
 
-	// stack that simulates the call stack
-	// necessary for the iterative version
-	calls := ds.NewStack[*V]()
+	var visit func(*V)
 
-	// stack used by Tarjan's algorithm
 	stack := ds.NewStack[*V]()
-
-	sccs := []SCC[V]{}
 	att := map[*V]*tjSCC{}
+	sccs := []SCC[V]{}
 
 	for v := range g.E {
 		att[v] = &tjSCC{}
@@ -179,99 +166,60 @@ func SCCTarjan[V ds.Item](g *ds.G[V]) ([]SCC[V], error) {
 	// of tjAttrs.index (0) can indicate an unvisited vertex
 	i := 1
 
-	visit := func(root *V) {
-		calls.Push(root)
+	visit = func(vtx *V) {
+		att[vtx].index = i
+		att[vtx].lowIndex = i
 
-		for !calls.Empty() {
-			vtx, _ := calls.Peek()
+		stack.Push(vtx)
+		att[vtx].onStack = true
 
-			// vertex is being discovered
-			// assign a new index to it
-			if att[vtx].index == 0 {
-				att[vtx].index = i
-				att[vtx].lowIndex = i
+		i++
 
-				stack.Push(vtx)
-				att[vtx].onStack = true
+		for _, e := range g.E[vtx] {
+			if att[e.Dst].index == 0 {
+				visit(e.Dst)
 
-				i++
+				att[vtx].lowIndex = min(
+					att[vtx].lowIndex,
+					att[e.Dst].lowIndex,
+				)
+			} else if att[e.Dst].onStack {
+				// can't use the low index of e.Dst since it is on the stack,
+				// and as such, not in vtx's subtree: using the index
+				// is the best we can do since we know vtx can reach e.Dst
+				att[vtx].lowIndex = min(
+					att[vtx].lowIndex,
+					att[e.Dst].index,
+				)
 			}
+		}
 
-			// if vtx is waiting for a result from a child,
-			// retrieve the low index of that child and then
-			// compare with your own low index
-			if att[vtx].waiting {
-				// adj list for the current vertex
-				adj := g.E[vtx]
+		// root of an SCC, otherwise do not pop anything
+		if att[vtx].lowIndex == att[vtx].index {
+			scc := SCC[V]{}
 
-				// index of the pending child
-				idx := att[vtx].next - 1
+			// every vertex that is currently on the stack
+			// is a part of the SCC where vtx is the root,
+			// so we pop until we find vtx
+			for !stack.Empty() {
+				w, _ := stack.Pop()
+				att[w].onStack = false
 
-				// pending child
-				child := adj[idx].Dst
+				scc = append(scc, w)
 
-				att[vtx].lowIndex = min(att[vtx].lowIndex, att[child].lowIndex)
-				att[vtx].waiting = false
-			}
-
-			// finished exploring adj
-			if att[vtx].next >= len(g.E[vtx]) {
-				calls.Pop()
-
-				// root of an SCC, otherwise do not pop anything
-				if att[vtx].lowIndex == att[vtx].index {
-					scc := SCC[V]{}
-
-					// every vertex that is currently on the stack
-					// is a part of the SCC where vtx is the root,
-					// so we pop until we find vtx
-					for !stack.Empty() {
-						w, _ := stack.Pop()
-						att[w].onStack = false
-
-						scc = append(scc, w)
-
-						if w == vtx {
-							break
-						}
-					}
-
-					sccs = append(sccs, scc)
-				}
-
-				continue
-			}
-
-			// visit adjacent vertices
-			for i := att[vtx].next; i < len(g.E[vtx]); i++ {
-				e := g.E[vtx][i]
-				att[vtx].next++
-
-				// will need to wait for the adjacent
-				// vertex to have its low index calculated,
-				// then it can be used to update vtx's
-				if att[e.Dst].index == 0 {
-					calls.Push(e.Dst)
-					att[vtx].waiting = true
+				if w == vtx {
 					break
-				} else if att[e.Dst].onStack {
-					// can't use the low index of e.Dst since it is on the stack,
-					// and as such, not in vtx's subtree: using the index
-					// is the best we can do since we know vtx can reach e.Dst
-					att[vtx].lowIndex = min(att[vtx].lowIndex, att[e.Dst].index)
 				}
 			}
+
+			sccs = append(sccs, scc)
 		}
 	}
 
 	for _, vert := range g.V {
-		root := vert.Ptr
-
-		if att[root].index != 0 {
-			continue
+		if att[vert.Ptr].index == 0 {
+			visit(vert.Ptr)
 		}
-
-		visit(root)
 	}
 
 	return sccs, nil

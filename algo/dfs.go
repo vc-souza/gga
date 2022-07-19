@@ -10,8 +10,6 @@ the attributes produced by a DFS, for a particular vertex. At the end of the DFS
 vertex is part of one of the DF trees in the DF forest produced by the algorithm.
 */
 type DFNode[V ds.Item] struct {
-	iDFS
-
 	// Discovery records when the vertex was marked as discovered.
 	Discovery int
 
@@ -26,6 +24,8 @@ type DFNode[V ds.Item] struct {
 		After a DFS, every root of a DF tree in the DF forest will have a nil Parent.
 	*/
 	Parent *V
+
+	visited bool
 }
 
 /*
