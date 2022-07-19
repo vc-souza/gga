@@ -11,11 +11,11 @@ type dsfNode[T any] struct {
 DSetForest is a Disjoint-Set Forest implementation for the DSet interface,
 using both the union-by-rank and path compression heuristics. Due to these
 heuristics, a sequence of m operations on a DSetForest - with n of them
-being calls to MakeSet - has a total amortized running time of O(mα(n)).
+being calls to MakeSet - has a total amortized running time of O(m α(n)).
 
 The function α(n) is the inverse of the Ackermann function, and grows extremely
 slowly, with α(n) == 4 for pretty much any practical value of n, which makes
-O(mα(n)) asymptotically superlinear, ω(m), but close to linear in practice.
+O(m α(n)) asymptotically superlinear, ω(m), but close to linear in practice.
 */
 type DSetForest[T any] map[*T]*dsfNode[T]
 

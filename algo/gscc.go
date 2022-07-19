@@ -22,8 +22,6 @@ is reduced by one after each SCC that is examined, which would not change
 the worst-case space complexity of this step, O(V), but might end up yielding
 better constant factors in the end.
 
-Link: https://en.wikipedia.org/wiki/Strongly_connected_component#Definitions
-
 Expectations:
 	- The graph is correctly built.
 	- The graph is directed.

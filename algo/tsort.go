@@ -13,8 +13,6 @@ such that, for every edge (u,v) vertex u appears before vertex v in the final or
 This algorithm is a simplified version of a DFS, with the addition of a linked list that stores the
 ordering of the vertices, which is appended to - at the head - after each vertex is fully explored.
 
-Link: https://en.wikipedia.org/wiki/Topological_sorting
-
 Expectations:
 	- The graph is correctly built.
 	- The graph is directed.

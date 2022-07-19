@@ -14,6 +14,14 @@ type CC[V ds.Item] []*V
 
 /*
 TODO: docs
+
+Expectations:
+	- The graph is correctly built.
+	- The graph is undirected.
+
+Complexity:
+	- Time:  Θ(V + E)
+	- Space: Θ(V)
 */
 func CCDFS[V ds.Item](g *ds.G[V]) ([]CC[V], error) {
 	if g.Directed() {
@@ -68,21 +76,29 @@ func CCDFS[V ds.Item](g *ds.G[V]) ([]CC[V], error) {
 
 /*
 TODO: docs
+
+Expectations:
+	- The graph is correctly built.
+	- The graph is undirected.
+
+Complexity:
+	- Time:  O((V + E) α(V)), amortized
+	- Space: Θ(V)
 */
 func CCUnionFind[V ds.Item](g *ds.G[V]) ([]CC[V], error) {
 	if g.Directed() {
 		return nil, ds.ErrUndefOp
 	}
 
-	d := ds.NewDSet[V]()
 	sets := map[*V]CC[V]{}
+	d := ds.NewDSet[V]()
 
-	for _, vtx := range g.V {
-		d.MakeSet(vtx.Ptr)
+	for v := range g.E {
+		d.MakeSet(v)
 	}
 
-	for _, vtx := range g.V {
-		for _, e := range g.E[vtx.Ptr] {
+	for _, es := range g.E {
+		for _, e := range es {
 			if d.FindSet(e.Src) != d.FindSet(e.Dst) {
 				d.Union(e.Src, e.Dst)
 			}
@@ -90,9 +106,7 @@ func CCUnionFind[V ds.Item](g *ds.G[V]) ([]CC[V], error) {
 	}
 
 	for v := range g.E {
-		set := d.FindSet(v)
-		sets[set] = append(sets[set], v)
-
+		sets[d.FindSet(v)] = append(sets[d.FindSet(v)], v)
 	}
 
 	ccs := []CC[V]{}

@@ -35,8 +35,6 @@ that order), and each DF tree in the forest will correspond to an SCC of the tra
 Since a graph and its transpose share the same SCCs, after the second DFS, the
 algorithm will have found the SCCs of the original graph.
 
-Link: https://en.wikipedia.org/wiki/Kosaraju%27s_algorithm
-
 Expectations:
 	- The graph is correctly built.
 	- The graph is directed.
@@ -156,8 +154,6 @@ is an SCC rooted at the vertex.
 An important property of Tarjan's algorithm is that the SCCs are discovered
 in reverse topological order of the condensation graph of the input, which
 is a DAG obtained by contracting every vertex in a SCC into a single vertex.
-
-Link: https://en.wikipedia.org/wiki/Tarjan%27s_strongly_connected_components_algorithm
 
 Expectations:
 	- The graph is correctly built.

@@ -51,8 +51,6 @@ Given a graph and a source vertex, BFS explores all vertices that are reachable 
 result being a Breadth-First tree rooted at the source. The search explores all non-explored vertices at a
 certain distance d from the source before moving on to the vertices at distance d+1, working in "waves".
 
-Link: https://en.wikipedia.org/wiki/Breadth-first_search
-
 Expectations:
 	- The graph is correctly built.
 	- The source vertex exists.
