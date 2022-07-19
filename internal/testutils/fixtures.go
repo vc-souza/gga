@@ -22,6 +22,9 @@ var UDGDress = LoadFixture("testdata/graphs/clrs_22_7.gga")
 // Unweighted Undirected Graph with simple layout.
 var UUGSimple = LoadFixture("testdata/graphs/clrs_22_3.gga")
 
+// Unweighted Undirected Graph that is not fully connected.
+var UUGDisc = LoadFixture("testdata/graphs/clrs_21_1_a.gga")
+
 // LoadFixture loads a fixture from a file
 func LoadFixture(path string) string {
 	bs, err := fixFS.ReadFile(path)

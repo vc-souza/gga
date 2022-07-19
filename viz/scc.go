@@ -9,9 +9,9 @@ import (
 
 /*
 SCCViz formats and exports a graph after an execution of any algorithm that discovers
-the strongly connected components of a graph. The output of the algorithm is traversed,
-and hooks are provided so that custom formatting can be applied to the graph,
-its vertices and edges.
+the strongly connected components of a directed graph. The output of the algorithm
+is traversed, and hooks are provided so that custom formatting can be applied to
+the graph, its vertices and edges.
 */
 type SCCViz[V ds.Item] struct {
 	ThemedGraphViz[V]
@@ -49,10 +49,8 @@ func (vi *SCCViz[V]) Traverse() error {
 	sets := map[*V]int{}
 
 	for i, scc := range vi.SCCs {
-		cc := i + 1
-
 		for _, v := range scc {
-			sets[v] = cc
+			sets[v] = i
 
 			vtx, _, ok := vi.Graph.GetVertex(v)
 
@@ -60,7 +58,7 @@ func (vi *SCCViz[V]) Traverse() error {
 				return errors.New("could not find vertex")
 			}
 
-			vi.OnSCCVertex(vtx, cc)
+			vi.OnSCCVertex(vtx, i)
 		}
 	}
 
