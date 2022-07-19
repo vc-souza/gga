@@ -28,7 +28,7 @@ func TestTSortViz(t *testing.T) {
 		vCount++
 	}
 
-	vi.OnOrderEdge = func(d *ds.GE[ds.Text], b bool) {
+	vi.OnOrderEdge = func(_ *ds.GE[ds.Text], b bool) {
 		if b {
 			eExitsCount++
 		} else {
