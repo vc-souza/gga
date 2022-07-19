@@ -13,7 +13,18 @@ type CCAlgo[V ds.Item] func(*ds.G[V]) ([]CC[V], error)
 type CC[V ds.Item] []*V
 
 /*
-TODO: docs
+CCDFS implements an algorithm for finding the connected components of an undirected graph
+by using a single DFS that returns each DF tree in the DF forest as a connected component.
+
+The DFS approach is better suited for static graphs: when the sets of vertices and edges
+do not change over time. In this scenario, CCDFS has an asymptotically better time
+complexity (linear) than the disjoint-set implementation, CCUnionFind (superlinear).
+
+However, if the graph is dynamic, CCUnionFind will do a better job over time, since CCDFS
+would need to be executed every time the graph changes - Θ(V + E) -, while CCUnionFind
+would only need to be executed once - O((V + E) α(V)), amortized -, and its disjoint-set
+data structure would need to be updated after every graph change, with each disjoint-set
+operation taking O(α(V)) amortized time.
 
 Expectations:
 	- The graph is correctly built.
