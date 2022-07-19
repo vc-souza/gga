@@ -74,5 +74,32 @@ func CCUnionFind[V ds.Item](g *ds.G[V]) ([]CC[V], error) {
 		return nil, ds.ErrUndefOp
 	}
 
-	return nil, nil
+	d := ds.NewDSet[V]()
+	sets := map[*V]CC[V]{}
+
+	for _, vtx := range g.V {
+		d.MakeSet(vtx.Ptr)
+	}
+
+	for _, vtx := range g.V {
+		for _, e := range g.E[vtx.Ptr] {
+			if d.FindSet(e.Src) != d.FindSet(e.Dst) {
+				d.Union(e.Src, e.Dst)
+			}
+		}
+	}
+
+	for v := range g.E {
+		set := d.FindSet(v)
+		sets[set] = append(sets[set], v)
+
+	}
+
+	ccs := []CC[V]{}
+
+	for _, cc := range sets {
+		ccs = append(ccs, cc)
+	}
+
+	return ccs, nil
 }
