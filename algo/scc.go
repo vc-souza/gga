@@ -48,12 +48,14 @@ func SCCKosaraju[V ds.Item](g *ds.G[V]) ([]SCC[V], error) {
 		return nil, ds.ErrUndefOp
 	}
 
-	calls := ds.NewStack[*V](g.VertexCount())
+	var visit func(*V)
+	var scc *SCC[V]
+
 	sccs := []SCC[V]{}
-	attr := map[*V]*iDFS{}
+	visited := map[*V]bool{}
 
 	for v := range g.E {
-		attr[v] = &iDFS{}
+		visited[v] = false
 	}
 
 	// Θ(V + E)
@@ -70,37 +72,28 @@ func SCCKosaraju[V ds.Item](g *ds.G[V]) ([]SCC[V], error) {
 		return nil, err
 	}
 
+	visit = func(vtx *V) {
+		visited[vtx] = true
+
+		for _, e := range tg.E[vtx] {
+			if !visited[e.Dst] {
+				visit(e.Dst)
+			}
+		}
+
+		*scc = append(*scc, vtx)
+	}
+
 	for _, v := range ord {
-		if attr[v].visited {
+		if visited[v] {
 			continue
 		}
 
-		scc := SCC[V]{}
+		scc = &SCC[V]{}
 
-		calls.Push(v)
+		visit(v)
 
-		for !calls.Empty() {
-			vtx, _ := calls.Peek()
-			attr[vtx].visited = true
-
-			if attr[vtx].next >= len(tg.E[vtx]) {
-				calls.Pop()
-				scc = append(scc, vtx)
-				continue
-			}
-
-			for i := attr[vtx].next; i < len(tg.E[vtx]); i++ {
-				e := tg.E[vtx][i]
-				attr[vtx].next++
-
-				if !attr[e.Dst].visited {
-					calls.Push(e.Dst)
-					break
-				}
-			}
-		}
-
-		sccs = append(sccs, scc)
+		sccs = append(sccs, *scc)
 	}
 
 	return sccs, nil
@@ -170,10 +163,10 @@ func SCCTarjan[V ds.Item](g *ds.G[V]) ([]SCC[V], error) {
 
 	// stack that simulates the call stack
 	// necessary for the iterative version
-	calls := ds.NewStack[*V](g.VertexCount())
+	calls := ds.NewStack[*V]()
 
 	// stack used by Tarjan's algorithm
-	stack := ds.NewStack[*V](0)
+	stack := ds.NewStack[*V]()
 
 	sccs := []SCC[V]{}
 	att := map[*V]*tjSCC{}

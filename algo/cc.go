@@ -49,16 +49,16 @@ func CCDFS[V ds.Item](g *ds.G[V]) ([]CC[V], error) {
 		visited[v] = false
 	}
 
-	visit = func(root *V) {
-		visited[root] = true
+	visit = func(vtx *V) {
+		visited[vtx] = true
 
-		for _, e := range g.E[root] {
+		for _, e := range g.E[vtx] {
 			if !visited[e.Dst] {
 				visit(e.Dst)
 			}
 		}
 
-		*cc = append(*cc, root)
+		*cc = append(*cc, vtx)
 	}
 
 	for _, vert := range g.V {

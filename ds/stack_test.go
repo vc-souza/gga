@@ -9,7 +9,7 @@ import (
 func TestStackPush(t *testing.T) {
 	var item int
 
-	s := NewStack[int](0)
+	s := NewStack[int]()
 
 	s.Push(1, 2, 3)
 
@@ -24,7 +24,7 @@ func TestStackPush(t *testing.T) {
 }
 
 func TestStackEmpty(t *testing.T) {
-	s := NewStack[int](0)
+	s := NewStack[int]()
 
 	ut.Equal(t, true, s.Empty())
 
@@ -37,7 +37,7 @@ func TestStackPeek(t *testing.T) {
 	var item int
 	var ok bool
 
-	s := NewStack[int](0)
+	s := NewStack[int]()
 
 	_, ok = s.Peek()
 	ut.Equal(t, false, ok)
@@ -62,7 +62,7 @@ func TestStackPeek(t *testing.T) {
 }
 
 func TestStackPeek_empty(t *testing.T) {
-	s := NewStack[int](0)
+	s := NewStack[int]()
 
 	ut.Equal(t, true, s.Empty())
 
@@ -74,7 +74,7 @@ func TestStackPop(t *testing.T) {
 	var item int
 	var ok bool
 
-	s := NewStack[int](0)
+	s := NewStack[int]()
 
 	ut.Equal(t, true, s.Empty())
 
@@ -98,7 +98,7 @@ func TestStackPop(t *testing.T) {
 }
 
 func TestStackPop_empty(t *testing.T) {
-	s := NewStack[int](0)
+	s := NewStack[int]()
 
 	ut.Equal(t, true, s.Empty())
 

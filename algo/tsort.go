@@ -26,47 +26,37 @@ func TSort[V ds.Item](g *ds.G[V]) ([]*V, error) {
 		return nil, ds.ErrUndefOp
 	}
 
+	var visit func(*V)
+
 	count := g.VertexCount()
 	ordIdx := count - 1
 
 	ord := make([]*V, count)
-	calls := ds.NewStack[*V](count)
-	attr := map[*V]*iDFS{}
+	visited := map[*V]bool{}
 
 	for v := range g.E {
-		attr[v] = &iDFS{}
+		visited[v] = false
+	}
+
+	visit = func(vtx *V) {
+		visited[vtx] = true
+
+		for _, e := range g.E[vtx] {
+			if !visited[e.Dst] {
+				visit(e.Dst)
+			}
+		}
+
+		ord[ordIdx] = vtx
+		ordIdx--
 	}
 
 	for _, vert := range g.V {
-		if attr[vert.Ptr].visited {
+		if visited[vert.Ptr] {
 			continue
 		}
 
-		calls.Push(vert.Ptr)
-
-		for !calls.Empty() {
-			vtx, _ := calls.Peek()
-			attr[vtx].visited = true
-
-			if attr[vtx].next >= len(g.E[vtx]) {
-				calls.Pop()
-
-				ord[ordIdx] = vtx
-				ordIdx--
-
-				continue
-			}
-
-			for i := attr[vtx].next; i < len(g.E[vtx]); i++ {
-				e := g.E[vtx][i]
-				attr[vtx].next++
-
-				if !attr[e.Dst].visited {
-					calls.Push(e.Dst)
-					break
-				}
-			}
-		}
+		visit(vert.Ptr)
 	}
 
 	return ord, nil

@@ -103,7 +103,7 @@ Expectations:
 Complexity:
 	- Time:  Θ(V + E)
 	- Space (without edge classification): Θ(V)
-	- Space (wit edge classification): O(V + E)
+	- Space (wit edge classification): Θ(V) + O(E)
 */
 func DFS[V ds.Item](g *ds.G[V], classify bool) (DFForest[V], *EdgeTypes[V], error) {
 	var visit func(*V)
@@ -116,8 +116,6 @@ func DFS[V ds.Item](g *ds.G[V], classify bool) (DFForest[V], *EdgeTypes[V], erro
 		fst[v] = &DFNode[V]{}
 	}
 
-	// build a DF tree rooted at the vertex being visited;
-	// the tree will be a part of the DF forest
 	visit = func(vtx *V) {
 		t++
 
@@ -136,9 +134,7 @@ func DFS[V ds.Item](g *ds.G[V], classify bool) (DFForest[V], *EdgeTypes[V], erro
 					classifyUndirectedEdge(fst, tps, e)
 				}
 			} else {
-				// found a tree edge
 				fst[e.Dst].Parent = vtx
-
 				visit(e.Dst)
 			}
 		}
@@ -148,18 +144,10 @@ func DFS[V ds.Item](g *ds.G[V], classify bool) (DFForest[V], *EdgeTypes[V], erro
 		fst[vtx].Finish = t
 	}
 
-	// if a vertex is not included in a tree during a call to the 'tree'
-	// function, then it could be picked as the root of the next tree:
-	// by iterating over all unvisited vertices, we assure that no
-	// vertex will be left without being assign to a DF tree, even
-	// if its tree ends up only containing the vertex itself.
 	for _, vert := range g.V {
-		// skip: already part of another tree
-		if fst[vert.Ptr].visited {
-			continue
+		if !fst[vert.Ptr].visited {
+			visit(vert.Ptr)
 		}
-
-		visit(vert.Ptr)
 	}
 
 	return fst, tps, nil
