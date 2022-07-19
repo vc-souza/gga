@@ -93,7 +93,8 @@ disjoint sets, the sets are merged.
 
 The "Union-Find" approach is better suited for dynamic graphs, where the sets of vertices and edges
 change over time, with the disjoint-set data structure being manipulated to update already calculated
-connected components, which makes it possible for the algorithm to be run only once per graph.
+connected components (O(α(V)) amortized time per operation), which makes it possible for the algorithm
+to be executed only once per graph.
 
 For static graphs, however, CCUnionFind has an asymptotically worse time complexity than CCDFS:
 CCUnionFind is O((V + E) α(V)), amortized (superlinear), while CCDFS is Θ(V + E) (linear).
