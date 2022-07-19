@@ -14,15 +14,15 @@ func TestQueueEnqueue(t *testing.T) {
 
 	q.Enqueue(1, 2, 3)
 
-	item, ok = q.(*Deque[int]).Get(0)
+	item, ok = q.(*LLQueue[int]).get(0)
 	ut.Equal(t, true, ok)
 	ut.Equal(t, 1, item)
 
-	item, ok = q.(*Deque[int]).Get(1)
+	item, ok = q.(*LLQueue[int]).get(1)
 	ut.Equal(t, true, ok)
 	ut.Equal(t, 2, item)
 
-	item, ok = q.(*Deque[int]).Get(2)
+	item, ok = q.(*LLQueue[int]).get(2)
 	ut.Equal(t, true, ok)
 	ut.Equal(t, 3, item)
 }
@@ -84,9 +84,40 @@ func TestQueueDequeue_wrong_type(t *testing.T) {
 	q := NewQueue[int]()
 
 	// forcefully adding an item with wrong type
-	if d, ok := q.(*Deque[int]); ok {
+	if d, ok := q.(*LLQueue[int]); ok {
 		d.PushBack("wrong")
 	}
 
 	q.Dequeue()
+}
+
+func TestLLQueueGet(t *testing.T) {
+	d := new(LLQueue[int])
+
+	d.PushFront(3)
+
+	v, ok := d.get(0)
+	ut.Equal(t, true, ok)
+	ut.Equal(t, 3, v)
+}
+
+func TestLLQueueGet_invalid(t *testing.T) {
+	d := new(LLQueue[int])
+
+	_, ok := d.get(-1)
+	ut.Equal(t, false, ok)
+}
+
+func TestLLQueueGet_wrong_type(t *testing.T) {
+	defer func() {
+		if err := recover(); err == nil {
+			t.Log("function did not panic")
+			t.FailNow()
+		}
+	}()
+
+	d := new(LLQueue[int])
+
+	d.PushBack("wrong")
+	d.get(0)
 }

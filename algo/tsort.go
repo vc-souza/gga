@@ -30,7 +30,7 @@ func TSort[V ds.Item](g *ds.G[V]) ([]*V, error) {
 	ordIdx := count - 1
 
 	ord := make([]*V, count)
-	calls := ds.NewStack[*V]()
+	calls := ds.NewStack[*V](count)
 	attr := map[*V]*iDFS{}
 
 	for v := range g.E {

@@ -48,7 +48,7 @@ func SCCKosaraju[V ds.Item](g *ds.G[V]) ([]SCC[V], error) {
 		return nil, ds.ErrUndefOp
 	}
 
-	calls := ds.NewStack[*V]()
+	calls := ds.NewStack[*V](g.VertexCount())
 	sccs := []SCC[V]{}
 	attr := map[*V]*iDFS{}
 
@@ -168,12 +168,14 @@ func SCCTarjan[V ds.Item](g *ds.G[V]) ([]SCC[V], error) {
 		return nil, ds.ErrUndefOp
 	}
 
+	count := g.VertexCount()
+
 	// stack that simulates the call stack
 	// necessary for the iterative version
-	calls := ds.NewStack[*V]()
+	calls := ds.NewStack[*V](count)
 
 	// stack used by Tarjan's algorithm
-	stack := ds.NewStack[*V]()
+	stack := ds.NewStack[*V](count)
 
 	sccs := []SCC[V]{}
 	att := map[*V]*tjSCC{}
@@ -217,7 +219,7 @@ func SCCTarjan[V ds.Item](g *ds.G[V]) ([]SCC[V], error) {
 				// pending child
 				child := adj[idx].Dst
 
-				att[vtx].lowIndex = Min(att[vtx].lowIndex, att[child].lowIndex)
+				att[vtx].lowIndex = min(att[vtx].lowIndex, att[child].lowIndex)
 				att[vtx].waiting = false
 			}
 
@@ -265,7 +267,7 @@ func SCCTarjan[V ds.Item](g *ds.G[V]) ([]SCC[V], error) {
 					// can't use the low index of e.Dst since it is on the stack,
 					// and as such, not in vtx's subtree: using the index
 					// is the best we can do since we know vtx can reach e.Dst
-					att[vtx].lowIndex = Min(att[vtx].lowIndex, att[e.Dst].index)
+					att[vtx].lowIndex = min(att[vtx].lowIndex, att[e.Dst].index)
 				}
 			}
 		}

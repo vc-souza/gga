@@ -40,7 +40,10 @@ func CCDFS[V ds.Item](g *ds.G[V]) ([]CC[V], error) {
 	}
 
 	ccs := []CC[V]{}
-	calls := ds.NewStack[*V]()
+	// calls := ds.NewStack[*V]()
+	// calls := ds.Stack[*V](ds.NewSliceStack[*V](g.VertexCount()))
+	slc := ds.SliceStack[*V](make([]*V, 0, g.VertexCount()))
+	calls := ds.Stack[*V](&(slc))
 	attr := map[*V]*iDFS{}
 
 	for v := range g.E {

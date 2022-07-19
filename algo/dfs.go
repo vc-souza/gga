@@ -106,7 +106,7 @@ Complexity:
 	- Space (wit edge classification): O(V + E)
 */
 func DFS[V ds.Item](g *ds.G[V], classify bool) (DFForest[V], *EdgeTypes[V], error) {
-	calls := ds.NewStack[*V]()
+	calls := ds.NewStack[*V](g.VertexCount())
 	fst := DFForest[V]{}
 	tps := &EdgeTypes[V]{}
 

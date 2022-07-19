@@ -18,8 +18,8 @@ type iDFS struct {
 	next    int
 }
 
-// Min returns the minimum value between its integer inputs.
-func Min(a, b int) int {
+// min returns the minimum value between its integer inputs.
+func min(a, b int) int {
 	if a <= b {
 		return a
 	} else {
