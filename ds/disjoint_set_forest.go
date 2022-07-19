@@ -8,29 +8,29 @@ type dsfNode[T any] struct {
 }
 
 /*
-DisjointSetForest is a Disjoint-Set Forest implementation for the DisjointSet interface,
-using both the union-by-rank and path compression heuristics. Due to these heuristics,
-a sequence of m operations on a DisjointSetForest - with n of them being calls
-to MakeSet - has a total amortized running time of O(mα(n)).
+DSetForest is a Disjoint-Set Forest implementation for the DSet interface,
+using both the union-by-rank and path compression heuristics. Due to these
+heuristics, a sequence of m operations on a DSetForest - with n of them
+being calls to MakeSet - has a total amortized running time of O(mα(n)).
 
 The function α(n) is the inverse of the Ackermann function, and grows extremely
 slowly, with α(n) == 4 for pretty much any practical value of n, which makes
-O(mα(n)) asymptotically superlinear, ω(m), but very close to linear in practice.
+O(mα(n)) asymptotically superlinear, ω(m), but close to linear in practice.
 */
-type DisjointSetForest[T any] map[*T]*dsfNode[T]
+type DSetForest[T any] map[*T]*dsfNode[T]
 
-// NewDisjointSet returns a new DisjointSet, using a Disjoint-Set Forest implementation.
-func NewDisjointSet[T any]() DisjointSet[T] {
-	return DisjointSet[T](&DisjointSetForest[T]{})
+// NewDSet returns a new DSet, using a Disjoint-Set Forest implementation.
+func NewDSet[T any]() DSet[T] {
+	return DSet[T](&DSetForest[T]{})
 }
 
-func (f DisjointSetForest[T]) MakeSet(x *T) {
+func (f DSetForest[T]) MakeSet(x *T) {
 	node := &dsfNode[T]{ptr: x}
 	node.parent = node
 	f[x] = node
 }
 
-func (f DisjointSetForest[T]) FindSet(x *T) *T {
+func (f DSetForest[T]) FindSet(x *T) *T {
 	node := f[x]
 
 	if node.parent == node {
@@ -42,12 +42,12 @@ func (f DisjointSetForest[T]) FindSet(x *T) *T {
 	return node.parent.ptr
 }
 
-func (f DisjointSetForest[T]) Union(x, y *T) {
+func (f DSetForest[T]) Union(x, y *T) {
 	f.link(f.FindSet(x), f.FindSet(y))
 }
 
-// union-by-rank heuristic
-func (f DisjointSetForest[T]) link(x, y *T) {
+// link implements the union-by-rank heuristic.
+func (f DSetForest[T]) link(x, y *T) {
 	parent := f[y]
 	child := f[x]
 
@@ -62,8 +62,8 @@ func (f DisjointSetForest[T]) link(x, y *T) {
 	}
 }
 
-// path compression heuristic
-func (f DisjointSetForest[T]) compress(node *dsfNode[T]) {
+// compress implements the path compression heuristic.
+func (f DSetForest[T]) compress(node *dsfNode[T]) {
 	root := node
 
 	for root.parent != root {
