@@ -26,6 +26,8 @@ type BFNode[V ds.Item] struct {
 		After a BFS, both the source and all unreachable vertices have a nil Parent.
 	*/
 	Parent *V
+
+	visited bool
 }
 
 /*
@@ -49,8 +51,6 @@ Given a graph and a source vertex, BFS explores all vertices that are reachable 
 result being a Breadth-First tree rooted at the source. The search explores all non-explored vertices at a
 certain distance d from the source before moving on to the vertices at distance d+1, working in "waves".
 
-Link: https://en.wikipedia.org/wiki/Breadth-first_search
-
 Expectations:
 	- The graph is correctly built.
 	- The source vertex exists.
@@ -59,35 +59,33 @@ Complexity:
 	- Time:  Θ(V + E)
 	- Space: Θ(V)
 */
-func BFS[V ds.Item](g *ds.Graph[V], src *V) (BFTree[V], error) {
+func BFS[V ds.Item](g *ds.G[V], src *V) (BFTree[V], error) {
 	queue := ds.NewQueue[*V]()
-
-	visited := map[*V]bool{}
 	tree := BFTree[V]{}
 
-	for v := range g.Adj {
+	for v := range g.E {
 		tree[v] = &BFNode[V]{
 			Distance: math.Inf(1),
 		}
 	}
 
 	tree[src].Distance = 0
-	visited[src] = true
+	tree[src].visited = true
 
 	queue.Enqueue(src)
 
 	for !queue.Empty() {
 		curr, _ := queue.Dequeue()
 
-		for _, edge := range g.Adj[curr] {
-			if visited[edge.Dst] {
+		for _, edge := range g.E[curr] {
+			if tree[edge.Dst].visited {
 				continue
 			}
 
 			// found a tree edge
 			tree[edge.Dst].Distance = tree[curr].Distance + 1
 			tree[edge.Dst].Parent = curr
-			visited[edge.Dst] = true
+			tree[edge.Dst].visited = true
 
 			queue.Enqueue(edge.Dst)
 		}

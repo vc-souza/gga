@@ -9,7 +9,7 @@ import (
 )
 
 func TestSCCViz(t *testing.T) {
-	g, _, err := ds.NewTextParser().Parse(ut.UDGDeps)
+	g, _, err := ds.Parse(ut.UDGDeps)
 
 	ut.Equal(t, true, err == nil)
 
@@ -23,15 +23,15 @@ func TestSCCViz(t *testing.T) {
 	sECount := 0
 	cECount := 0
 
-	vi.OnSCCVertex = func(v *ds.GraphVertex[ds.Text], c int) {
+	vi.OnSCCVertex = func(*ds.GV[ds.Text], int) {
 		vCount++
 	}
 
-	vi.OnSCCEdge = func(e *ds.GraphEdge[ds.Text], c int) {
+	vi.OnSCCEdge = func(*ds.GE[ds.Text], int) {
 		sECount++
 	}
 
-	vi.OnCrossSCCEdge = func(e *ds.GraphEdge[ds.Text], cSrc, cDst int) {
+	vi.OnCrossSCCEdge = func(*ds.GE[ds.Text], int, int) {
 		cECount++
 	}
 

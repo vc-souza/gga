@@ -17,8 +17,8 @@ const (
 	fileOut = "BFS-after.dot"
 )
 
-func input() (*ds.Graph[ds.Text], *ds.Text) {
-	g, vars, err := ds.NewTextParser().Parse(ut.UUGSimple + "\na#")
+func input() (*ds.G[ds.Text], *ds.Text) {
+	g, vars, err := ds.Parse(ut.UUGSimple + "\na#")
 
 	if err != nil {
 		panic(err)
@@ -27,7 +27,7 @@ func input() (*ds.Graph[ds.Text], *ds.Text) {
 	return g, vars["s"]
 }
 
-func exportStart(g *ds.Graph[ds.Text]) {
+func exportStart(g *ds.G[ds.Text]) {
 	fIn, err := os.Create(fileIn)
 
 	if err != nil {
@@ -66,22 +66,22 @@ func main() {
 
 	vi := viz.NewBFSViz(g, tree, src, viz.Themes.LightBreeze)
 
-	vi.OnTreeVertex = func(v *ds.GraphVertex[ds.Text], n *algo.BFNode[ds.Text]) {
+	vi.OnTreeVertex = func(v *ds.GV[ds.Text], n *algo.BFNode[ds.Text]) {
 		v.SetFmtAttr("label", fmt.Sprintf(`{ %s | d = %d }`, v.Label(), int(n.Distance)))
 	}
 
-	vi.OnSourceVertex = func(v *ds.GraphVertex[ds.Text], n *algo.BFNode[ds.Text]) {
+	vi.OnSourceVertex = func(v *ds.GV[ds.Text], n *algo.BFNode[ds.Text]) {
 		v.SetFmtAttr("label", fmt.Sprintf(`{ %s | source }`, v.Label()))
 		v.SetFmtAttr("penwidth", "1.7")
 		v.SetFmtAttr("color", "#000000")
 	}
 
-	vi.OnUnVertex = func(v *ds.GraphVertex[ds.Text], n *algo.BFNode[ds.Text]) {
+	vi.OnUnVertex = func(v *ds.GV[ds.Text], n *algo.BFNode[ds.Text]) {
 		v.SetFmtAttr("label", fmt.Sprintf(`{ %s | ∞ }`, v.Label()))
 		v.SetFmtAttr("fillcolor", "#ED2839")
 	}
 
-	vi.OnTreeEdge = func(e *ds.GraphEdge[ds.Text]) {
+	vi.OnTreeEdge = func(e *ds.GE[ds.Text]) {
 		e.SetFmtAttr("penwidth", "3.0")
 	}
 

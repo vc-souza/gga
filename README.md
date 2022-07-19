@@ -41,13 +41,21 @@ Examples can be found in the [samples](/internal/samples) folder.
 ##### After
 ![after](/res/img/tsort/after.svg)
 
+### [Connected Components (Undirected)](/algo/cc.go)
+
+##### Before
+![before](/res/img/cc/before.svg)
+
+##### After
+![after](/res/img/cc/after.svg)
+
 ### [Strongly Connected Components (Directed)](/algo/scc.go)
 
 ##### Before
-![before](/res/img/scc/d/before.svg)
+![before](/res/img/scc/before.svg)
 
 ##### After
-![after](/res/img/scc/d/after.svg)
+![after](/res/img/scc/after.svg)
 
 ### [Condensation Graph](/algo/gscc.go)
 

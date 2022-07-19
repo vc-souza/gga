@@ -5,14 +5,13 @@ import (
 )
 
 /*
-SCCAlgorithm describes the signature of an algorithm that can discover all
-strongly connected components in a graph. If a particular algorithm can
-only work on a particular type of graph, then undefined behavior is
-indicated by the ds.ErrUndefOp error being returned.
+SCCAlgo describes the signature of an algorithm that can discover all
+strongly connected components in a directed graph. If such an algorithm is
+called on an undirected graph, the ds.ErrUndefOp error is returned.
 */
-type SCCAlgorithm[V ds.Item] func(*ds.Graph[V]) ([]SCC[V], error)
+type SCCAlgo[V ds.Item] func(*ds.G[V]) ([]SCC[V], error)
 
-// An SCC holds the vertices in a strongly connected component of a graph.
+// An SCC holds the vertices in a strongly connected component of a directed graph.
 type SCC[V ds.Item] []*V
 
 /*
@@ -36,8 +35,6 @@ that order), and each DF tree in the forest will correspond to an SCC of the tra
 Since a graph and its transpose share the same SCCs, after the second DFS, the
 algorithm will have found the SCCs of the original graph.
 
-Link: https://en.wikipedia.org/wiki/Kosaraju%27s_algorithm
-
 Expectations:
 	- The graph is correctly built.
 	- The graph is directed.
@@ -46,16 +43,18 @@ Complexity:
 	- Time:  Θ(V + E)
 	- Space: Θ(V)
 */
-func SCCKosaraju[V ds.Item](g *ds.Graph[V]) ([]SCC[V], error) {
+func SCCKosaraju[V ds.Item](g *ds.G[V]) ([]SCC[V], error) {
 	if g.Undirected() {
 		return nil, ds.ErrUndefOp
 	}
 
 	calls := ds.NewStack[*V]()
 	sccs := []SCC[V]{}
+	attr := map[*V]*iDFS{}
 
-	visited := map[*V]bool{}
-	next := map[*V]int{}
+	for v := range g.E {
+		attr[v] = &iDFS{}
+	}
 
 	// Θ(V + E)
 	ord, err := TSort(g)
@@ -72,7 +71,7 @@ func SCCKosaraju[V ds.Item](g *ds.Graph[V]) ([]SCC[V], error) {
 	}
 
 	for _, v := range ord {
-		if visited[v] {
+		if attr[v].visited {
 			continue
 		}
 
@@ -82,19 +81,19 @@ func SCCKosaraju[V ds.Item](g *ds.Graph[V]) ([]SCC[V], error) {
 
 		for !calls.Empty() {
 			vtx, _ := calls.Peek()
-			visited[vtx] = true
+			attr[vtx].visited = true
 
-			if next[vtx] >= len(tg.Adj[vtx]) {
+			if attr[vtx].next >= len(tg.E[vtx]) {
 				calls.Pop()
 				scc = append(scc, vtx)
 				continue
 			}
 
-			for i := next[vtx]; i < len(tg.Adj[vtx]); i++ {
-				e := tg.Adj[vtx][i]
-				next[vtx]++
+			for i := attr[vtx].next; i < len(tg.E[vtx]); i++ {
+				e := tg.E[vtx][i]
+				attr[vtx].next++
 
-				if !visited[e.Dst] {
+				if !attr[e.Dst].visited {
 					calls.Push(e.Dst)
 					break
 				}
@@ -107,8 +106,8 @@ func SCCKosaraju[V ds.Item](g *ds.Graph[V]) ([]SCC[V], error) {
 	return sccs, nil
 }
 
-// tjAttrs is an auxiliary type used only by SCCTarjan.
-type tjAttrs struct {
+// tjSCC is an auxiliary type used only by SCCTarjan.
+type tjSCC struct {
 	// index represents when the vertex was first discovered.
 	index int
 
@@ -156,8 +155,6 @@ An important property of Tarjan's algorithm is that the SCCs are discovered
 in reverse topological order of the condensation graph of the input, which
 is a DAG obtained by contracting every vertex in a SCC into a single vertex.
 
-Link: https://en.wikipedia.org/wiki/Tarjan%27s_strongly_connected_components_algorithm
-
 Expectations:
 	- The graph is correctly built.
 	- The graph is directed.
@@ -166,7 +163,7 @@ Complexity:
 	- Time:  Θ(V + E)
 	- Space: Θ(V)
 */
-func SCCTarjan[V ds.Item](g *ds.Graph[V]) ([]SCC[V], error) {
+func SCCTarjan[V ds.Item](g *ds.G[V]) ([]SCC[V], error) {
 	if g.Undirected() {
 		return nil, ds.ErrUndefOp
 	}
@@ -179,10 +176,10 @@ func SCCTarjan[V ds.Item](g *ds.Graph[V]) ([]SCC[V], error) {
 	stack := ds.NewStack[*V]()
 
 	sccs := []SCC[V]{}
-	att := map[*V]*tjAttrs{}
+	att := map[*V]*tjSCC{}
 
-	for v := range g.Adj {
-		att[v] = &tjAttrs{}
+	for v := range g.E {
+		att[v] = &tjSCC{}
 	}
 
 	// using 1 as the starting point so that the zero-value
@@ -212,7 +209,7 @@ func SCCTarjan[V ds.Item](g *ds.Graph[V]) ([]SCC[V], error) {
 			// compare with your own low index
 			if att[vtx].waiting {
 				// adj list for the current vertex
-				adj := g.Adj[vtx]
+				adj := g.E[vtx]
 
 				// index of the pending child
 				idx := att[vtx].next - 1
@@ -225,7 +222,7 @@ func SCCTarjan[V ds.Item](g *ds.Graph[V]) ([]SCC[V], error) {
 			}
 
 			// finished exploring adj
-			if att[vtx].next >= len(g.Adj[vtx]) {
+			if att[vtx].next >= len(g.E[vtx]) {
 				calls.Pop()
 
 				// root of an SCC, otherwise do not pop anything
@@ -253,8 +250,8 @@ func SCCTarjan[V ds.Item](g *ds.Graph[V]) ([]SCC[V], error) {
 			}
 
 			// visit adjacent vertices
-			for i := att[vtx].next; i < len(g.Adj[vtx]); i++ {
-				e := g.Adj[vtx][i]
+			for i := att[vtx].next; i < len(g.E[vtx]); i++ {
+				e := g.E[vtx][i]
 				att[vtx].next++
 
 				// will need to wait for the adjacent
@@ -274,8 +271,8 @@ func SCCTarjan[V ds.Item](g *ds.Graph[V]) ([]SCC[V], error) {
 		}
 	}
 
-	for _, vert := range g.Verts {
-		root := vert.Val
+	for _, vert := range g.V {
+		root := vert.Ptr
 
 		if att[root].index != 0 {
 			continue

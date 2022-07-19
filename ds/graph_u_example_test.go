@@ -2,7 +2,7 @@ package ds
 
 import "fmt"
 
-func ExampleGraph_undirected() {
+func ExampleG_undirected() {
 	wt := Text("Whiterun")
 	dt := Text("Dawnstar")
 	mt := Text("Markarth")

@@ -1,0 +1,11 @@
+graph
+a#b,c
+b#a,c,d
+c#a,b
+d#b
+e#f,g
+f#e
+g#e
+h#i
+i#h
+j#

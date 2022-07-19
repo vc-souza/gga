@@ -76,13 +76,8 @@ Sample (Directed)
 */
 type TextParser struct {
 	vars    map[string]*Text
-	graph   *Graph[Text]
+	graph   *G[Text]
 	pending map[*Text]string
-}
-
-// NewTextParser creates and returns a new TextParser.
-func NewTextParser() *TextParser {
-	return &TextParser{}
 }
 
 func (p *TextParser) parseGraphType(raw string) error {
@@ -194,9 +189,9 @@ func (p *TextParser) parseAdjEntry(raw string) error {
 }
 
 // Parse parses the input string, generating a new graph.
-func (p *TextParser) Parse(s string) (*Graph[Text], map[string]*Text, error) {
-	p.vars = make(map[string]*Text)
-	p.pending = make(map[*Text]string)
+func (p *TextParser) Parse(s string) (*G[Text], map[string]*Text, error) {
+	p.vars = map[string]*Text{}
+	p.pending = map[*Text]string{}
 	p.graph = nil
 
 	for _, l := range strings.Split(s, "\n") {
@@ -226,4 +221,9 @@ func (p *TextParser) Parse(s string) (*Graph[Text], map[string]*Text, error) {
 	}
 
 	return p.graph, p.vars, nil
+}
+
+// Parse is a shorthand for creating a new TextParser and then using it to parse the input.
+func Parse(s string) (*G[Text], map[string]*Text, error) {
+	return (&TextParser{}).Parse(s)
 }

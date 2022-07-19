@@ -13,12 +13,17 @@ import (
 )
 
 const (
-	fileIn  = "TSort-before.dot"
-	fileOut = "TSort-after.dot"
+	fileIn  = "CC-before.dot"
+	fileOut = "CC-after.dot"
 )
 
+var algos = map[string]algo.CCAlgo[ds.Text]{
+	"union-find": algo.CCUnionFind[ds.Text],
+	"dfs":        algo.CCDFS[ds.Text],
+}
+
 func input() *ds.G[ds.Text] {
-	g, _, err := ds.Parse(ut.UDGDress)
+	g, _, err := ds.Parse(ut.UUGDisc)
 
 	if err != nil {
 		panic(err)
@@ -53,46 +58,39 @@ func exportEnd(v viz.AlgoViz[ds.Text]) {
 	}
 }
 
-type customTheme struct {
-	viz.LightBreezeTheme
-}
-
-func (t customTheme) SetGraphFmt(attrs ds.FAttrs) {
-	t.LightBreezeTheme.SetGraphFmt(attrs)
-	attrs["nodesep"] = "0.1"
-	attrs["ranksep"] = "0.2"
-}
-
 func main() {
+	if len(os.Args) < 2 {
+		panic("Too few args!")
+	}
+
+	if len(os.Args) > 2 {
+		panic("Too many args!")
+	}
+
+	f, ok := algos[os.Args[1]]
+
+	if !ok {
+		panic(fmt.Sprintf("invalid option '%s'", os.Args[1]))
+	}
+
 	g := input()
 
 	exportStart(g)
 
-	ord, err := algo.TSort(g)
+	ccs, err := f(g)
 
 	if err != nil {
 		panic(err)
 	}
 
-	vi := viz.NewTSortViz(g, ord, customTheme{})
+	vi := viz.NewCCViz(g, ccs, viz.Themes.LightBreeze)
 
-	vi.OnVertexRank = func(v *ds.GV[ds.Text], rank int) {
-		v.SetFmtAttr("label", fmt.Sprintf(`%s | %d`, v.Label(), rank))
+	vi.OnCCVertex = func(v *ds.GV[ds.Text], c int) {
+		v.SetFmtAttr("label", fmt.Sprintf(`{ %s | cc #%d }`, v.Label(), c))
 	}
 
-	vi.OnOrderEdge = func(e *ds.GE[ds.Text], exists bool) {
-		if exists {
-			return
-		}
-
-		vi.Extra = append(
-			vi.Extra,
-			fmt.Sprintf(
-				"%s -> %s [style=invis]",
-				viz.Quoted(e.Src),
-				viz.Quoted(e.Dst),
-			),
-		)
+	vi.OnCCEdge = func(e *ds.GE[ds.Text], c int) {
+		e.SetFmtAttr("penwidth", "2.0")
 	}
 
 	exportEnd(vi)

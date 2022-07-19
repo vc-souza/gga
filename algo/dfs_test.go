@@ -11,7 +11,7 @@ import (
 func TestDFS_directed(t *testing.T) {
 	for _, classify := range []bool{true, false} {
 		t.Run(fmt.Sprintf("classify: %v", classify), func(t *testing.T) {
-			g, vars, err := ds.NewTextParser().Parse(ut.UDGSimple)
+			g, vars, err := ds.Parse(ut.UDGSimple)
 
 			ut.Equal(t, true, err == nil)
 
@@ -66,7 +66,7 @@ func TestDFS_directed(t *testing.T) {
 func TestDFS_undirected(t *testing.T) {
 	for _, classify := range []bool{true, false} {
 		t.Run(fmt.Sprintf("classify: %v", classify), func(t *testing.T) {
-			g, vars, err := ds.NewTextParser().Parse(ut.UUGSimple)
+			g, vars, err := ds.Parse(ut.UUGSimple)
 
 			ut.Equal(t, true, err == nil)
 

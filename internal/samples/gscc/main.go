@@ -19,8 +19,8 @@ const (
 	fileOut    = "GSCC-after.dot"
 )
 
-func input() *ds.Graph[ds.Text] {
-	g, _, err := ds.NewTextParser().Parse(ut.UDGDeps)
+func input() *ds.G[ds.Text] {
+	g, _, err := ds.Parse(ut.UDGDeps)
 
 	if err != nil {
 		panic(err)
@@ -29,7 +29,7 @@ func input() *ds.Graph[ds.Text] {
 	return g
 }
 
-func exportStart(g *ds.Graph[ds.Text]) {
+func exportStart(g *ds.G[ds.Text]) {
 	fIn, err := os.Create(fileIn)
 
 	if err != nil {
@@ -59,7 +59,7 @@ type customTheme struct {
 	viz.LightBreezeTheme
 }
 
-func (t customTheme) SetGraphFmt(attrs ds.FmtAttrs) {
+func (t customTheme) SetGraphFmt(attrs ds.FAttrs) {
 	t.LightBreezeTheme.SetGraphFmt(attrs)
 	attrs["rankdir"] = "LR"
 }
@@ -77,25 +77,25 @@ func main() {
 
 	viSCC := viz.NewSCCViz(g, sccs, viz.Themes.LightBreeze)
 
-	viSCC.OnSCCVertex = func(v *ds.GraphVertex[ds.Text], c int) {
+	viSCC.OnSCCVertex = func(v *ds.GV[ds.Text], c int) {
 		v.SetFmtAttr("label", fmt.Sprintf(`{ %s | cc #%d }`, v.Label(), c))
 	}
 
-	viSCC.OnSCCEdge = func(e *ds.GraphEdge[ds.Text], c int) {
+	viSCC.OnSCCEdge = func(e *ds.GE[ds.Text], c int) {
 		e.SetFmtAttr("penwidth", "2.0")
 	}
 
-	viSCC.OnCrossSCCEdge = func(e *ds.GraphEdge[ds.Text], cSrc, cDst int) {
+	viSCC.OnCrossSCCEdge = func(e *ds.GE[ds.Text], cSrc, cDst int) {
 		e.SetFmtAttr("penwidth", "0.5")
 		e.SetFmtAttr("style", "dotted")
 	}
 
 	vi := viz.NewGSCCViz(gscc, customTheme{})
 
-	vi.OnGSCCVertex = func(v *ds.GraphVertex[ds.ItemGroup[ds.Text]]) {
-		s := make([]string, 0, len(v.Val.Items))
+	vi.OnGSCCVertex = func(v *ds.GV[ds.Group[ds.Text]]) {
+		s := make([]string, 0, len(v.Ptr.Items))
 
-		for _, item := range v.Val.Items {
+		for _, item := range v.Ptr.Items {
 			s = append(s, item.Label())
 		}
 
@@ -103,5 +103,5 @@ func main() {
 	}
 
 	exportEnd[ds.Text](viSCC, fileOutSCC)
-	exportEnd[ds.ItemGroup[ds.Text]](vi, fileOut)
+	exportEnd[ds.Group[ds.Text]](vi, fileOut)
 }

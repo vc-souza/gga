@@ -5,11 +5,15 @@ on:
     inputs:
       benchtime:
         description: "Iterations (-benchtime)"
-        default: "5000x"
+        default: "1s"
         required: true
       timeout:
         description: "Timeout (-timeout)"
         default: "0"
+        required: true
+      pattern:
+        description: "Pattern"
+        default: "."
         required: true
 
 jobs:
@@ -18,6 +22,7 @@ jobs:
     runs-on: ubuntu-latest
 
     strategy:
+      fail-fast: false
       matrix:
         pkg: [ds, algo]
 
@@ -33,7 +38,7 @@ jobs:
         check-latest: true
 
     - name: Benchmark
-      run: go test -benchmem -memprofile mem.out -cpuprofile cpu.out -benchtime ${{ inputs.benchtime }} -timeout ${{ inputs.timeout }} -bench . ./${{ matrix.pkg }}
+      run: go test -benchmem -memprofile mem.out -cpuprofile cpu.out -benchtime ${{ inputs.benchtime }} -timeout ${{ inputs.timeout }} -bench ${{ inputs.pattern }} ./${{ matrix.pkg }}
 
     - name: Upload Memory Profile
       uses: actions/upload-artifact@v3

@@ -13,58 +13,56 @@ such that, for every edge (u,v) vertex u appears before vertex v in the final or
 This algorithm is a simplified version of a DFS, with the addition of a linked list that stores the
 ordering of the vertices, which is appended to - at the head - after each vertex is fully explored.
 
-Link: https://en.wikipedia.org/wiki/Topological_sorting
-
 Expectations:
 	- The graph is correctly built.
 	- The graph is directed.
 
 Complexity:
 	- Time:  Θ(V + E)
-	- Space: O(V)
+	- Space: Θ(V)
 */
-func TSort[V ds.Item](g *ds.Graph[V]) ([]*V, error) {
+func TSort[V ds.Item](g *ds.G[V]) ([]*V, error) {
 	if g.Undirected() {
 		return nil, ds.ErrUndefOp
 	}
 
-	calls := ds.NewStack[*V]()
-
 	count := g.VertexCount()
-	idx := count - 1
+	ordIdx := count - 1
 
 	ord := make([]*V, count)
+	calls := ds.NewStack[*V]()
+	attr := map[*V]*iDFS{}
 
-	visited := map[*V]bool{}
-	next := map[*V]int{}
+	for v := range g.E {
+		attr[v] = &iDFS{}
+	}
 
-	for _, vert := range g.Verts {
-		if visited[vert.Val] {
+	for _, vert := range g.V {
+		if attr[vert.Ptr].visited {
 			continue
 		}
 
-		calls.Push(vert.Val)
+		calls.Push(vert.Ptr)
 
 		for !calls.Empty() {
 			vtx, _ := calls.Peek()
-			visited[vtx] = true
+			attr[vtx].visited = true
 
-			if next[vtx] >= len(g.Adj[vtx]) {
+			if attr[vtx].next >= len(g.E[vtx]) {
 				calls.Pop()
 
-				ord[idx] = vtx
-				idx--
+				ord[ordIdx] = vtx
+				ordIdx--
 
 				continue
 			}
 
-			for i := next[vtx]; i < len(g.Adj[vtx]); i++ {
-				e := g.Adj[vtx][i]
-				next[vtx]++
+			for i := attr[vtx].next; i < len(g.E[vtx]); i++ {
+				e := g.E[vtx][i]
+				attr[vtx].next++
 
-				if !visited[e.Dst] {
+				if !attr[e.Dst].visited {
 					calls.Push(e.Dst)
-
 					break
 				}
 			}

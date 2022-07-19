@@ -1,8 +1,6 @@
 package algo
 
 import (
-	"strconv"
-
 	"github.com/vc-souza/gga/ds"
 )
 
@@ -24,8 +22,6 @@ is reduced by one after each SCC that is examined, which would not change
 the worst-case space complexity of this step, O(V), but might end up yielding
 better constant factors in the end.
 
-Link: https://en.wikipedia.org/wiki/Strongly_connected_component#Definitions
-
 Expectations:
 	- The graph is correctly built.
 	- The graph is directed.
@@ -34,7 +30,7 @@ Complexity:
 	- Time:  Θ(V + E)
 	- Space: Θ(V)
 */
-func GSCC[V ds.Item](g *ds.Graph[V]) (*ds.Graph[ds.ItemGroup[V]], []SCC[V], error) {
+func GSCC[V ds.Item](g *ds.G[V]) (*ds.G[ds.Group[V]], []SCC[V], error) {
 	if g.Undirected() {
 		return nil, nil, ds.ErrUndefOp
 	}
@@ -50,7 +46,7 @@ func GSCC[V ds.Item](g *ds.Graph[V]) (*ds.Graph[ds.ItemGroup[V]], []SCC[V], erro
 	// query time later, when the SCC that a vertex
 	// belongs to will need to be queried Θ(E) times,
 	// when building the adjacency list of the GSCC.
-	vtxSCC := make(map[*V]int)
+	vtxSCC := map[*V]int{}
 
 	for id, scc := range sccs {
 		for _, v := range scc {
@@ -58,18 +54,18 @@ func GSCC[V ds.Item](g *ds.Graph[V]) (*ds.Graph[ds.ItemGroup[V]], []SCC[V], erro
 		}
 	}
 
-	gscc := ds.NewDirectedGraph[ds.ItemGroup[V]]()
+	gscc := ds.NewDirectedGraph[ds.Group[V]]()
 
 	// By aligning the SCC id with the id of their
-	// vertex in the GSCC we can get the ItemGroup
+	// vertex in the GSCC we can get the Group
 	// in O(1) amortized time later, without having
 	// to use any extra space to map SCC ids to their
-	// respective ItemGroup.
+	// respective Group.
 	for id := range sccs {
 		gscc.UnsafeAddVertex(
-			&ds.ItemGroup[V]{
-				Id:    strconv.Itoa(id),
+			&ds.Group[V]{
 				Items: sccs[id],
+				Id:    id,
 			},
 		)
 	}
@@ -85,7 +81,7 @@ func GSCC[V ds.Item](g *ds.Graph[V]) (*ds.Graph[ds.ItemGroup[V]], []SCC[V], erro
 	// skipped, since it is the last one in that order.
 	for srcId := len(sccs) - 1; srcId > 0; srcId-- {
 		for _, v := range sccs[srcId] {
-			for _, e := range g.Adj[v] {
+			for _, e := range g.E[v] {
 				dstId := vtxSCC[e.Dst]
 
 				// vertices in the same SCC, skip.
@@ -110,11 +106,11 @@ func GSCC[V ds.Item](g *ds.Graph[V]) (*ds.Graph[ds.ItemGroup[V]], []SCC[V], erro
 				}
 
 				// Since the SCC list and the GSCC vertex list are aligned,
-				// we can find the ItemGroup assigned to SCC x by looking
+				// we can find the Group assigned to SCC x by looking
 				// at the vertex of GSCC at index x.
 				gscc.UnsafeAddWeightedEdge(
-					gscc.Verts[srcId].Val,
-					gscc.Verts[dstId].Val,
+					gscc.V[srcId].Ptr,
+					gscc.V[dstId].Ptr,
 					0,
 				)
 

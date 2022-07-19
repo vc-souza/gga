@@ -1,5 +1,7 @@
 package ds
 
+import "strconv"
+
 /*
 An Item implementation can be used as satellite data for an item in a gga data structure.
 The main feature of an Item is being able to provide a label for easy identification.
@@ -10,20 +12,20 @@ type Item interface {
 }
 
 /*
-ItemGroup groups items of a type that implements the Item interface, and also implements
-the Item interface itself, using an id assigned during the creation of the ItemGroup,
-so data structures that can hold Item implementations can also hold ItemGroup values.
+Group groups items of a type that implements the Item interface, and also implements
+the Item interface itself, using an id assigned during the creation of the Group,
+so data structures that can hold Item implementations can also hold Group values.
 
 Such a capability is useful for some algorithms that group items together and then
 create a new data structure that holds the groups as new elements (e.g.: GSCC).
 */
-type ItemGroup[V Item] struct {
-	Id    string
+type Group[V Item] struct {
 	Items []*V
+	Id    int
 }
 
-func (z ItemGroup[V]) Label() string {
-	return z.Id
+func (z Group[V]) Label() string {
+	return strconv.Itoa(z.Id)
 }
 
 /*

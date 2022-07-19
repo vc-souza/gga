@@ -7,14 +7,14 @@ This way, multiple behaviors can be attached to the data structure without havin
 */
 type GraphVisitor[V Item] interface {
 	// VisitGraphStart is called at the beginning of the graph visit.
-	VisitGraphStart(g *Graph[V])
+	VisitGraphStart(g *G[V])
 
 	// VisitGraphEnd is called at the end of the graph visit.
-	VisitGraphEnd(g *Graph[V])
+	VisitGraphEnd(g *G[V])
 
 	// VisitVertex is called when visiting a graph vertex.
-	VisitVertex(v *GraphVertex[V])
+	VisitVertex(v *GV[V])
 
 	// VisitEdge is called when visiting a graph edge.
-	VisitEdge(e *GraphEdge[V])
+	VisitEdge(e *GE[V])
 }

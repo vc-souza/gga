@@ -9,7 +9,7 @@ import (
 )
 
 func TestGSCCViz(t *testing.T) {
-	g, _, err := ds.NewTextParser().Parse(ut.UDGDeps)
+	g, _, err := ds.Parse(ut.UDGDeps)
 
 	ut.Equal(t, true, err == nil)
 
@@ -21,11 +21,11 @@ func TestGSCCViz(t *testing.T) {
 
 	vCount := 0
 
-	vi.OnGSCCVertex = func(v *ds.GraphVertex[ds.ItemGroup[ds.Text]]) {
+	vi.OnGSCCVertex = func(*ds.GV[ds.Group[ds.Text]]) {
 		vCount++
 	}
 
-	ExportViz[ds.ItemGroup[ds.Text]](vi, ut.DummyWriter{})
+	ExportViz[ds.Group[ds.Text]](vi, ut.DummyWriter{})
 
 	ut.Equal(t, gscc.VertexCount(), vCount)
 }

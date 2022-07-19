@@ -11,12 +11,12 @@ ThemedGraphViz contains data that is useful for graph algorithm visualizations.
 When embedded, it also provides a good part of the AlgoViz interface for free.
 */
 type ThemedGraphViz[V ds.Item] struct {
-	Graph *ds.Graph[V]
+	Graph *ds.G[V]
 	Extra []string
 	Theme Theme
 }
 
-func (v *ThemedGraphViz[V]) GetGraph() *ds.Graph[V] {
+func (v *ThemedGraphViz[V]) GetGraph() *ds.G[V] {
 	return v.Graph
 }
 
@@ -33,7 +33,7 @@ An AlgoViz implementer can traverse the results of a graph algorithm,
 provide its input graph, and also support theming.
 */
 type AlgoViz[V ds.Item] interface {
-	GetGraph() *ds.Graph[V]
+	GetGraph() *ds.G[V]
 	GetExtra() []string
 	GetTheme() Theme
 	Traverse() error

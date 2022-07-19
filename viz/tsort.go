@@ -20,7 +20,7 @@ type TSortViz[V ds.Item] struct {
 		OnVertexRank is called for every vertex in the graph, along with the rank
 		of the vertex in the final topological ordering of vertices.
 	*/
-	OnVertexRank func(*ds.GraphVertex[V], int)
+	OnVertexRank func(*ds.GV[V], int)
 
 	/*
 		OnOrderEdge is called for every edge that connects two contiguous vertices
@@ -28,11 +28,11 @@ type TSortViz[V ds.Item] struct {
 		exist in the graph, which gives the caller the opportunity to either create
 		it or take any other action.
 	*/
-	OnOrderEdge func(*ds.GraphEdge[V], bool)
+	OnOrderEdge func(*ds.GE[V], bool)
 }
 
 // NewTSortViz initializes a new TSortViz with NOOP hooks.
-func NewTSortViz[V ds.Item](g *ds.Graph[V], ord []*V, t Theme) *TSortViz[V] {
+func NewTSortViz[V ds.Item](g *ds.G[V], ord []*V, t Theme) *TSortViz[V] {
 	res := &TSortViz[V]{}
 
 	res.Order = ord
@@ -40,8 +40,8 @@ func NewTSortViz[V ds.Item](g *ds.Graph[V], ord []*V, t Theme) *TSortViz[V] {
 	res.Graph = g
 	res.Theme = t
 
-	res.OnVertexRank = func(*ds.GraphVertex[V], int) {}
-	res.OnOrderEdge = func(*ds.GraphEdge[V], bool) {}
+	res.OnVertexRank = func(*ds.GV[V], int) {}
+	res.OnOrderEdge = func(*ds.GE[V], bool) {}
 
 	return res
 }
@@ -69,7 +69,7 @@ func (vi *TSortViz[V]) Traverse() error {
 			e, _, ok := vi.Graph.GetEdge(prev, next)
 
 			if !ok {
-				e = &ds.GraphEdge[V]{Src: prev, Dst: next}
+				e = &ds.GE[V]{Src: prev, Dst: next}
 			}
 
 			vi.OnOrderEdge(e, ok)

@@ -7,9 +7,10 @@ import (
 )
 
 func TestQueueEnqueue(t *testing.T) {
-	var q Queue[int] = new(Deque[int])
 	var item int
 	var ok bool
+
+	q := NewQueue[int]()
 
 	q.Enqueue(1, 2, 3)
 
@@ -27,7 +28,7 @@ func TestQueueEnqueue(t *testing.T) {
 }
 
 func TestQueueEmpty(t *testing.T) {
-	var q Queue[int] = new(Deque[int])
+	q := NewQueue[int]()
 
 	ut.Equal(t, true, q.Empty())
 
@@ -37,9 +38,10 @@ func TestQueueEmpty(t *testing.T) {
 }
 
 func TestQueueDequeue(t *testing.T) {
-	var q Queue[int] = new(Deque[int])
 	var item int
 	var ok bool
+
+	q := NewQueue[int]()
 
 	ut.Equal(t, true, q.Empty())
 
@@ -63,7 +65,7 @@ func TestQueueDequeue(t *testing.T) {
 }
 
 func TestQueueDequeue_empty(t *testing.T) {
-	var q Queue[int] = new(Deque[int])
+	q := NewQueue[int]()
 
 	ut.Equal(t, true, q.Empty())
 
@@ -79,7 +81,7 @@ func TestQueueDequeue_wrong_type(t *testing.T) {
 		}
 	}()
 
-	var q Queue[int] = new(Deque[int])
+	q := NewQueue[int]()
 
 	// forcefully adding an item with wrong type
 	if d, ok := q.(*Deque[int]); ok {

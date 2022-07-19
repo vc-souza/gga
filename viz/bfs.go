@@ -20,20 +20,20 @@ type BFSViz[V ds.Item] struct {
 	Source *V
 
 	// OnUnVertex is called when an unreachable vertex is found.
-	OnUnVertex func(*ds.GraphVertex[V], *algo.BFNode[V])
+	OnUnVertex func(*ds.GV[V], *algo.BFNode[V])
 
 	// OnSourceVertex is called when the source vertex is found.
-	OnSourceVertex func(*ds.GraphVertex[V], *algo.BFNode[V])
+	OnSourceVertex func(*ds.GV[V], *algo.BFNode[V])
 
 	// OnTreeVertex is called when any tree vertex is found, including the source vertex.
-	OnTreeVertex func(*ds.GraphVertex[V], *algo.BFNode[V])
+	OnTreeVertex func(*ds.GV[V], *algo.BFNode[V])
 
 	// OnTreeEdge is called when a tree edge is found.
-	OnTreeEdge func(*ds.GraphEdge[V])
+	OnTreeEdge func(*ds.GE[V])
 }
 
 // NewBFSViz initializes a new BFSViz with NOOP hooks.
-func NewBFSViz[V ds.Item](g *ds.Graph[V], tree algo.BFTree[V], src *V, t Theme) *BFSViz[V] {
+func NewBFSViz[V ds.Item](g *ds.G[V], tree algo.BFTree[V], src *V, t Theme) *BFSViz[V] {
 	res := &BFSViz[V]{}
 
 	res.Tree = tree
@@ -42,10 +42,10 @@ func NewBFSViz[V ds.Item](g *ds.Graph[V], tree algo.BFTree[V], src *V, t Theme) 
 	res.Graph = g
 	res.Theme = t
 
-	res.OnUnVertex = func(*ds.GraphVertex[V], *algo.BFNode[V]) {}
-	res.OnSourceVertex = func(*ds.GraphVertex[V], *algo.BFNode[V]) {}
-	res.OnTreeVertex = func(*ds.GraphVertex[V], *algo.BFNode[V]) {}
-	res.OnTreeEdge = func(*ds.GraphEdge[V]) {}
+	res.OnUnVertex = func(*ds.GV[V], *algo.BFNode[V]) {}
+	res.OnSourceVertex = func(*ds.GV[V], *algo.BFNode[V]) {}
+	res.OnTreeVertex = func(*ds.GV[V], *algo.BFNode[V]) {}
+	res.OnTreeEdge = func(*ds.GE[V]) {}
 
 	return res
 }

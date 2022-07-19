@@ -43,7 +43,7 @@ func TestDFSViz(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
-			g, _, err := ds.NewTextParser().Parse(tc.input)
+			g, _, err := ds.Parse(tc.input)
 
 			ut.Equal(t, true, err == nil)
 
@@ -60,13 +60,13 @@ func TestDFSViz(t *testing.T) {
 
 			vi := NewDFSViz(g, fst, tps, nil)
 
-			vi.OnTreeVertex = func(*ds.GraphVertex[ds.Text], *algo.DFNode[ds.Text]) { tvCount++ }
-			vi.OnRootVertex = func(*ds.GraphVertex[ds.Text], *algo.DFNode[ds.Text]) { rvCount++ }
+			vi.OnTreeVertex = func(*ds.GV[ds.Text], *algo.DFNode[ds.Text]) { tvCount++ }
+			vi.OnRootVertex = func(*ds.GV[ds.Text], *algo.DFNode[ds.Text]) { rvCount++ }
 
-			vi.OnTreeEdge = func(*ds.GraphEdge[ds.Text]) { teCount++ }
-			vi.OnForwardEdge = func(*ds.GraphEdge[ds.Text]) { feCount++ }
-			vi.OnBackEdge = func(*ds.GraphEdge[ds.Text]) { beCount++ }
-			vi.OnCrossEdge = func(*ds.GraphEdge[ds.Text]) { ceCount++ }
+			vi.OnTreeEdge = func(*ds.GE[ds.Text]) { teCount++ }
+			vi.OnForwardEdge = func(*ds.GE[ds.Text]) { feCount++ }
+			vi.OnBackEdge = func(*ds.GE[ds.Text]) { beCount++ }
+			vi.OnCrossEdge = func(*ds.GE[ds.Text]) { ceCount++ }
 
 			ExportViz[ds.Text](vi, ut.DummyWriter{})
 

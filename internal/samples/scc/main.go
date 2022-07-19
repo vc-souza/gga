@@ -17,13 +17,13 @@ const (
 	fileOut = "SCC-after.dot"
 )
 
-var algos = map[string]algo.SCCAlgorithm[ds.Text]{
+var algos = map[string]algo.SCCAlgo[ds.Text]{
 	"kosaraju": algo.SCCKosaraju[ds.Text],
 	"tarjan":   algo.SCCTarjan[ds.Text],
 }
 
-func input() *ds.Graph[ds.Text] {
-	g, _, err := ds.NewTextParser().Parse(ut.UDGDeps)
+func input() *ds.G[ds.Text] {
+	g, _, err := ds.Parse(ut.UDGDeps)
 
 	if err != nil {
 		panic(err)
@@ -32,7 +32,7 @@ func input() *ds.Graph[ds.Text] {
 	return g
 }
 
-func exportStart(g *ds.Graph[ds.Text]) {
+func exportStart(g *ds.G[ds.Text]) {
 	fIn, err := os.Create(fileIn)
 
 	if err != nil {
@@ -85,15 +85,15 @@ func main() {
 
 	vi := viz.NewSCCViz(g, sccs, viz.Themes.LightBreeze)
 
-	vi.OnSCCVertex = func(v *ds.GraphVertex[ds.Text], c int) {
+	vi.OnSCCVertex = func(v *ds.GV[ds.Text], c int) {
 		v.SetFmtAttr("label", fmt.Sprintf(`{ %s | cc #%d }`, v.Label(), c))
 	}
 
-	vi.OnSCCEdge = func(e *ds.GraphEdge[ds.Text], c int) {
+	vi.OnSCCEdge = func(e *ds.GE[ds.Text], c int) {
 		e.SetFmtAttr("penwidth", "2.0")
 	}
 
-	vi.OnCrossSCCEdge = func(e *ds.GraphEdge[ds.Text], cSrc, cDst int) {
+	vi.OnCrossSCCEdge = func(e *ds.GE[ds.Text], cSrc, cDst int) {
 		e.SetFmtAttr("penwidth", "0.5")
 		e.SetFmtAttr("style", "dotted")
 	}

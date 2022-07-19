@@ -2,7 +2,7 @@ package ds
 
 import "fmt"
 
-func ExampleGraph_directed() {
+func ExampleG_directed() {
 	si := Text("initialization")
 	sm := Text("maintenance")
 	st := Text("termination")

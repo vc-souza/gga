@@ -2,6 +2,9 @@ define rmftype
 	@find . -type f -name "*.$(1)" -exec rm {} +
 endef
 
+bench:
+	go test -benchmem -memprofile mem.out -cpuprofile cpu.out -bench . ./$(PKG)
+
 test:
 	@go test -v -race -coverprofile coverage.out -tags test ./...
 
@@ -26,6 +29,7 @@ run-samples:
 	go run internal/samples/dfs/main.go
 	go run internal/samples/tsort/main.go
 	go run internal/samples/scc/main.go tarjan
+	go run internal/samples/cc/main.go dfs
 	go run internal/samples/gscc/main.go
 
 open-samples:
