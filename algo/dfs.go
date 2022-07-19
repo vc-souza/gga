@@ -106,10 +106,10 @@ Complexity:
 	- Space (wit edge classification): O(V + E)
 */
 func DFS[V ds.Item](g *ds.G[V], classify bool) (DFForest[V], *EdgeTypes[V], error) {
-	calls := ds.NewStack[*V](g.VertexCount())
+	var visit func(*V)
+
 	fst := DFForest[V]{}
 	tps := &EdgeTypes[V]{}
-
 	t := 0
 
 	for v := range g.E {
@@ -118,61 +118,34 @@ func DFS[V ds.Item](g *ds.G[V], classify bool) (DFForest[V], *EdgeTypes[V], erro
 
 	// build a DF tree rooted at the vertex being visited;
 	// the tree will be a part of the DF forest
-	visit := func(root *V) {
-		calls.Push(root)
+	visit = func(vtx *V) {
+		t++
 
-		for !calls.Empty() {
-			vtx, _ := calls.Peek()
+		fst[vtx].Discovery = t
+		fst[vtx].visited = true
 
-			// vertex is being discovered
-			if !fst[vtx].visited {
-				t++
-				fst[vtx].Discovery = t
-				fst[vtx].visited = true
-			}
-
-			// vertex has exhausted its adjacency list:
-			// all of its descendants have been
-			// discovered and fully explored
-			if fst[vtx].next >= len(g.E[vtx]) {
-				t++
-				fst[vtx].Finish = t
-
-				calls.Pop()
-
-				continue
-			}
-
-			// explore what remains of the adjacency list of the vertex:
-			// new nodes will be pushed to the stack and old ones will
-			// trigger the classification of the edge that connects them
-			for i := fst[vtx].next; i < len(g.E[vtx]); i++ {
-				e := g.E[vtx][i]
-				fst[vtx].next++
-
-				if fst[e.Dst].visited {
-					if !classify {
-						continue
-					}
-
-					if g.Directed() {
-						classifyDirectedEdge(fst, tps, e)
-					} else {
-						classifyUndirectedEdge(fst, tps, e)
-					}
-				} else {
-					// found a tree edge
-					fst[e.Dst].Parent = vtx
-					calls.Push(e.Dst)
-
-					// depth-first means that a descendant needs to be fully explored
-					// before the next adjacent vertex is considered; whenever we run
-					// out of descendants to explore, the value of next[vtx] will
-					// give us the next adjacent node to fully explore.
-					break
+		for _, e := range g.E[vtx] {
+			if fst[e.Dst].visited {
+				if !classify {
+					continue
 				}
+
+				if g.Directed() {
+					classifyDirectedEdge(fst, tps, e)
+				} else {
+					classifyUndirectedEdge(fst, tps, e)
+				}
+			} else {
+				// found a tree edge
+				fst[e.Dst].Parent = vtx
+
+				visit(e.Dst)
 			}
 		}
+
+		t++
+
+		fst[vtx].Finish = t
 	}
 
 	// if a vertex is not included in a tree during a call to the 'tree'
