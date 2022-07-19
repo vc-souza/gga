@@ -21,24 +21,24 @@ Complexity:
 	- Time:  Θ(V + E)
 	- Space: Θ(V)
 */
-func TSort[V ds.Item](g *ds.G[V]) ([]*V, error) {
+func TSort[T ds.Item](g *ds.G[T]) ([]*T, error) {
 	if g.Undirected() {
 		return nil, ds.ErrUndefOp
 	}
 
-	var visit func(*V)
+	var visit func(*T)
 
 	count := g.VertexCount()
 	ordIdx := count - 1
 
-	ord := make([]*V, count)
-	visited := map[*V]bool{}
+	ord := make([]*T, count)
+	visited := map[*T]bool{}
 
 	for v := range g.E {
 		visited[v] = false
 	}
 
-	visit = func(vtx *V) {
+	visit = func(vtx *T) {
 		visited[vtx] = true
 
 		for _, e := range g.E[vtx] {

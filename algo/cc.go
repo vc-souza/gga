@@ -7,10 +7,10 @@ CCAlgo describes the signature of an algorithm that can discover all
 connected components in an undirected graph. If such an algorithm
 is called on a directed graph, the ds.ErrUndefOp error is returned.
 */
-type CCAlgo[V ds.Item] func(*ds.G[V]) ([]CC[V], error)
+type CCAlgo[T ds.Item] func(*ds.G[T]) ([]CC[T], error)
 
 // A CC holds the vertices in a connected component of an undirected graph.
-type CC[V ds.Item] []*V
+type CC[T ds.Item] []*T
 
 /*
 CCDFS implements an algorithm for finding the connected components of an undirected graph
@@ -34,22 +34,22 @@ Complexity:
 	- Time:  Θ(V + E)
 	- Space: Θ(V)
 */
-func CCDFS[V ds.Item](g *ds.G[V]) ([]CC[V], error) {
+func CCDFS[T ds.Item](g *ds.G[T]) ([]CC[T], error) {
 	if g.Directed() {
 		return nil, ds.ErrUndefOp
 	}
 
-	var visit func(*V)
-	var cc *CC[V]
+	var visit func(*T)
+	var cc *CC[T]
 
-	visited := map[*V]bool{}
-	ccs := []CC[V]{}
+	visited := map[*T]bool{}
+	ccs := []CC[T]{}
 
 	for v := range g.E {
 		visited[v] = false
 	}
 
-	visit = func(vtx *V) {
+	visit = func(vtx *T) {
 		visited[vtx] = true
 
 		for _, e := range g.E[vtx] {
@@ -66,7 +66,7 @@ func CCDFS[V ds.Item](g *ds.G[V]) ([]CC[V], error) {
 			continue
 		}
 
-		cc = &CC[V]{}
+		cc = &CC[T]{}
 
 		visit(vert.Ptr)
 
@@ -98,13 +98,13 @@ Complexity:
 	- Time:  O((V + E) α(V)), amortized
 	- Space: Θ(V)
 */
-func CCUnionFind[V ds.Item](g *ds.G[V]) ([]CC[V], error) {
+func CCUnionFind[T ds.Item](g *ds.G[T]) ([]CC[T], error) {
 	if g.Directed() {
 		return nil, ds.ErrUndefOp
 	}
 
-	sets := map[*V]CC[V]{}
-	d := ds.NewDSet[V]()
+	sets := map[*T]CC[T]{}
+	d := ds.NewDSet[T]()
 
 	for v := range g.E {
 		d.MakeSet(v)
@@ -123,7 +123,7 @@ func CCUnionFind[V ds.Item](g *ds.G[V]) ([]CC[V], error) {
 		sets[set] = append(sets[set], vert.Ptr)
 	}
 
-	ccs := make([]CC[V], 0, len(sets))
+	ccs := make([]CC[T], 0, len(sets))
 
 	// Instead of iterating over the map directly,
 	// we are using the existing vertex order, so

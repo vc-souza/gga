@@ -16,8 +16,8 @@ lines can then be exported to an io.Writer by calling its Export method.
 Full specification of the DOT language, by Graphviz can be found here:
 https://graphviz.org/doc/info/lang.html
 */
-type Exporter[V ds.Item] struct {
-	Graph *ds.G[V]
+type Exporter[T ds.Item] struct {
+	Graph *ds.G[T]
 	Lines []string
 	Extra []string
 
@@ -30,8 +30,8 @@ type Exporter[V ds.Item] struct {
 }
 
 // NewExporter creates an initialized Exporter.
-func NewExporter[V ds.Item](graph *ds.G[V]) *Exporter[V] {
-	res := Exporter[V]{}
+func NewExporter[T ds.Item](graph *ds.G[T]) *Exporter[T] {
+	res := Exporter[T]{}
 
 	res.Graph = graph
 
@@ -41,11 +41,11 @@ func NewExporter[V ds.Item](graph *ds.G[V]) *Exporter[V] {
 	return &res
 }
 
-func (d *Exporter[V]) add(s ...string) {
+func (d *Exporter[T]) add(s ...string) {
 	d.Lines = append(d.Lines, s...)
 }
 
-func (d *Exporter[V]) addDefault(pfx string, attrs ds.FAttrs) {
+func (d *Exporter[T]) addDefault(pfx string, attrs ds.FAttrs) {
 	if len(attrs) == 0 {
 		return
 	}
@@ -53,7 +53,7 @@ func (d *Exporter[V]) addDefault(pfx string, attrs ds.FAttrs) {
 	d.add(fmt.Sprintf("%s %s", pfx, DotAttrs(attrs)))
 }
 
-func (d *Exporter[V]) addDefaults() {
+func (d *Exporter[T]) addDefaults() {
 	d.addDefault("graph", d.DefaultGraphFmt)
 	d.addDefault("node", d.DefaultVertexFmt)
 	d.addDefault("edge", d.DefaultEdgeFmt)
@@ -64,12 +64,12 @@ AddExtra adds extra lines to the end of the DOT file, which is a feature
 needed by more complex visualizations that need to control more precisely
 how a graph is rendered, like adding invisible, structural edges, etc.
 */
-func (d *Exporter[V]) AddExtra(s ...string) {
+func (d *Exporter[T]) AddExtra(s ...string) {
 	d.Extra = append(d.Extra, s...)
 }
 
 // Export writes the data it has accumulated to an io.Writer.
-func (d *Exporter[V]) Export(w io.Writer) {
+func (d *Exporter[T]) Export(w io.Writer) {
 	d.Graph.Accept(d)
 
 	s := strings.Join(d.Lines, "\n")
@@ -78,7 +78,7 @@ func (d *Exporter[V]) Export(w io.Writer) {
 	io.Copy(w, r)
 }
 
-func (d *Exporter[V]) VisitGraphStart(g *ds.G[V]) {
+func (d *Exporter[T]) VisitGraphStart(g *ds.G[T]) {
 	var start string
 
 	if g.Directed() {
@@ -91,7 +91,7 @@ func (d *Exporter[V]) VisitGraphStart(g *ds.G[V]) {
 	d.addDefaults()
 }
 
-func (d *Exporter[V]) VisitGraphEnd(g *ds.G[V]) {
+func (d *Exporter[T]) VisitGraphEnd(g *ds.G[T]) {
 	if len(d.Extra) != 0 {
 		d.add(d.Extra...)
 	}
@@ -99,7 +99,7 @@ func (d *Exporter[V]) VisitGraphEnd(g *ds.G[V]) {
 	d.add("}\n")
 }
 
-func (d *Exporter[V]) VisitVertex(v *ds.GV[V]) {
+func (d *Exporter[T]) VisitVertex(v *ds.GV[T]) {
 	var line string
 
 	if len(v.F) == 0 {
@@ -111,7 +111,7 @@ func (d *Exporter[V]) VisitVertex(v *ds.GV[V]) {
 	d.add(line)
 }
 
-func (d *Exporter[V]) VisitEdge(e *ds.GE[V]) {
+func (d *Exporter[T]) VisitEdge(e *ds.GE[T]) {
 	var line string
 	var op string
 
@@ -157,7 +157,7 @@ func DotAttrs(f ds.FAttrs) string {
 }
 
 // ResetGraphFmt resets custom formatting attributes for every vertex and edge of a graph.
-func ResetGraphFmt[V ds.Item](g *ds.G[V]) {
+func ResetGraphFmt[T ds.Item](g *ds.G[T]) {
 	for _, vtx := range g.V {
 		vtx.ResetFmt()
 	}
@@ -170,13 +170,13 @@ func ResetGraphFmt[V ds.Item](g *ds.G[V]) {
 }
 
 // Snapshot implements a shorthand for the quick export of a graph, using a theme.
-func Snapshot[V ds.Item](g *ds.G[V], w io.Writer, t Theme) {
+func Snapshot[T ds.Item](g *ds.G[T], w io.Writer, t Theme) {
 	ex := NewExporter(g)
 	SetTheme(ex, t)
 	ex.Export(w)
 }
 
 // Quoted adds quotes to the label of a ds.Item, which is useful for labels containing special characters.
-func Quoted[V ds.Item](v *V) string {
-	return fmt.Sprintf(`"%s"`, (*v).Label())
+func Quoted[T ds.Item](t *T) string {
+	return fmt.Sprintf(`"%s"`, (*t).Label())
 }

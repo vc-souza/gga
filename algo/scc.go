@@ -9,10 +9,10 @@ SCCAlgo describes the signature of an algorithm that can discover all
 strongly connected components in a directed graph. If such an algorithm is
 called on an undirected graph, the ds.ErrUndefOp error is returned.
 */
-type SCCAlgo[V ds.Item] func(*ds.G[V]) ([]SCC[V], error)
+type SCCAlgo[T ds.Item] func(*ds.G[T]) ([]SCC[T], error)
 
 // An SCC holds the vertices in a strongly connected component of a directed graph.
-type SCC[V ds.Item] []*V
+type SCC[T ds.Item] []*T
 
 /*
 SCCKosaraju implements Kosaraju's algorithm for finding the strongly connected
@@ -43,16 +43,16 @@ Complexity:
 	- Time:  Θ(V + E)
 	- Space: Θ(V)
 */
-func SCCKosaraju[V ds.Item](g *ds.G[V]) ([]SCC[V], error) {
+func SCCKosaraju[T ds.Item](g *ds.G[T]) ([]SCC[T], error) {
 	if g.Undirected() {
 		return nil, ds.ErrUndefOp
 	}
 
-	var visit func(*V)
-	var scc *SCC[V]
+	var visit func(*T)
+	var scc *SCC[T]
 
-	sccs := []SCC[V]{}
-	visited := map[*V]bool{}
+	sccs := []SCC[T]{}
+	visited := map[*T]bool{}
 
 	for v := range g.E {
 		visited[v] = false
@@ -72,7 +72,7 @@ func SCCKosaraju[V ds.Item](g *ds.G[V]) ([]SCC[V], error) {
 		return nil, err
 	}
 
-	visit = func(vtx *V) {
+	visit = func(vtx *T) {
 		visited[vtx] = true
 
 		for _, e := range tg.E[vtx] {
@@ -89,7 +89,7 @@ func SCCKosaraju[V ds.Item](g *ds.G[V]) ([]SCC[V], error) {
 			continue
 		}
 
-		scc = &SCC[V]{}
+		scc = &SCC[T]{}
 
 		visit(v)
 
@@ -147,16 +147,16 @@ Complexity:
 	- Time:  Θ(V + E)
 	- Space: Θ(V)
 */
-func SCCTarjan[V ds.Item](g *ds.G[V]) ([]SCC[V], error) {
+func SCCTarjan[T ds.Item](g *ds.G[T]) ([]SCC[T], error) {
 	if g.Undirected() {
 		return nil, ds.ErrUndefOp
 	}
 
-	var visit func(*V)
+	var visit func(*T)
 
-	stack := ds.NewStack[*V]()
-	att := map[*V]*tjSCC{}
-	sccs := []SCC[V]{}
+	stack := ds.NewStack[*T]()
+	att := map[*T]*tjSCC{}
+	sccs := []SCC[T]{}
 
 	for v := range g.E {
 		att[v] = &tjSCC{}
@@ -166,7 +166,7 @@ func SCCTarjan[V ds.Item](g *ds.G[V]) ([]SCC[V], error) {
 	// of tjAttrs.index (0) can indicate an unvisited vertex
 	i := 1
 
-	visit = func(vtx *V) {
+	visit = func(vtx *T) {
 		att[vtx].index = i
 		att[vtx].lowIndex = i
 
@@ -196,7 +196,7 @@ func SCCTarjan[V ds.Item](g *ds.G[V]) ([]SCC[V], error) {
 
 		// root of an SCC, otherwise do not pop anything
 		if att[vtx].lowIndex == att[vtx].index {
-			scc := SCC[V]{}
+			scc := SCC[T]{}
 
 			// every vertex that is currently on the stack
 			// is a part of the SCC where vtx is the root,

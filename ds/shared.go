@@ -19,12 +19,12 @@ so data structures that can hold Item implementations can also hold Group values
 Such a capability is useful for some algorithms that group items together and then
 create a new data structure that holds the groups as new elements (e.g.: GSCC).
 */
-type Group[V Item] struct {
-	Items []*V
+type Group[T Item] struct {
+	Items []*T
 	Id    int
 }
 
-func (z Group[V]) Label() string {
+func (z Group[T]) Label() string {
 	return strconv.Itoa(z.Id)
 }
 

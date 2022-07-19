@@ -9,7 +9,7 @@ A DFNode node represents a node in a Depth-First tree in a Depth-First forest, h
 the attributes produced by a DFS, for a particular vertex. At the end of the DFS, every
 vertex is part of one of the DF trees in the DF forest produced by the algorithm.
 */
-type DFNode[V ds.Item] struct {
+type DFNode[T ds.Item] struct {
 	// Discovery records when the vertex was marked as discovered.
 	Discovery int
 
@@ -23,7 +23,7 @@ type DFNode[V ds.Item] struct {
 
 		After a DFS, every root of a DF tree in the DF forest will have a nil Parent.
 	*/
-	Parent *V
+	Parent *T
 
 	visited bool
 }
@@ -39,9 +39,9 @@ or edges is changed.
 The gga graph implementation guarantees both vertex and edge traversal in insertion order,
 so repeated DFS calls always produce the same DF forest.
 */
-type DFForest[V ds.Item] map[*V]*DFNode[V]
+type DFForest[T ds.Item] map[*T]*DFNode[T]
 
-func classifyDirectedEdge[V ds.Item](fst DFForest[V], tps *EdgeTypes[V], e *ds.GE[V]) {
+func classifyDirectedEdge[T ds.Item](fst DFForest[T], tps *EdgeTypes[T], e *ds.GE[T]) {
 	// the vertex being reached (Dst) was discovered before
 	// the vertex being explored (Src), so Dst is either
 	// an ancestor of Src, or they do not have a direct
@@ -61,7 +61,7 @@ func classifyDirectedEdge[V ds.Item](fst DFForest[V], tps *EdgeTypes[V], e *ds.G
 	}
 }
 
-func classifyUndirectedEdge[V ds.Item](fst DFForest[V], tps *EdgeTypes[V], e *ds.GE[V]) {
+func classifyUndirectedEdge[T ds.Item](fst DFForest[T], tps *EdgeTypes[T], e *ds.GE[T]) {
 	// due to how adjacency lists work, undirected
 	// graphs represent the same edge twice, so
 	// if we're dealing with the reverse of a tree
@@ -105,18 +105,18 @@ Complexity:
 	- Space (without edge classification): Θ(V)
 	- Space (wit edge classification): Θ(V) + O(E)
 */
-func DFS[V ds.Item](g *ds.G[V], classify bool) (DFForest[V], *EdgeTypes[V], error) {
-	var visit func(*V)
+func DFS[T ds.Item](g *ds.G[T], classify bool) (DFForest[T], *EdgeTypes[T], error) {
+	var visit func(*T)
 
-	fst := DFForest[V]{}
-	tps := &EdgeTypes[V]{}
+	fst := DFForest[T]{}
+	tps := &EdgeTypes[T]{}
 	t := 0
 
 	for v := range g.E {
-		fst[v] = &DFNode[V]{}
+		fst[v] = &DFNode[T]{}
 	}
 
-	visit = func(vtx *V) {
+	visit = func(vtx *T) {
 		t++
 
 		fst[vtx].Discovery = t

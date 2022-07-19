@@ -13,28 +13,28 @@ BFSViz formats and exports a graph after an execution of the BFS algorithm.
 The output of the algorithm is traversed, and hooks are provided so that
 custom formatting can be applied to the graph, its vertices and edges.
 */
-type BFSViz[V ds.Item] struct {
-	ThemedGraphViz[V]
+type BFSViz[T ds.Item] struct {
+	ThemedGraphViz[T]
 
-	Tree   algo.BFTree[V]
-	Source *V
+	Tree   algo.BFTree[T]
+	Source *T
 
 	// OnUnVertex is called when an unreachable vertex is found.
-	OnUnVertex func(*ds.GV[V], *algo.BFNode[V])
+	OnUnVertex func(*ds.GV[T], *algo.BFNode[T])
 
 	// OnSourceVertex is called when the source vertex is found.
-	OnSourceVertex func(*ds.GV[V], *algo.BFNode[V])
+	OnSourceVertex func(*ds.GV[T], *algo.BFNode[T])
 
 	// OnTreeVertex is called when any tree vertex is found, including the source vertex.
-	OnTreeVertex func(*ds.GV[V], *algo.BFNode[V])
+	OnTreeVertex func(*ds.GV[T], *algo.BFNode[T])
 
 	// OnTreeEdge is called when a tree edge is found.
-	OnTreeEdge func(*ds.GE[V])
+	OnTreeEdge func(*ds.GE[T])
 }
 
 // NewBFSViz initializes a new BFSViz with NOOP hooks.
-func NewBFSViz[V ds.Item](g *ds.G[V], tree algo.BFTree[V], src *V, t Theme) *BFSViz[V] {
-	res := &BFSViz[V]{}
+func NewBFSViz[T ds.Item](g *ds.G[T], tree algo.BFTree[T], src *T, t Theme) *BFSViz[T] {
+	res := &BFSViz[T]{}
 
 	res.Tree = tree
 	res.Source = src
@@ -42,16 +42,16 @@ func NewBFSViz[V ds.Item](g *ds.G[V], tree algo.BFTree[V], src *V, t Theme) *BFS
 	res.Graph = g
 	res.Theme = t
 
-	res.OnUnVertex = func(*ds.GV[V], *algo.BFNode[V]) {}
-	res.OnSourceVertex = func(*ds.GV[V], *algo.BFNode[V]) {}
-	res.OnTreeVertex = func(*ds.GV[V], *algo.BFNode[V]) {}
-	res.OnTreeEdge = func(*ds.GE[V]) {}
+	res.OnUnVertex = func(*ds.GV[T], *algo.BFNode[T]) {}
+	res.OnSourceVertex = func(*ds.GV[T], *algo.BFNode[T]) {}
+	res.OnTreeVertex = func(*ds.GV[T], *algo.BFNode[T]) {}
+	res.OnTreeEdge = func(*ds.GE[T]) {}
 
 	return res
 }
 
 // Traverse iterates over the results of a BFS execution, calling its hooks when appropriate.
-func (vi *BFSViz[V]) Traverse() error {
+func (vi *BFSViz[T]) Traverse() error {
 	for v, node := range vi.Tree {
 		vtx, _, ok := vi.Graph.GetVertex(v)
 
