@@ -61,6 +61,8 @@ func TestDSetUnion(t *testing.T) {
 	// {0, 1, 2, 3, 4}
 	dset.Union(&vars[0], &vars[4])
 
+	// same set, so all should have
+	// the same representative
 	target := dset.FindSet(&vars[0])
 
 	for i := range vars {

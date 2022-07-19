@@ -6,13 +6,12 @@ import (
 
 /*
 SCCAlgorithm describes the signature of an algorithm that can discover all
-strongly connected components in a graph. If a particular algorithm can
-only work on a particular type of graph, then undefined behavior is
-indicated by the ds.ErrUndefOp error being returned.
+strongly connected components in a directed graph. If such an algorithm is
+called on an undirected graph, then the ds.ErrUndefOp error is returned.
 */
 type SCCAlgorithm[V ds.Item] func(*ds.G[V]) ([]SCC[V], error)
 
-// An SCC holds the vertices in a strongly connected component of a graph.
+// An SCC holds the vertices in a strongly connected component of a directed graph.
 type SCC[V ds.Item] []*V
 
 /*
