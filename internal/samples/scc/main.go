@@ -17,7 +17,7 @@ const (
 	fileOut = "SCC-after.dot"
 )
 
-var algos = map[string]algo.SCCAlgorithm[ds.Text]{
+var algos = map[string]algo.SCCAlgo[ds.Text]{
 	"kosaraju": algo.SCCKosaraju[ds.Text],
 	"tarjan":   algo.SCCTarjan[ds.Text],
 }

@@ -65,7 +65,6 @@ func TSort[V ds.Item](g *ds.G[V]) ([]*V, error) {
 
 				if !attr[e.Dst].visited {
 					calls.Push(e.Dst)
-
 					break
 				}
 			}

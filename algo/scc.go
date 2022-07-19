@@ -5,11 +5,11 @@ import (
 )
 
 /*
-SCCAlgorithm describes the signature of an algorithm that can discover all
+SCCAlgo describes the signature of an algorithm that can discover all
 strongly connected components in a directed graph. If such an algorithm is
-called on an undirected graph, then the ds.ErrUndefOp error is returned.
+called on an undirected graph, the ds.ErrUndefOp error is returned.
 */
-type SCCAlgorithm[V ds.Item] func(*ds.G[V]) ([]SCC[V], error)
+type SCCAlgo[V ds.Item] func(*ds.G[V]) ([]SCC[V], error)
 
 // An SCC holds the vertices in a strongly connected component of a directed graph.
 type SCC[V ds.Item] []*V
