@@ -34,8 +34,7 @@ func ccBenchGen(n int) *ds.G[ut.BenchItem] {
 }
 
 func BenchmarkCC(b *testing.B) {
-	// for _, size := range []int{16, 256, 1024} {
-	for _, size := range []int{16, 256} {
+	for _, size := range []int{16, 256, 1024} {
 		b.Run(fmt.Sprintf("dfs-%d", size), func(b *testing.B) {
 			g := ccBenchGen(size)
 			b.ResetTimer()
