@@ -119,21 +119,34 @@ func CCUnionFind[V ds.Item](g *ds.G[V]) ([]CC[V], error) {
 		d.MakeSet(v)
 	}
 
-	for _, es := range g.E {
-		for _, e := range es {
+	for _, vert := range g.V {
+		for _, e := range g.E[vert.Ptr] {
 			if d.FindSet(e.Src) != d.FindSet(e.Dst) {
 				d.Union(e.Src, e.Dst)
 			}
 		}
 	}
 
-	for v := range g.E {
-		sets[d.FindSet(v)] = append(sets[d.FindSet(v)], v)
+	for _, vert := range g.V {
+		set := d.FindSet(vert.Ptr)
+		sets[set] = append(sets[set], vert.Ptr)
 	}
 
-	ccs := []CC[V]{}
+	ccs := make([]CC[V], 0, len(sets))
 
-	for _, cc := range sets {
+	// Instead of iterating over the map directly,
+	// we are using the existing vertex order, so
+	// that the CC list is the same for every run.
+	// If such consistency is not necessary, we
+	// could just iterate over the map instead.
+	// Asymptotically, it's all O(V) anyway.
+	for _, vert := range g.V {
+		cc, ok := sets[vert.Ptr]
+
+		if !ok {
+			continue
+		}
+
 		ccs = append(ccs, cc)
 	}
 
