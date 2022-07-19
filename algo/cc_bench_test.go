@@ -8,8 +8,8 @@ import (
 	ut "github.com/vc-souza/gga/internal/testutils"
 )
 
-func sccBenchGen(n int) *ds.G[ut.BenchItem] {
-	g := ds.NewDirectedGraph[ut.BenchItem]()
+func ccBenchGen(n int) *ds.G[ut.BenchItem] {
+	g := ds.NewUndirectedGraph[ut.BenchItem]()
 
 	for i := 0; i < n; i++ {
 		v := ut.BenchItem(i)
@@ -18,6 +18,10 @@ func sccBenchGen(n int) *ds.G[ut.BenchItem] {
 
 	for i := 0; i < n; i++ {
 		for j := 0; j < n; j++ {
+			if i == j {
+				continue
+			}
+
 			g.UnsafeAddWeightedEdge(
 				g.V[i].Ptr,
 				g.V[j].Ptr,
@@ -29,23 +33,23 @@ func sccBenchGen(n int) *ds.G[ut.BenchItem] {
 	return g
 }
 
-func BenchmarkSCC(b *testing.B) {
+func BenchmarkCC(b *testing.B) {
 	for _, size := range []int{16, 256, 1024} {
-		b.Run(fmt.Sprintf("kosaraju-%d", size), func(b *testing.B) {
-			g := sccBenchGen(size)
+		b.Run(fmt.Sprintf("dfs-%d", size), func(b *testing.B) {
+			g := ccBenchGen(size)
 			b.ResetTimer()
 
 			for i := 0; i < b.N; i++ {
-				SCCKosaraju(g)
+				CCDFS(g)
 			}
 		})
 
-		b.Run(fmt.Sprintf("tarjan-%d", size), func(b *testing.B) {
-			g := sccBenchGen(size)
+		b.Run(fmt.Sprintf("union-find-%d", size), func(b *testing.B) {
+			g := ccBenchGen(size)
 			b.ResetTimer()
 
 			for i := 0; i < b.N; i++ {
-				SCCTarjan(g)
+				CCUnionFind(g)
 			}
 		})
 	}
