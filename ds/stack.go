@@ -19,8 +19,8 @@ type Stack[T any] interface {
 type SliceStack[T any] []T
 
 // NewStack returns a new Stack, using a SliceStack implementation.
-func NewStack[T any](size int) Stack[T] {
-	data := SliceStack[T](make([]T, 0, size))
+func NewStack[T any](cap int) Stack[T] {
+	data := SliceStack[T](make([]T, 0, cap))
 	return Stack[T](&data)
 }
 

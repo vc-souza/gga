@@ -168,14 +168,12 @@ func SCCTarjan[V ds.Item](g *ds.G[V]) ([]SCC[V], error) {
 		return nil, ds.ErrUndefOp
 	}
 
-	count := g.VertexCount()
-
 	// stack that simulates the call stack
 	// necessary for the iterative version
-	calls := ds.NewStack[*V](count)
+	calls := ds.NewStack[*V](g.VertexCount())
 
 	// stack used by Tarjan's algorithm
-	stack := ds.NewStack[*V](count)
+	stack := ds.NewStack[*V](0)
 
 	sccs := []SCC[V]{}
 	att := map[*V]*tjSCC{}
