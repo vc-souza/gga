@@ -18,32 +18,32 @@ func TestSCC_directed(t *testing.T) {
 			desc: "Kosaraju",
 			algo: SCCKosaraju[ds.Text],
 			expect: map[string]int{
-				"q": 3,
-				"r": 1,
-				"s": 5,
-				"t": 3,
-				"u": 2,
-				"v": 5,
-				"x": 4,
-				"y": 3,
-				"w": 5,
-				"z": 4,
+				"q": 2,
+				"r": 0,
+				"s": 4,
+				"t": 2,
+				"u": 1,
+				"v": 4,
+				"x": 3,
+				"y": 2,
+				"w": 4,
+				"z": 3,
 			},
 		},
 		{
 			desc: "Tarjan",
 			algo: SCCTarjan[ds.Text],
 			expect: map[string]int{
-				"q": 3,
-				"r": 5,
-				"s": 1,
-				"t": 3,
-				"u": 4,
-				"v": 1,
-				"x": 2,
-				"y": 3,
-				"w": 1,
-				"z": 2,
+				"q": 2,
+				"r": 4,
+				"s": 0,
+				"t": 2,
+				"u": 3,
+				"v": 0,
+				"x": 1,
+				"y": 2,
+				"w": 0,
+				"z": 1,
 			},
 		},
 	}
@@ -62,7 +62,7 @@ func TestSCC_directed(t *testing.T) {
 
 			for i, scc := range sccs {
 				for _, v := range scc {
-					sets[v.Label()] = i + 1
+					sets[v.Label()] = i
 				}
 			}
 
