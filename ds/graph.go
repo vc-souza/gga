@@ -1,5 +1,7 @@
 package ds
 
+import "fmt"
+
 /*
 A GV represents a vertex in a graph.
 */
@@ -16,6 +18,10 @@ type GV[V Item] struct {
 // Label provides a label for the vertex, straight from its satellite data.
 func (vert *GV[V]) Label() string {
 	return (*vert.Ptr).Label()
+}
+
+func (vert GV[V]) String() string {
+	return vert.Label()
 }
 
 // Accept accepts a graph visitor, and guides its execution using double-dispatching.
@@ -49,6 +55,15 @@ type GE[V Item] struct {
 // Accept accepts a graph visitor, and guides its execution using double-dispatching.
 func (e *GE[V]) Accept(v GraphVisitor[V]) {
 	v.VisitEdge(e)
+}
+
+func (e GE[V]) String() string {
+	return fmt.Sprintf(
+		"%s -> %s <%.2f>",
+		(*e.Src).Label(),
+		(*e.Dst).Label(),
+		e.Wt,
+	)
 }
 
 /*
