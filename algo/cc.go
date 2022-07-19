@@ -39,47 +39,38 @@ func CCDFS[V ds.Item](g *ds.G[V]) ([]CC[V], error) {
 		return nil, ds.ErrUndefOp
 	}
 
+	var visit func(*V)
+	var cc *CC[V]
+
+	visited := map[*V]bool{}
 	ccs := []CC[V]{}
-	calls := ds.NewStack[*V](g.VertexCount())
-	attr := map[*V]*iDFS{}
 
 	for v := range g.E {
-		attr[v] = &iDFS{}
+		visited[v] = false
+	}
+
+	visit = func(root *V) {
+		visited[root] = true
+
+		for _, e := range g.E[root] {
+			if !visited[e.Dst] {
+				visit(e.Dst)
+			}
+		}
+
+		*cc = append(*cc, root)
 	}
 
 	for _, vert := range g.V {
-		if attr[vert.Ptr].visited {
+		if visited[vert.Ptr] {
 			continue
 		}
 
-		cc := CC[V]{}
+		cc = &CC[V]{}
 
-		calls.Push(vert.Ptr)
+		visit(vert.Ptr)
 
-		for !calls.Empty() {
-			vtx, _ := calls.Peek()
-			attr[vtx].visited = true
-
-			if attr[vtx].next >= len(g.E[vtx]) {
-				calls.Pop()
-
-				cc = append(cc, vtx)
-
-				continue
-			}
-
-			for i := attr[vtx].next; i < len(g.E[vtx]); i++ {
-				e := g.E[vtx][i]
-				attr[vtx].next++
-
-				if !attr[e.Dst].visited {
-					calls.Push(e.Dst)
-					break
-				}
-			}
-		}
-
-		ccs = append(ccs, cc)
+		ccs = append(ccs, *cc)
 	}
 
 	return ccs, nil
