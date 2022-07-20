@@ -29,7 +29,7 @@ func MSTKruskal[T ds.Item](g *ds.G[T]) (MST[T], error) {
 	}
 
 	// O(E log E)
-	sort.Sort(ds.ByEdgeWeight[T](edges))
+	sort.Stable(ds.ByEdgeWeight[T](edges))
 
 	d := ds.NewDSet[T]()
 
