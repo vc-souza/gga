@@ -25,7 +25,7 @@ func TestBFSViz(t *testing.T) {
 			expectUV: 0,
 			expectTV: 8,
 			expectSV: 1,
-			expectTE: 7,
+			expectTE: 14,
 		},
 		{
 			desc:     "digraph",

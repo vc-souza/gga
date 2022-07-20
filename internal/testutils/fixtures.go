@@ -25,6 +25,9 @@ var UUGSimple = loadFixture("testdata/graphs/clrs_22_3.gga")
 // Unweighted Undirected Graph that is not fully connected.
 var UUGDisc = loadFixture("testdata/graphs/clrs_21_1_a.gga")
 
+// Weighted Undirected Graph with simple layout.
+var WUGSimple = loadFixture("testdata/graphs/clrs_23_1.gga")
+
 // loadFixture loads a fixture from a file
 func loadFixture(path string) string {
 	bs, err := fixFS.ReadFile(path)

@@ -24,7 +24,7 @@ func TestDFSViz(t *testing.T) {
 			input:    ut.UUGSimple,
 			expectTV: 8,
 			expectRV: 1,
-			expectTE: 7,
+			expectTE: 14,
 			expectFE: 0,
 			expectBE: 6,
 			expectCE: 0,

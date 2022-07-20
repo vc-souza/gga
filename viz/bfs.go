@@ -78,6 +78,18 @@ func (vi *BFSViz[T]) Traverse() error {
 		}
 
 		vi.OnTreeEdge(edge)
+
+		if vi.Graph.Directed() {
+			continue
+		}
+
+		rev, _, ok := vi.Graph.GetEdge(v, node.Parent)
+
+		if !ok {
+			return errors.New("could not find reverse edge")
+		}
+
+		vi.OnTreeEdge(rev)
 	}
 
 	return nil
