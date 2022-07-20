@@ -387,11 +387,7 @@ func (g *G[T]) VertexCount() int {
 
 // EdgeCount calculates |E|, the number of edges currently in the graph.
 func (g *G[T]) EdgeCount() int {
-	if g.Undirected() {
-		return g.eCount / 2
-	} else {
-		return g.eCount
-	}
+	return g.eCount
 }
 
 // Accept accepts a graph visitor, and guides its execution using double-dispatching.
