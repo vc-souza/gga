@@ -91,13 +91,13 @@ type G[T Item] struct {
 	E map[*T][]*GE[T]
 
 	/*
-		VMap maps items to the position of their vertex in the vertex list.
+		vMap maps items to the position of their vertex in the vertex list.
 		Usually, it would be enough to map items to vertices directly, but
 		since it is desirable for the graph to be traversed in the same order
 		the vertices were inserted (for consistency and presentation purposes),
 		we map the item to the position of their vertex in the ordered list instead.
 	*/
-	VMap map[*T]int
+	vMap map[*T]int
 
 	// dir indicates whether the graph is directed.
 	dir bool
@@ -112,7 +112,7 @@ func newGraph[T Item](dir bool) *G[T] {
 	g.V = []*GV[T]{}
 	g.E = map[*T][]*GE[T]{}
 
-	g.VMap = map[*T]int{}
+	g.vMap = map[*T]int{}
 	g.dir = dir
 
 	return &g
@@ -145,13 +145,13 @@ func (g *G[T]) Undirected() bool {
 
 // VertexExists checks whether or not a given vertex exists in the graph.
 func (g *G[T]) VertexExists(t *T) bool {
-	_, ok := g.VMap[t]
+	_, ok := g.vMap[t]
 	return ok
 }
 
 // GetVertex fetches the vertex for the given data, if one exists in the graph.
 func (g *G[T]) GetVertex(t *T) (*GV[T], int, bool) {
-	idx, ok := g.VMap[t]
+	idx, ok := g.vMap[t]
 
 	if !ok {
 		return nil, -1, false
@@ -203,7 +203,7 @@ func (g *G[T]) UnsafeAddVertex(t *T) *GV[T] {
 	res := &GV[T]{Ptr: t}
 
 	g.V = append(g.V, res)
-	g.VMap[t] = len(g.V) - 1
+	g.vMap[t] = len(g.V) - 1
 	g.E[t] = nil
 	g.vCount++
 
@@ -225,7 +225,7 @@ func (g *G[T]) AddVertex(t *T) (*GV[T], error) {
 
 func (g *G[T]) removeVertex(t *T, idx int) {
 	// remove the mapping
-	delete(g.VMap, t)
+	delete(g.vMap, t)
 
 	// remove the actual vertex
 	g.V = RemoveFromPointersSlice(g.V, idx)
@@ -233,7 +233,7 @@ func (g *G[T]) removeVertex(t *T, idx int) {
 	// update the index of all copied vertices
 	for i := idx; i < len(g.V); i++ {
 		item := g.V[i].Ptr
-		g.VMap[item] = i
+		g.vMap[item] = i
 	}
 
 	g.vCount--
