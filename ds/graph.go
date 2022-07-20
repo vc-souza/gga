@@ -101,6 +101,9 @@ type G[T Item] struct {
 
 	// dir indicates whether the graph is directed.
 	dir bool
+
+	eCount int
+	vCount int
 }
 
 func newGraph[T Item](dir bool) *G[T] {
@@ -202,6 +205,7 @@ func (g *G[T]) UnsafeAddVertex(t *T) *GV[T] {
 	g.V = append(g.V, res)
 	g.vMap[t] = len(g.V) - 1
 	g.E[t] = nil
+	g.vCount++
 
 	return res
 }
@@ -231,9 +235,13 @@ func (g *G[T]) removeVertex(t *T, idx int) {
 		item := g.V[i].Ptr
 		g.vMap[item] = i
 	}
+
+	g.vCount--
 }
 
 func (g *G[T]) removeVertexEdges(t *T) {
+	g.eCount -= len(g.E[t])
+
 	// remove every edge coming out of the vertex
 	delete(g.E, t)
 
@@ -294,8 +302,8 @@ If you have any doubts about using this version, use the safe ones.
 */
 func (g *G[T]) UnsafeAddWeightedEdge(src, dst *T, wt float64) *GE[T] {
 	res := &GE[T]{Src: src, Dst: dst, Wt: wt}
-
 	g.E[src] = append(g.E[src], res)
+	g.eCount++
 
 	return res
 }
@@ -347,6 +355,7 @@ func (g *G[T]) AddUnweightedEdge(src, dst *T) (*GE[T], error) {
 
 func (g *G[T]) removeEdge(src *T, idx int) {
 	g.E[src] = RemoveFromPointersSlice(g.E[src], idx)
+	g.eCount--
 }
 
 // RemoveEdge removes an edge from the graph, if it exists.
@@ -373,24 +382,16 @@ func (g *G[T]) RemoveEdge(src, dst *T) error {
 
 // VertexCount calculates |V|, the number of vertices currently in the graph.
 func (g *G[T]) VertexCount() int {
-	return len(g.vMap)
+	return g.vCount
 }
 
 // EdgeCount calculates |E|, the number of edges currently in the graph.
 func (g *G[T]) EdgeCount() int {
-	res := 0
-
-	for _, es := range g.E {
-		for range es {
-			res++
-		}
-	}
-
 	if g.Undirected() {
-		res = res / 2
+		return g.eCount / 2
+	} else {
+		return g.eCount
 	}
-
-	return res
 }
 
 // Accept accepts a graph visitor, and guides its execution using double-dispatching.

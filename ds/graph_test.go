@@ -474,49 +474,73 @@ func TestGRemoveVertex(t *testing.T) {
 		expectEdges edgeList
 	}{
 		{
-			desc:        "does not exist",
-			verts:       vertList{&vA, &vC},
-			edges:       edgeList{edge(&vA, &vC)},
+			desc:  "does not exist",
+			verts: vertList{&vA, &vC},
+			edges: edgeList{
+				edge(&vA, &vC),
+				edge(&vC, &vA),
+			},
 			vert:        &vB,
 			err:         ErrNotExists,
 			expectVerts: vertList{&vA, &vC},
-			expectEdges: edgeList{edge(&vA, &vC)},
+			expectEdges: edgeList{
+				edge(&vA, &vC),
+				edge(&vC, &vA),
+			},
 		},
 		{
 			desc:  "vertex at the start",
 			verts: vertList{&vA, &vB, &vC},
 			edges: edgeList{
+				edge(&vA, &vB),
 				edge(&vA, &vC),
 				edge(&vB, &vA),
 				edge(&vB, &vC),
+				edge(&vC, &vA),
+				edge(&vC, &vB),
 			},
 			vert:        &vA,
 			expectVerts: vertList{&vB, &vC},
-			expectEdges: edgeList{edge(&vB, &vC)},
+			expectEdges: edgeList{
+				edge(&vB, &vC),
+				edge(&vC, &vB),
+			},
 		},
 		{
 			desc:  "vertex at the middle",
 			verts: vertList{&vA, &vB, &vC},
 			edges: edgeList{
+				edge(&vA, &vB),
 				edge(&vA, &vC),
 				edge(&vB, &vA),
+				edge(&vB, &vC),
+				edge(&vC, &vA),
 				edge(&vC, &vB),
 			},
 			vert:        &vB,
 			expectVerts: vertList{&vA, &vC},
-			expectEdges: edgeList{edge(&vA, &vC)},
+			expectEdges: edgeList{
+				edge(&vA, &vC),
+				edge(&vC, &vA),
+			},
 		},
 		{
 			desc:  "vertex at the end",
 			verts: vertList{&vA, &vB, &vC},
 			edges: edgeList{
 				edge(&vA, &vB),
+				edge(&vA, &vC),
+				edge(&vB, &vA),
 				edge(&vB, &vC),
 				edge(&vC, &vA),
+				edge(&vC, &vB),
 			},
 			vert:        &vC,
 			expectVerts: vertList{&vA, &vB},
-			expectEdges: edgeList{edge(&vA, &vB)},
+			expectEdges: edgeList{
+				edge(&vA, &vB),
+				edge(&vB, &vA),
+			},
 		},
 	}
 
@@ -547,7 +571,12 @@ func TestGRemoveVertex(t *testing.T) {
 				ut.Equal(t, false, ok)
 
 				ut.Equal(t, len(tc.expectVerts), g.VertexCount())
-				ut.Equal(t, len(tc.expectEdges), g.EdgeCount())
+
+				if g.Directed() {
+					ut.Equal(t, len(tc.expectEdges), g.EdgeCount())
+				} else {
+					ut.Equal(t, len(tc.expectEdges)/2, g.EdgeCount())
+				}
 
 				// vertices correctly rearranged, indexes updated
 				for i := 0; i < len(tc.expectVerts); i++ {
