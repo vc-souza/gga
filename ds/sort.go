@@ -1,6 +1,9 @@
 package ds
 
-// TODO: docs (non-decreasing edge weights)
+/*
+ByEdgeWeight implements the sort.Interface, enabling the sorting
+of a list of graph edges in order of non-decreasing edge weights.
+*/
 type ByEdgeWeight[T Item] []*GE[T]
 
 func (b ByEdgeWeight[T]) Len() int           { return len(b) }

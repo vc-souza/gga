@@ -5,7 +5,11 @@ import (
 	"github.com/vc-souza/gga/ds"
 )
 
-// TODO: docs
+/*
+MSTViz formats and exports an undirected graph after the execution of any algorithm
+that can discover a minimum spanning tree. The output of the algorithm is traversed,
+and hooks are provided so that custom formatting can be applied to the graph edges.
+*/
 type MSTViz[T ds.Item] struct {
 	ThemedGraphViz[T]
 
@@ -15,7 +19,7 @@ type MSTViz[T ds.Item] struct {
 	OnMSTEdge func(*ds.GE[T])
 }
 
-// TODO: docs
+// NewMSTViz initializes a new MSTViz with NOOP hooks.
 func NewMSTViz[T ds.Item](g *ds.G[T], mst algo.MST[T], t Theme) *MSTViz[T] {
 	res := &MSTViz[T]{}
 
@@ -29,7 +33,7 @@ func NewMSTViz[T ds.Item](g *ds.G[T], mst algo.MST[T], t Theme) *MSTViz[T] {
 	return res
 }
 
-// TODO: docs
+// Traverse iterates over the results of any MST algorithm, calling its hooks when appropriate.
 func (vi *MSTViz[T]) Traverse() error {
 	for _, e := range vi.MST {
 		vi.OnMSTEdge(e)
