@@ -571,7 +571,7 @@ func TestGRemoveVertex(t *testing.T) {
 				ut.Equal(t, false, ok)
 
 				// vert mapping removed
-				_, ok = g.vMap[tc.vert]
+				_, ok = g.VMap[tc.vert]
 				ut.Equal(t, false, ok)
 
 				ut.Equal(t, len(tc.expectVerts), g.VertexCount())
@@ -586,7 +586,7 @@ func TestGRemoveVertex(t *testing.T) {
 					ut.Equal(t, expected, actual.Ptr)
 
 					// correct mapping for the item
-					ut.Equal(t, i, g.vMap[actual.Ptr])
+					ut.Equal(t, i, g.VMap[actual.Ptr])
 				}
 
 				// correct edges still in place
