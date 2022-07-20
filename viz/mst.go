@@ -1,8 +1,6 @@
 package viz
 
 import (
-	"errors"
-
 	"github.com/vc-souza/gga/algo"
 	"github.com/vc-souza/gga/ds"
 )
@@ -39,7 +37,7 @@ func (vi *MSTViz[T]) Traverse() error {
 		rev, _, ok := vi.Graph.GetEdge(e.Dst, e.Src)
 
 		if !ok {
-			return errors.New("could not find reverse edge")
+			return ds.ErrRevEdgeNotExists
 		}
 
 		vi.OnMSTEdge(rev)

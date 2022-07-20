@@ -1,8 +1,6 @@
 package viz
 
 import (
-	"errors"
-
 	"github.com/vc-souza/gga/algo"
 	"github.com/vc-souza/gga/ds"
 )
@@ -64,7 +62,7 @@ func (vi *DFSViz[T]) Traverse() error {
 		vtx, _, ok := vi.Graph.GetVertex(v)
 
 		if !ok {
-			return errors.New("could not find vertex")
+			return ds.ErrVtxNotExists
 		}
 
 		vi.OnTreeVertex(vtx, node)
@@ -77,7 +75,7 @@ func (vi *DFSViz[T]) Traverse() error {
 		edge, _, ok := vi.Graph.GetEdge(node.Parent, v)
 
 		if !ok {
-			return errors.New("could not find edge")
+			return ds.ErrEdgeNotExists
 		}
 
 		vi.OnTreeEdge(edge)
@@ -89,7 +87,7 @@ func (vi *DFSViz[T]) Traverse() error {
 		rev, _, ok := vi.Graph.GetEdge(v, node.Parent)
 
 		if !ok {
-			return errors.New("could not find reverse edge")
+			return ds.ErrRevEdgeNotExists
 		}
 
 		vi.OnTreeEdge(rev)

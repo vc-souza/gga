@@ -1,7 +1,6 @@
 package viz
 
 import (
-	"errors"
 	"math"
 
 	"github.com/vc-souza/gga/algo"
@@ -56,7 +55,7 @@ func (vi *BFSViz[T]) Traverse() error {
 		vtx, _, ok := vi.Graph.GetVertex(v)
 
 		if !ok {
-			return errors.New("could not find vertex")
+			return ds.ErrVtxNotExists
 		}
 
 		if math.IsInf(node.Distance, 1) {
@@ -74,7 +73,7 @@ func (vi *BFSViz[T]) Traverse() error {
 		edge, _, ok := vi.Graph.GetEdge(node.Parent, v)
 
 		if !ok {
-			return errors.New("could not find edge")
+			return ds.ErrEdgeNotExists
 		}
 
 		vi.OnTreeEdge(edge)
@@ -86,7 +85,7 @@ func (vi *BFSViz[T]) Traverse() error {
 		rev, _, ok := vi.Graph.GetEdge(v, node.Parent)
 
 		if !ok {
-			return errors.New("could not find reverse edge")
+			return ds.ErrRevEdgeNotExists
 		}
 
 		vi.OnTreeEdge(rev)

@@ -1,8 +1,6 @@
 package viz
 
 import (
-	"errors"
-
 	"github.com/vc-souza/gga/algo"
 	"github.com/vc-souza/gga/ds"
 )
@@ -47,7 +45,7 @@ func (vi *CCViz[T]) Traverse() error {
 			vtx, _, ok := vi.Graph.GetVertex(v)
 
 			if !ok {
-				return errors.New("could not find vertex")
+				return ds.ErrVtxNotExists
 			}
 
 			vi.OnCCVertex(vtx, i)
