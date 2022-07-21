@@ -30,7 +30,7 @@ Complexity:
 	- Time:  Θ(V + E)
 	- Space: Θ(V)
 */
-func GSCC[V ds.Item](g *ds.G[V]) (*ds.G[ds.Group[V]], []SCC[V], error) {
+func GSCC[T ds.Item](g *ds.G[T]) (*ds.G[ds.Group[T]], []SCC[T], error) {
 	if g.Undirected() {
 		return nil, nil, ds.ErrUndefOp
 	}
@@ -46,7 +46,7 @@ func GSCC[V ds.Item](g *ds.G[V]) (*ds.G[ds.Group[V]], []SCC[V], error) {
 	// query time later, when the SCC that a vertex
 	// belongs to will need to be queried Θ(E) times,
 	// when building the adjacency list of the GSCC.
-	vtxSCC := map[*V]int{}
+	vtxSCC := map[*T]int{}
 
 	for id, scc := range sccs {
 		for _, v := range scc {
@@ -54,7 +54,7 @@ func GSCC[V ds.Item](g *ds.G[V]) (*ds.G[ds.Group[V]], []SCC[V], error) {
 		}
 	}
 
-	gscc := ds.NewDirectedGraph[ds.Group[V]]()
+	gscc := ds.NewDirectedGraph[ds.Group[T]]()
 
 	// By aligning the SCC id with the id of their
 	// vertex in the GSCC we can get the Group
@@ -63,7 +63,7 @@ func GSCC[V ds.Item](g *ds.G[V]) (*ds.G[ds.Group[V]], []SCC[V], error) {
 	// respective Group.
 	for id := range sccs {
 		gscc.UnsafeAddVertex(
-			&ds.Group[V]{
+			&ds.Group[T]{
 				Items: sccs[id],
 				Id:    id,
 			},

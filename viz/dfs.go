@@ -1,45 +1,43 @@
 package viz
 
 import (
-	"errors"
-
 	"github.com/vc-souza/gga/algo"
 	"github.com/vc-souza/gga/ds"
 )
 
 /*
-DFSViz formats and exports a graph after an execution of the DFS algorithm.
+DFSViz formats and exports a graph after the execution of the DFS algorithm.
 The output of the algorithm is traversed, and hooks are provided so that
 custom formatting can be applied to the graph, its vertices and edges.
 */
-type DFSViz[V ds.Item] struct {
-	ThemedGraphViz[V]
+type DFSViz[T ds.Item] struct {
+	ThemedGraphViz[T]
 
-	Forest algo.DFForest[V]
-	Edges  *algo.EdgeTypes[V]
+	Forest algo.DFForest[T]
+	Edges  *algo.EdgeTypes[T]
 
 	// OnTreeVertex is called for every vertex in the graph.
-	OnTreeVertex func(*ds.GV[V], *algo.DFNode[V])
+	OnTreeVertex func(*ds.GV[T], *algo.DFNode[T])
 
 	// OnRootVertex is called when the root of a DF tree is found.
-	OnRootVertex func(*ds.GV[V], *algo.DFNode[V])
+	OnRootVertex func(*ds.GV[T], *algo.DFNode[T])
 
 	// OnTreeEdge is called when a tree edge is found.
-	OnTreeEdge func(*ds.GE[V])
+	OnTreeEdge func(*ds.GE[T])
 
 	// OnForwardEdge is called when a forward edge is found.
-	OnForwardEdge func(*ds.GE[V])
+	OnForwardEdge func(*ds.GE[T])
 
 	// OnBackEdge is called when a back edge is found.
-	OnBackEdge func(*ds.GE[V])
+	OnBackEdge func(*ds.GE[T])
 
 	// OnCrossEdge is called when a cross edge is found.
-	OnCrossEdge func(*ds.GE[V])
+	OnCrossEdge func(*ds.GE[T])
 }
 
 // NewDFSViz initializes a new DFSViz with NOOP hooks.
-func NewDFSViz[V ds.Item](g *ds.G[V], f algo.DFForest[V], e *algo.EdgeTypes[V], t Theme) *DFSViz[V] {
-	res := &DFSViz[V]{}
+func NewDFSViz[T ds.Item](g *ds.G[T], f algo.DFForest[T], e *algo.EdgeTypes[T], t Theme) *DFSViz[T] {
+	res := &DFSViz[T]{}
 
 	res.Forest = f
 	res.Edges = e
@@ -47,24 +45,24 @@ func NewDFSViz[V ds.Item](g *ds.G[V], f algo.DFForest[V], e *algo.EdgeTypes[V], 
 	res.Graph = g
 	res.Theme = t
 
-	res.OnTreeVertex = func(*ds.GV[V], *algo.DFNode[V]) {}
-	res.OnRootVertex = func(*ds.GV[V], *algo.DFNode[V]) {}
+	res.OnTreeVertex = func(*ds.GV[T], *algo.DFNode[T]) {}
+	res.OnRootVertex = func(*ds.GV[T], *algo.DFNode[T]) {}
 
-	res.OnTreeEdge = func(*ds.GE[V]) {}
-	res.OnForwardEdge = func(*ds.GE[V]) {}
-	res.OnBackEdge = func(*ds.GE[V]) {}
-	res.OnCrossEdge = func(*ds.GE[V]) {}
+	res.OnTreeEdge = func(*ds.GE[T]) {}
+	res.OnForwardEdge = func(*ds.GE[T]) {}
+	res.OnBackEdge = func(*ds.GE[T]) {}
+	res.OnCrossEdge = func(*ds.GE[T]) {}
 
 	return res
 }
 
 // Traverse iterates over the results of a DFS execution, calling its hooks when appropriate.
-func (vi *DFSViz[V]) Traverse() error {
+func (vi *DFSViz[T]) Traverse() error {
 	for v, node := range vi.Forest {
 		vtx, _, ok := vi.Graph.GetVertex(v)
 
 		if !ok {
-			return errors.New("could not find vertex")
+			return ds.ErrVtxNotExists
 		}
 
 		vi.OnTreeVertex(vtx, node)
@@ -77,10 +75,22 @@ func (vi *DFSViz[V]) Traverse() error {
 		edge, _, ok := vi.Graph.GetEdge(node.Parent, v)
 
 		if !ok {
-			return errors.New("could not find edge")
+			return ds.ErrEdgeNotExists
 		}
 
 		vi.OnTreeEdge(edge)
+
+		if vi.Graph.Directed() {
+			continue
+		}
+
+		rev, _, ok := vi.Graph.GetEdge(v, node.Parent)
+
+		if !ok {
+			return ds.ErrRevEdgeNotExists
+		}
+
+		vi.OnTreeEdge(rev)
 	}
 
 	for _, e := range vi.Edges.Forward {

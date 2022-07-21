@@ -41,7 +41,7 @@ func exportStart(g *ds.G[ds.Text]) {
 	viz.Snapshot(g, fIn, viz.Themes.LightBreeze)
 }
 
-func exportEnd[V ds.Item](v viz.AlgoViz[V], path string) {
+func exportEnd[T ds.Item](v viz.AlgoViz[T], path string) {
 	fOut, err := os.Create(path)
 
 	if err != nil {

@@ -178,11 +178,7 @@ func TestTextParser(t *testing.T) {
 					ut.Equal(t, expectVerts[i], g.V[i].Label())
 				}
 
-				if g.Directed() {
-					ut.Equal(t, tc.edgeCount, g.EdgeCount())
-				} else {
-					ut.Equal(t, tc.edgeCount/2, g.EdgeCount())
-				}
+				ut.Equal(t, tc.edgeCount, g.EdgeCount())
 			})
 		}
 	}

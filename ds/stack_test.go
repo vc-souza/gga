@@ -8,23 +8,19 @@ import (
 
 func TestStackPush(t *testing.T) {
 	var item int
-	var ok bool
 
 	s := NewStack[int]()
 
 	s.Push(1, 2, 3)
 
-	item, ok = s.(*Deque[int]).Get(2)
-	ut.Equal(t, true, ok)
-	ut.Equal(t, 1, item)
+	item = (*s.(*SliceStack[int]))[2]
+	ut.Equal(t, 3, item)
 
-	item, ok = s.(*Deque[int]).Get(1)
-	ut.Equal(t, true, ok)
+	item = (*s.(*SliceStack[int]))[1]
 	ut.Equal(t, 2, item)
 
-	item, ok = s.(*Deque[int]).Get(0)
-	ut.Equal(t, true, ok)
-	ut.Equal(t, 3, item)
+	item = (*s.(*SliceStack[int]))[0]
+	ut.Equal(t, 1, item)
 }
 
 func TestStackEmpty(t *testing.T) {
@@ -108,22 +104,4 @@ func TestStackPop_empty(t *testing.T) {
 
 	_, ok := s.Pop()
 	ut.Equal(t, false, ok)
-}
-
-func TestStackPop_wrong_type(t *testing.T) {
-	defer func() {
-		if err := recover(); err == nil {
-			t.Log("function did not panic")
-			t.FailNow()
-		}
-	}()
-
-	s := NewStack[int]()
-
-	// forcefully adding an item with wrong type
-	if d, ok := s.(*Deque[int]); ok {
-		d.PushBack("wrong")
-	}
-
-	s.Pop()
 }

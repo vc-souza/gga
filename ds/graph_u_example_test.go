@@ -31,5 +31,5 @@ func ExampleG_undirected() {
 
 	// Output:
 	// 4
-	// 3
+	// 6
 }

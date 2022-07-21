@@ -9,9 +9,7 @@ A DFNode node represents a node in a Depth-First tree in a Depth-First forest, h
 the attributes produced by a DFS, for a particular vertex. At the end of the DFS, every
 vertex is part of one of the DF trees in the DF forest produced by the algorithm.
 */
-type DFNode[V ds.Item] struct {
-	iDFS
-
+type DFNode[T ds.Item] struct {
 	// Discovery records when the vertex was marked as discovered.
 	Discovery int
 
@@ -25,7 +23,9 @@ type DFNode[V ds.Item] struct {
 
 		After a DFS, every root of a DF tree in the DF forest will have a nil Parent.
 	*/
-	Parent *V
+	Parent *T
+
+	visited bool
 }
 
 /*
@@ -39,9 +39,9 @@ or edges is changed.
 The gga graph implementation guarantees both vertex and edge traversal in insertion order,
 so repeated DFS calls always produce the same DF forest.
 */
-type DFForest[V ds.Item] map[*V]*DFNode[V]
+type DFForest[T ds.Item] map[*T]*DFNode[T]
 
-func classifyDirectedEdge[V ds.Item](fst DFForest[V], tps *EdgeTypes[V], e *ds.GE[V]) {
+func classifyDirectedEdge[T ds.Item](fst DFForest[T], tps *EdgeTypes[T], e *ds.GE[T]) {
 	// the vertex being reached (Dst) was discovered before
 	// the vertex being explored (Src), so Dst is either
 	// an ancestor of Src, or they do not have a direct
@@ -61,7 +61,7 @@ func classifyDirectedEdge[V ds.Item](fst DFForest[V], tps *EdgeTypes[V], e *ds.G
 	}
 }
 
-func classifyUndirectedEdge[V ds.Item](fst DFForest[V], tps *EdgeTypes[V], e *ds.GE[V]) {
+func classifyUndirectedEdge[T ds.Item](fst DFForest[T], tps *EdgeTypes[T], e *ds.GE[T]) {
 	// due to how adjacency lists work, undirected
 	// graphs represent the same edge twice, so
 	// if we're dealing with the reverse of a tree
@@ -103,90 +103,51 @@ Expectations:
 Complexity:
 	- Time:  Θ(V + E)
 	- Space (without edge classification): Θ(V)
-	- Space (wit edge classification): O(V + E)
+	- Space (wit edge classification): Θ(V) + O(E)
 */
-func DFS[V ds.Item](g *ds.G[V], classify bool) (DFForest[V], *EdgeTypes[V], error) {
-	calls := ds.NewStack[*V]()
-	fst := DFForest[V]{}
-	tps := &EdgeTypes[V]{}
+func DFS[T ds.Item](g *ds.G[T], classify bool) (DFForest[T], *EdgeTypes[T], error) {
+	var visit func(*T)
 
+	fst := DFForest[T]{}
+	tps := &EdgeTypes[T]{}
 	t := 0
 
 	for v := range g.E {
-		fst[v] = &DFNode[V]{}
+		fst[v] = &DFNode[T]{}
 	}
 
-	// build a DF tree rooted at the vertex being visited;
-	// the tree will be a part of the DF forest
-	visit := func(root *V) {
-		calls.Push(root)
+	visit = func(vtx *T) {
+		t++
 
-		for !calls.Empty() {
-			vtx, _ := calls.Peek()
+		fst[vtx].Discovery = t
+		fst[vtx].visited = true
 
-			// vertex is being discovered
-			if !fst[vtx].visited {
-				t++
-				fst[vtx].Discovery = t
-				fst[vtx].visited = true
-			}
-
-			// vertex has exhausted its adjacency list:
-			// all of its descendants have been
-			// discovered and fully explored
-			if fst[vtx].next >= len(g.E[vtx]) {
-				t++
-				fst[vtx].Finish = t
-
-				calls.Pop()
-
-				continue
-			}
-
-			// explore what remains of the adjacency list of the vertex:
-			// new nodes will be pushed to the stack and old ones will
-			// trigger the classification of the edge that connects them
-			for i := fst[vtx].next; i < len(g.E[vtx]); i++ {
-				e := g.E[vtx][i]
-				fst[vtx].next++
-
-				if fst[e.Dst].visited {
-					if !classify {
-						continue
-					}
-
-					if g.Directed() {
-						classifyDirectedEdge(fst, tps, e)
-					} else {
-						classifyUndirectedEdge(fst, tps, e)
-					}
-				} else {
-					// found a tree edge
-					fst[e.Dst].Parent = vtx
-					calls.Push(e.Dst)
-
-					// depth-first means that a descendant needs to be fully explored
-					// before the next adjacent vertex is considered; whenever we run
-					// out of descendants to explore, the value of next[vtx] will
-					// give us the next adjacent node to fully explore.
-					break
+		for _, e := range g.E[vtx] {
+			if fst[e.Dst].visited {
+				if !classify {
+					continue
 				}
+
+				if g.Directed() {
+					classifyDirectedEdge(fst, tps, e)
+				} else {
+					classifyUndirectedEdge(fst, tps, e)
+				}
+			} else {
+				fst[e.Dst].Parent = vtx
+				visit(e.Dst)
 			}
 		}
+
+		t++
+
+		fst[vtx].Finish = t
 	}
 
-	// if a vertex is not included in a tree during a call to the 'tree'
-	// function, then it could be picked as the root of the next tree:
-	// by iterating over all unvisited vertices, we assure that no
-	// vertex will be left without being assign to a DF tree, even
-	// if its tree ends up only containing the vertex itself.
 	for _, vert := range g.V {
-		// skip: already part of another tree
-		if fst[vert.Ptr].visited {
-			continue
+		if !fst[vert.Ptr].visited {
+			visit(vert.Ptr)
 		}
-
-		visit(vert.Ptr)
 	}
 
 	return fst, tps, nil

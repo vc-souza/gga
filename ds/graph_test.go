@@ -162,7 +162,11 @@ func TestGEdgeCount(t *testing.T) {
 
 				addEdges(g, tc.edges)
 
-				ut.Equal(t, tc.expect, g.EdgeCount())
+				if g.Directed() {
+					ut.Equal(t, tc.expect, g.EdgeCount())
+				} else {
+					ut.Equal(t, tc.expect*2, g.EdgeCount())
+				}
 			})
 		}
 	}
@@ -474,49 +478,73 @@ func TestGRemoveVertex(t *testing.T) {
 		expectEdges edgeList
 	}{
 		{
-			desc:        "does not exist",
-			verts:       vertList{&vA, &vC},
-			edges:       edgeList{edge(&vA, &vC)},
+			desc:  "does not exist",
+			verts: vertList{&vA, &vC},
+			edges: edgeList{
+				edge(&vA, &vC),
+				edge(&vC, &vA),
+			},
 			vert:        &vB,
 			err:         ErrNotExists,
 			expectVerts: vertList{&vA, &vC},
-			expectEdges: edgeList{edge(&vA, &vC)},
+			expectEdges: edgeList{
+				edge(&vA, &vC),
+				edge(&vC, &vA),
+			},
 		},
 		{
 			desc:  "vertex at the start",
 			verts: vertList{&vA, &vB, &vC},
 			edges: edgeList{
+				edge(&vA, &vB),
 				edge(&vA, &vC),
 				edge(&vB, &vA),
 				edge(&vB, &vC),
+				edge(&vC, &vA),
+				edge(&vC, &vB),
 			},
 			vert:        &vA,
 			expectVerts: vertList{&vB, &vC},
-			expectEdges: edgeList{edge(&vB, &vC)},
+			expectEdges: edgeList{
+				edge(&vB, &vC),
+				edge(&vC, &vB),
+			},
 		},
 		{
 			desc:  "vertex at the middle",
 			verts: vertList{&vA, &vB, &vC},
 			edges: edgeList{
+				edge(&vA, &vB),
 				edge(&vA, &vC),
 				edge(&vB, &vA),
+				edge(&vB, &vC),
+				edge(&vC, &vA),
 				edge(&vC, &vB),
 			},
 			vert:        &vB,
 			expectVerts: vertList{&vA, &vC},
-			expectEdges: edgeList{edge(&vA, &vC)},
+			expectEdges: edgeList{
+				edge(&vA, &vC),
+				edge(&vC, &vA),
+			},
 		},
 		{
 			desc:  "vertex at the end",
 			verts: vertList{&vA, &vB, &vC},
 			edges: edgeList{
 				edge(&vA, &vB),
+				edge(&vA, &vC),
+				edge(&vB, &vA),
 				edge(&vB, &vC),
 				edge(&vC, &vA),
+				edge(&vC, &vB),
 			},
 			vert:        &vC,
 			expectVerts: vertList{&vA, &vB},
-			expectEdges: edgeList{edge(&vA, &vB)},
+			expectEdges: edgeList{
+				edge(&vA, &vB),
+				edge(&vB, &vA),
+			},
 		},
 	}
 
@@ -573,39 +601,40 @@ func TestGRemoveVertex(t *testing.T) {
 
 func TestGRemoveEdge(t *testing.T) {
 	cases := []struct {
-		desc        string
-		verts       vertList
-		edges       edgeList
-		edge        GE[Text]
-		exists      bool
-		err         bool
-		expectCount int
+		desc             string
+		verts            vertList
+		edges            edgeList
+		edge             GE[Text]
+		exists           bool
+		err              bool
+		expectDirCount   int
+		expectUndirCount int
 	}{
 		{
-			desc:        "does not exist",
-			verts:       vertList{&vA, &vB},
-			edges:       edgeList{},
-			edge:        edge(&vA, &vB),
-			err:         true,
-			expectCount: 0,
+			desc:             "does not exist",
+			verts:            vertList{&vA, &vB},
+			edges:            edgeList{},
+			edge:             edge(&vA, &vB),
+			err:              true,
+			expectDirCount:   0,
+			expectUndirCount: 0,
 		},
 		{
-			desc:        "last edge",
-			verts:       vertList{&vA, &vB},
-			edges:       edgeList{edge(&vA, &vB)},
-			edge:        edge(&vA, &vB),
-			exists:      true,
-			err:         false,
-			expectCount: 0,
-		},
-		{
-			desc:        "common edge",
-			verts:       vertList{&vA, &vB, &vC},
-			edges:       edgeList{edge(&vA, &vB), edge(&vA, &vC), edge(&vB, &vC)},
-			edge:        edge(&vA, &vB),
-			exists:      true,
-			err:         false,
-			expectCount: 2,
+			desc:  "common edge",
+			verts: vertList{&vA, &vB, &vC},
+			edges: edgeList{
+				edge(&vA, &vB),
+				edge(&vA, &vC),
+				edge(&vB, &vA),
+				edge(&vB, &vC),
+				edge(&vC, &vA),
+				edge(&vC, &vB),
+			},
+			edge:             edge(&vA, &vB),
+			exists:           true,
+			err:              false,
+			expectDirCount:   5,
+			expectUndirCount: 4,
 		},
 	}
 
@@ -625,7 +654,12 @@ func TestGRemoveEdge(t *testing.T) {
 				err := g.RemoveEdge(tc.edge.Src, tc.edge.Dst)
 
 				ut.Equal(t, tc.err, err != nil)
-				ut.Equal(t, tc.expectCount, g.EdgeCount())
+
+				if g.Directed() {
+					ut.Equal(t, tc.expectDirCount, g.EdgeCount())
+				} else {
+					ut.Equal(t, tc.expectUndirCount, g.EdgeCount())
+				}
 
 				_, _, ok := g.GetEdge(tc.edge.Src, tc.edge.Dst)
 				ut.Equal(t, false, ok)

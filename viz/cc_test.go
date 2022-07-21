@@ -33,5 +33,5 @@ func TestCCViz(t *testing.T) {
 	ExportViz[ds.Text](vi, ut.DummyWriter{})
 
 	ut.Equal(t, g.VertexCount(), vCount)
-	ut.Equal(t, g.EdgeCount()*2, eCount)
+	ut.Equal(t, g.EdgeCount(), eCount)
 }

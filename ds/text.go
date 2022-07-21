@@ -27,6 +27,9 @@ func (t Text) Label() string {
 	return string(t)
 }
 
+/*
+ErrInvalidSer represents an error that happened during the parsing of a serialized graph.
+*/
 type ErrInvalidSer struct {
 	Reason error
 }

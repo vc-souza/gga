@@ -8,7 +8,7 @@ import (
 	ut "github.com/vc-souza/gga/internal/testutils"
 )
 
-var cases = []struct {
+var ccCases = []struct {
 	desc string
 	algo CCAlgo[ds.Text]
 }{
@@ -23,7 +23,7 @@ var cases = []struct {
 }
 
 func TestCC_directed(t *testing.T) {
-	for _, tc := range cases {
+	for _, tc := range ccCases {
 		t.Run(tc.desc, func(t *testing.T) {
 			g, _, err := ds.Parse(ut.UDGDeps)
 
@@ -51,7 +51,7 @@ func TestCC_undirected(t *testing.T) {
 		"j": 3,
 	}
 
-	for _, tc := range cases {
+	for _, tc := range ccCases {
 		t.Run(tc.desc, func(t *testing.T) {
 			g, _, err := ds.Parse(ut.UUGDisc)
 

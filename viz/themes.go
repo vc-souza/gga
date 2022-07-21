@@ -14,7 +14,7 @@ type Theme interface {
 }
 
 // SetTheme sets the default formatting of an exporter using a Theme.
-func SetTheme[V ds.Item](e *Exporter[V], t Theme) {
+func SetTheme[T ds.Item](e *Exporter[T], t Theme) {
 	if t == nil {
 		return
 	}

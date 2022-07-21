@@ -67,3 +67,11 @@ Examples can be found in the [samples](/internal/samples) folder.
 
 ##### After
 ![after](/res/img/gscc/after.svg)
+
+### [Minimum Spanning Tree](/algo/mst.go)
+
+##### Before
+![before](/res/img/mst/before.svg)
+
+##### After
+![after](/res/img/mst/after.svg)
