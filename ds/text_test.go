@@ -140,7 +140,7 @@ func TestTextParser(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		for _, gType := range []string{UndirectedGraphKey, DirectedGraphKey} {
+		for _, gType := range []string{undirectedGraphKey, directedGraphKey} {
 			t.Run(tagGraphTest(gType, tc.desc), func(t *testing.T) {
 				var input string
 
@@ -158,7 +158,7 @@ func TestTextParser(t *testing.T) {
 					return
 				}
 
-				if gType == UndirectedGraphKey {
+				if gType == undirectedGraphKey {
 					ut.Equal(t, true, g.Undirected())
 				} else {
 					ut.Equal(t, true, g.Directed())

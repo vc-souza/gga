@@ -12,8 +12,8 @@ type edgeList []GE[Text]
 type vertList []*Text
 
 var graphGenFuncs = map[string]graphGen{
-	UndirectedGraphKey: NewUndirectedGraph[Text],
-	DirectedGraphKey:   NewDirectedGraph[Text],
+	undirectedGraphKey: NewUndirectedGraph[Text],
+	directedGraphKey:   NewDirectedGraph[Text],
 }
 
 var vA = Text("a")
@@ -418,11 +418,11 @@ func TestGAddWeightedEdge(t *testing.T) {
 
 	for _, tc := range cases {
 		for gType, f := range graphGenFuncs {
-			if tc.skipDir && gType == DirectedGraphKey {
+			if tc.skipDir && gType == directedGraphKey {
 				continue
 			}
 
-			if tc.skipUndir && gType == UndirectedGraphKey {
+			if tc.skipUndir && gType == undirectedGraphKey {
 				continue
 			}
 
