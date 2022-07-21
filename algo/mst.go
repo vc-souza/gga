@@ -1,6 +1,9 @@
 package algo
 
 import (
+	"container/heap"
+	"fmt"
+	"math"
 	"sort"
 
 	"github.com/vc-souza/gga/ds"
@@ -87,6 +90,85 @@ func MSTKruskal[T ds.Item](g *ds.G[T]) (MST[T], error) {
 			break
 		}
 	}
+
+	return mst, nil
+}
+
+// TODO: docs
+type primVtx[T ds.Item] struct {
+	// Ptr holds a reference to the original vertex.
+	Ptr *T
+
+	// BestWt holds the weight of the best edge found so far that can connect the vertex to the MST.
+	BestWt float64
+
+	// BestEdge holds the best edge found so far that can connect the vertex to the MST.
+	BestEdge *ds.GE[T]
+}
+
+func (v primVtx[T]) String() string {
+	return fmt.Sprintf(
+		"%s edge:[%v] key:<%f>",
+		(*v.Ptr).Label(),
+		v.BestEdge,
+		v.BestWt,
+	)
+}
+
+// TODO: docs
+type primVtxHeap[T ds.Item] []*primVtx[T]
+
+func (h primVtxHeap[T]) Len() int           { return len(h) }
+func (h primVtxHeap[T]) Less(i, j int) bool { return h[i].BestWt < h[j].BestWt }
+func (h primVtxHeap[T]) Swap(i, j int)      { h[i], h[j] = h[j], h[i] }
+
+func (h *primVtxHeap[T]) Push(x any) {
+	*h = append(*h, x.(*primVtx[T]))
+}
+
+func (h *primVtxHeap[T]) Pop() any {
+	n := len(*h)
+	x := (*h)[n-1]
+
+	(*h)[n-1] = nil
+	*h = (*h)[:n-1]
+
+	return x
+}
+
+// TODO: docs
+func MSTPrim[T ds.Item](g *ds.G[T]) (MST[T], error) {
+	if g.Directed() {
+		return nil, ds.ErrUndefOp
+	}
+
+	vtxHeap := make(primVtxHeap[T], 0, g.VertexCount())
+	vtxMap := map[*T]*primVtx[T]{}
+
+	for i, vtx := range g.V {
+		var wt float64
+
+		// source
+		if i == 0 {
+			wt = 0
+		} else {
+			wt = math.Inf(1)
+		}
+
+		pVtx := &primVtx[T]{
+			Ptr:    vtx.Ptr,
+			BestWt: wt,
+		}
+
+		vtxHeap = append(vtxHeap, pVtx)
+		vtxMap[pVtx.Ptr] = pVtx
+	}
+
+	heap.Init(&vtxHeap)
+
+	mst := MST[T]{}
+
+	// TODO: impl
 
 	return mst, nil
 }
