@@ -5,9 +5,10 @@ import (
 )
 
 /*
-TSortViz formats and exports a graph after an execution of the Topological Sort algorithm.
-The output of the algorithm is traversed, and hooks are provided so that custom formatting
-can be applied to the graph, its vertices and edges.
+TSortViz formats and exports a directed graph after the execution
+of the Topological Sort algorithm. The output of the algorithm is
+traversed, and hooks are provided so that custom formatting can be
+applied to the graph, its vertices and edges.
 */
 type TSortViz[T ds.Item] struct {
 	ThemedGraphViz[T]

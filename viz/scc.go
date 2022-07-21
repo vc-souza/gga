@@ -6,9 +6,9 @@ import (
 )
 
 /*
-SCCViz formats and exports a graph after an execution of any algorithm that discovers
-the strongly connected components of a directed graph. The output of the algorithm
-is traversed, and hooks are provided so that custom formatting can be applied to
+SCCViz formats and exports a directed graph after the execution of any algorithm
+that discovers strongly connected components. The output of the algorithm is
+traversed, and hooks are provided so that custom formatting can be applied to
 the graph, its vertices and edges.
 */
 type SCCViz[T ds.Item] struct {

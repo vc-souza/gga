@@ -6,10 +6,10 @@ import (
 )
 
 /*
-CCViz formats and exports a graph after an execution of any algorithm that discovers
-the connected components of an undirected graph. The output of the algorithm is
-traversed, and hooks are provided so that custom formatting can be applied to
-the graph, its vertices and edges.
+CCViz formats and exports an undirected graph after the execution of any algorithm
+that discovers connected components. The output of the algorithm is traversed, and
+hooks are provided so that custom formatting can be applied to the graph, its
+vertices and edges.
 */
 type CCViz[T ds.Item] struct {
 	ThemedGraphViz[T]

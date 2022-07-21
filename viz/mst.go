@@ -7,15 +7,15 @@ import (
 
 /*
 MSTViz formats and exports an undirected graph after the execution of any algorithm
-that can discover a minimum spanning tree. The output of the algorithm is traversed,
-and hooks are provided so that custom formatting can be applied to the graph edges.
+that builds a minimum spanning tree. The output of the algorithm is traversed, and
+hooks are provided so that custom formatting can be applied to the graph edges.
 */
 type MSTViz[T ds.Item] struct {
 	ThemedGraphViz[T]
 
 	MST algo.MST[T]
 
-	// TODO: docs
+	// OnMSTEdge is called for any edge that is a part of an MST.
 	OnMSTEdge func(*ds.GE[T])
 }
 

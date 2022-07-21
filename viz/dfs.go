@@ -6,7 +6,7 @@ import (
 )
 
 /*
-DFSViz formats and exports a graph after an execution of the DFS algorithm.
+DFSViz formats and exports a graph after the execution of the DFS algorithm.
 The output of the algorithm is traversed, and hooks are provided so that
 custom formatting can be applied to the graph, its vertices and edges.
 */

@@ -6,10 +6,18 @@ import (
 	"github.com/vc-souza/gga/ds"
 )
 
-// TODO: docs
+/*
+MSTAlgo describes the signature of an algorithm that can build a minimum
+spanning forest (tree if the graph is connected) of an undirected graph
+with weighted edges. If such an algorithm is called on a directed graph,
+then ds.ErrUndefOp error is returned.
+*/
 type MSTAlgo[T ds.Item] func(*ds.G[T]) (MST[T], error)
 
-// TODO: docs
+/*
+An MST holds the edges of a minimum spanning forest (tree if the
+graph is connected) of an undirected graph with weighted edges.
+*/
 type MST[T ds.Item] []*ds.GE[T]
 
 // TODO: docs
@@ -20,6 +28,10 @@ func MSTKruskal[T ds.Item](g *ds.G[T]) (MST[T], error) {
 
 	edges := make([]*ds.GE[T], g.EdgeCount())
 
+	// By iterating over G.V and adding edges using their original
+	// insertion order, we can guarantee that every call of the
+	// algorithm on the same graph always yields the same MST,
+	// since multiple MSTs might exist for the same graph.
 	for i, eIdx := 0, 0; i < len(g.V); i++ {
 		es := g.E[g.V[i].Ptr]
 
@@ -28,7 +40,10 @@ func MSTKruskal[T ds.Item](g *ds.G[T]) (MST[T], error) {
 		eIdx += len(es)
 	}
 
-	// O(E log E)
+	// By using a stable sorting algorithm to sort the sequence
+	// of edges in O(E log E) time, we make sure that if a tie
+	// happens between edges of same weight, the original insertion
+	// order is respected, and a consistent result is achieved.
 	sort.Stable(ds.ByEdgeWeight[T](edges))
 
 	d := ds.NewDSet[T]()
