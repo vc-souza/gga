@@ -8,21 +8,21 @@ import (
 
 /*
 MSTAlgo describes the signature of an algorithm that can build a minimum
-spanning forest (tree if the graph is connected) of an undirected graph
-with weighted edges. If such an algorithm is called on a directed graph,
-then ds.ErrUndefOp error is returned.
+spanning tree of an undirected graph with weighted edges. If such an
+algorithm is called on a directed graph, then ds.ErrUndefOp error
+is returned.
 */
 type MSTAlgo[T ds.Item] func(*ds.G[T]) (MST[T], error)
 
 /*
-An MST holds the edges of a minimum spanning forest (tree if the
-graph is connected) of an undirected graph with weighted edges.
+An MST holds the edges of a minimum spanning tree
+of an undirected graph with weighted edges.
 */
 type MST[T ds.Item] []*ds.GE[T]
 
 /*
-MSTKruskal implements Kruskal's algorithm for finding a minimum spanning forest
-(tree if the graph is connected) of an undirected graph with weighted edges.
+MSTKruskal implements Kruskal's algorithm for finding a minimum spanning tree
+of an undirected graph with weighted edges.
 
 It is a greedy algorithm that applies the greedy-choice property by first
 sorting all edges of the graph in order of non-decreasing edge weights, and
