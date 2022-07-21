@@ -82,7 +82,6 @@ func BFS[T ds.Item](g *ds.G[T], src *T) (BFTree[T], error) {
 				continue
 			}
 
-			// found a tree edge
 			tree[edge.Dst].Distance = tree[curr].Distance + 1
 			tree[edge.Dst].Parent = curr
 			tree[edge.Dst].visited = true

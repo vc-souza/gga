@@ -20,7 +20,26 @@ graph is connected) of an undirected graph with weighted edges.
 */
 type MST[T ds.Item] []*ds.GE[T]
 
-// TODO: docs
+/*
+MSTKruskal implements Kruskal's algorithm for finding a minimum spanning forest
+(tree if the graph is connected) of an undirected graph with weighted edges.
+
+It is a greedy algorithm that applies the greedy-choice property by first
+sorting all edges of the graph in order of non-decreasing edge weights, and
+then iterating over the sorted list of edges, always picking the edge of
+least weight (greedy choice, locally optimal) that connects previously
+unlinked components. A disjoint-set data structure is used to keep track
+of the components, and at the end of the algorithm, the list of edges
+returned forms an MST of the original graph (globally optimal solution).
+
+Expectations:
+	- The graph is correctly built.
+	- The graph is undirected.
+
+Complexity:
+	- Time:  O(E log V)
+	- Space: Θ(V + E).
+*/
 func MSTKruskal[T ds.Item](g *ds.G[T]) (MST[T], error) {
 	if g.Directed() {
 		return nil, ds.ErrUndefOp

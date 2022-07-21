@@ -70,6 +70,7 @@ func CCDFS[T ds.Item](g *ds.G[T]) ([]CC[T], error) {
 
 		visit(vert.Ptr)
 
+		// DF tree == connected component
 		ccs = append(ccs, *cc)
 	}
 
