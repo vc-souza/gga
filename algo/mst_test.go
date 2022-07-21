@@ -33,6 +33,20 @@ var mstCases = []struct {
 			{"d", "e", 9},
 		},
 	},
+	{
+		desc: "Prim",
+		algo: MSTPrim[ds.Text],
+		expect: []expectedMSTEdge{
+			{"a", "b", 4},
+			{"a", "h", 8},
+			{"h", "g", 1},
+			{"g", "f", 2},
+			{"f", "c", 4},
+			{"c", "i", 2},
+			{"c", "d", 7},
+			{"d", "e", 9},
+		},
+	},
 }
 
 func TestMST_directed(t *testing.T) {

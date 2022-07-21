@@ -2,6 +2,7 @@ package algo
 
 import (
 	"container/heap"
+	"errors"
 	"fmt"
 	"math"
 	"sort"
@@ -96,22 +97,30 @@ func MSTKruskal[T ds.Item](g *ds.G[T]) (MST[T], error) {
 
 // TODO: docs
 type primVtx[T ds.Item] struct {
-	// Ptr holds a reference to the original vertex.
-	Ptr *T
+	// ptr holds a reference to the original vertex.
+	ptr *T
 
-	// BestWt holds the weight of the best edge found so far that can connect the vertex to the MST.
-	BestWt float64
+	// wt holds the weight of the best edge found so far that can connect the vertex to the MST.
+	wt float64
 
-	// BestEdge holds the best edge found so far that can connect the vertex to the MST.
-	BestEdge *ds.GE[T]
+	// edge holds the best edge found so far that can connect the vertex to the MST.
+	edge *ds.GE[T]
+
+	// in tells if the vertex is still in the heap.
+	in bool
+
+	// index stores the index of the vertex, in the heap.
+	index int
 }
 
 func (v primVtx[T]) String() string {
 	return fmt.Sprintf(
-		"%s edge:[%v] key:<%f>",
-		(*v.Ptr).Label(),
-		v.BestEdge,
-		v.BestWt,
+		"%s in:%t i:<%d> wt:<%f> edge:[%v]",
+		(*v.ptr).Label(),
+		v.in,
+		v.index,
+		v.wt,
+		v.edge,
 	)
 }
 
@@ -119,8 +128,13 @@ func (v primVtx[T]) String() string {
 type primVtxHeap[T ds.Item] []*primVtx[T]
 
 func (h primVtxHeap[T]) Len() int           { return len(h) }
-func (h primVtxHeap[T]) Less(i, j int) bool { return h[i].BestWt < h[j].BestWt }
-func (h primVtxHeap[T]) Swap(i, j int)      { h[i], h[j] = h[j], h[i] }
+func (h primVtxHeap[T]) Less(i, j int) bool { return h[i].wt < h[j].wt }
+func (h primVtxHeap[T]) Swap(i, j int) {
+	h[i], h[j] = h[j], h[i]
+
+	h[i].index = i
+	h[j].index = j
+}
 
 func (h *primVtxHeap[T]) Push(x any) {
 	*h = append(*h, x.(*primVtx[T]))
@@ -132,6 +146,9 @@ func (h *primVtxHeap[T]) Pop() any {
 
 	(*h)[n-1] = nil
 	*h = (*h)[:n-1]
+
+	x.in = false
+	x.index = -1
 
 	return x
 }
@@ -156,19 +173,48 @@ func MSTPrim[T ds.Item](g *ds.G[T]) (MST[T], error) {
 		}
 
 		pVtx := &primVtx[T]{
-			Ptr:    vtx.Ptr,
-			BestWt: wt,
+			ptr:   vtx.Ptr,
+			wt:    wt,
+			in:    true,
+			index: i,
 		}
 
 		vtxHeap = append(vtxHeap, pVtx)
-		vtxMap[pVtx.Ptr] = pVtx
+		vtxMap[pVtx.ptr] = pVtx
 	}
 
 	heap.Init(&vtxHeap)
 
 	mst := MST[T]{}
 
-	// TODO: impl
+	for len(vtxHeap) != 0 {
+		vtx := heap.Pop(&vtxHeap).(*primVtx[T])
+
+		if math.IsInf(vtx.wt, 1) {
+			return nil, errors.New("input graph is not connected")
+		}
+
+		if vtx.edge != nil {
+			mst = append(mst, vtx.edge)
+		}
+
+		for _, e := range g.E[vtx.ptr] {
+			dstVtx := vtxMap[e.Dst]
+
+			if !dstVtx.in {
+				continue
+			}
+
+			if e.Wt >= dstVtx.wt {
+				continue
+			}
+
+			dstVtx.edge = e
+			dstVtx.wt = e.Wt
+
+			heap.Fix(&vtxHeap, dstVtx.index)
+		}
+	}
 
 	return mst, nil
 }
