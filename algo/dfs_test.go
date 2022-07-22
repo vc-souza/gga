@@ -38,7 +38,7 @@ func TestDFS_directed(t *testing.T) {
 
 			ut.AssertEqual(t, 1, fst[v1].Discovery)
 			ut.AssertEqual(t, 8, fst[v1].Finish)
-			ut.AssertEqual(t, nil, fst[v1].Parent)
+			ut.AssertNil(t, fst[v1].Parent)
 
 			ut.AssertEqual(t, 2, fst[v2].Discovery)
 			ut.AssertEqual(t, 7, fst[v2].Finish)
@@ -46,7 +46,7 @@ func TestDFS_directed(t *testing.T) {
 
 			ut.AssertEqual(t, 9, fst[v3].Discovery)
 			ut.AssertEqual(t, 12, fst[v3].Finish)
-			ut.AssertEqual(t, nil, fst[v3].Parent)
+			ut.AssertNil(t, fst[v3].Parent)
 
 			ut.AssertEqual(t, 4, fst[v4].Discovery)
 			ut.AssertEqual(t, 5, fst[v4].Finish)
@@ -95,7 +95,7 @@ func TestDFS_undirected(t *testing.T) {
 
 			ut.AssertEqual(t, 1, fst[vR].Discovery)
 			ut.AssertEqual(t, 16, fst[vR].Finish)
-			ut.AssertEqual(t, nil, fst[vR].Parent)
+			ut.AssertNil(t, fst[vR].Parent)
 
 			ut.AssertEqual(t, 2, fst[vS].Discovery)
 			ut.AssertEqual(t, 13, fst[vS].Finish)

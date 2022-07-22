@@ -25,13 +25,13 @@ func TestBFS_directed(t *testing.T) {
 	ut.AssertNil(t, err)
 
 	ut.AssertTrue(t, math.IsInf(tree[v1].Distance, 1))
-	ut.AssertEqual(t, nil, tree[v1].Parent)
+	ut.AssertNil(t, tree[v1].Parent)
 
 	ut.AssertEqual(t, 3, tree[v2].Distance)
 	ut.AssertEqual(t, v4, tree[v2].Parent)
 
 	ut.AssertEqual(t, 0, tree[v3].Distance)
-	ut.AssertEqual(t, nil, tree[v3].Parent)
+	ut.AssertNil(t, tree[v3].Parent)
 
 	ut.AssertEqual(t, 2, tree[v4].Distance)
 	ut.AssertEqual(t, v5, tree[v4].Parent)
@@ -71,7 +71,7 @@ func TestBFS_undirected(t *testing.T) {
 	ut.AssertEqual(t, vU, tree[vT].Parent)
 
 	ut.AssertEqual(t, 0, tree[vU].Distance)
-	ut.AssertEqual(t, nil, tree[vU].Parent)
+	ut.AssertNil(t, tree[vU].Parent)
 
 	ut.AssertEqual(t, 5, tree[vV].Distance)
 	ut.AssertEqual(t, vR, tree[vV].Parent)
