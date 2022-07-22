@@ -84,7 +84,40 @@ func (h *primVtxHeap[T]) Pop() any {
 	return x
 }
 
-// TODO: docs
+/*
+MSTPrim implements Prim's algorithm for finding a minimum spanning tree
+of an undirected graph with weighted edges. One extra restriction is that
+the graph needs to be connected: if not, the algorithm will not find the
+minimum spanning forest, and an error will be returned.
+
+This is a greedy algorithm that can start from any source vertex (this
+particular implementation always starts from the first vertex added to
+the graph) and that expands the current MST subset one vertex at a time,
+after each iteration.
+
+The greedy-choice property is used by maintaining a min-heap containing
+every vertex that has not been added to the MST subset, using the lowest
+known edge weight to reach that vertex from the MST subset as the heap key.
+
+At the start of each iteration, the vertex v with the smallest key is
+extracted from the heap and added to the MST subset (greedy choice,
+locally optimal). Then the adjacency list of v is examined, and every
+vertex u that is still in the heap and whose edge (v, u) has a weight
+that is smaller than the key of u is updated in the heap, which is
+then fixed to keep its heap property.
+
+After the heap is emptied, the algorithm is guaranteed to have computed
+an MST of the original graph (globally optimal solution), but only if
+the graph is connected.
+
+Expectations:
+	- The graph is correctly built.
+	- The graph is undirected.
+
+Complexity:
+	- Time:  O(E log V)
+	- Space: Θ(V).
+*/
 func MSTPrim[T ds.Item](g *ds.G[T]) (MST[T], error) {
 	if g.Directed() {
 		return nil, ds.ErrDirected
@@ -154,7 +187,7 @@ func MSTPrim[T ds.Item](g *ds.G[T]) (MST[T], error) {
 MSTKruskal implements Kruskal's algorithm for finding a minimum spanning tree
 of an undirected graph with weighted edges.
 
-It is a greedy algorithm that applies the greedy-choice property by first
+This is a greedy algorithm that applies the greedy-choice property by first
 sorting all edges of the graph in order of non-decreasing edge weights, and
 then iterating over the sorted list of edges, always picking the edge of
 least weight (greedy choice, locally optimal) that connects previously
