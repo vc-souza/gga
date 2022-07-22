@@ -69,14 +69,13 @@ func (g *G2) AddVertex(i Item) (*GV2, error) {
 	g.V = append(g.V, GV2{Item: i})
 
 	idx := len(g.V) - 1
-	ptr := &g.V[idx]
 
-	ptr.Index = idx
+	g.V[idx].Index = idx
 	g.sat[i] = idx
 
 	g.vCount++
 
-	return ptr, nil
+	return &g.V[idx], nil
 }
 
 // TODO: docs
