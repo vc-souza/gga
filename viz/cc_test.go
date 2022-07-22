@@ -11,11 +11,11 @@ import (
 func TestCCViz(t *testing.T) {
 	g, _, err := ds.Parse(ut.UUGDisc)
 
-	ut.AssertNil(t, err)
+	ut.Nil(t, err)
 
 	ccs, err := algo.CCDFS(g)
 
-	ut.AssertNil(t, err)
+	ut.Nil(t, err)
 
 	vi := NewCCViz(g, ccs, nil)
 
@@ -32,6 +32,6 @@ func TestCCViz(t *testing.T) {
 
 	ExportViz[ds.Text](vi, ut.DummyWriter{})
 
-	ut.AssertEqual(t, g.VertexCount(), vCount)
-	ut.AssertEqual(t, g.EdgeCount(), eCount)
+	ut.Equal(t, g.VertexCount(), vCount)
+	ut.Equal(t, g.EdgeCount(), eCount)
 }

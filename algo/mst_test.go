@@ -54,12 +54,12 @@ func TestMST_directed(t *testing.T) {
 		t.Run(tc.desc, func(t *testing.T) {
 			g, _, err := ds.Parse(ut.UDGDeps)
 
-			ut.AssertNil(t, err)
+			ut.Nil(t, err)
 
 			_, err = tc.algo(g)
 
-			ut.AssertNotNil(t, err)
-			ut.AssertTrue(t, errors.Is(err, ds.ErrUndefOp))
+			ut.NotNil(t, err)
+			ut.True(t, errors.Is(err, ds.ErrUndefOp))
 		})
 	}
 }
@@ -69,18 +69,18 @@ func TestMST_undirected(t *testing.T) {
 		t.Run(tc.desc, func(t *testing.T) {
 			g, vars, err := ds.Parse(ut.WUGSimple)
 
-			ut.AssertNil(t, err)
+			ut.Nil(t, err)
 
 			mst, err := tc.algo(g)
 
-			ut.AssertNil(t, err)
+			ut.Nil(t, err)
 
-			ut.AssertEqual(t, g.VertexCount()-1, len(mst))
+			ut.Equal(t, g.VertexCount()-1, len(mst))
 
 			for i := 0; i < len(mst); i++ {
-				ut.AssertEqual(t, vars[tc.expect[i].src], mst[i].Src)
-				ut.AssertEqual(t, vars[tc.expect[i].dst], mst[i].Dst)
-				ut.AssertEqual(t, tc.expect[i].wt, mst[i].Wt)
+				ut.Equal(t, vars[tc.expect[i].src], mst[i].Src)
+				ut.Equal(t, vars[tc.expect[i].dst], mst[i].Dst)
+				ut.Equal(t, tc.expect[i].wt, mst[i].Wt)
 			}
 		})
 	}
@@ -94,10 +94,10 @@ func TestMSTPrim_disconnected(t *testing.T) {
 	c#
 	`)
 
-	ut.AssertNil(t, err)
+	ut.Nil(t, err)
 
 	_, err = MSTPrim(g)
 
-	ut.AssertNotNil(t, err)
-	ut.AssertTrue(t, errors.Is(err, ds.ErrDisconnected))
+	ut.NotNil(t, err)
+	ut.True(t, errors.Is(err, ds.ErrDisconnected))
 }

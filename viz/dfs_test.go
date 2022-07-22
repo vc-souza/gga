@@ -45,11 +45,11 @@ func TestDFSViz(t *testing.T) {
 		t.Run(tc.desc, func(t *testing.T) {
 			g, _, err := ds.Parse(tc.input)
 
-			ut.AssertNil(t, err)
+			ut.Nil(t, err)
 
 			fst, tps, err := algo.DFS(g, true)
 
-			ut.AssertNil(t, err)
+			ut.Nil(t, err)
 
 			tvCount := 0
 			rvCount := 0
@@ -70,12 +70,12 @@ func TestDFSViz(t *testing.T) {
 
 			ExportViz[ds.Text](vi, ut.DummyWriter{})
 
-			ut.AssertEqual(t, tc.expectTV, tvCount)
-			ut.AssertEqual(t, tc.expectRV, rvCount)
-			ut.AssertEqual(t, tc.expectTE, teCount)
-			ut.AssertEqual(t, tc.expectFE, feCount)
-			ut.AssertEqual(t, tc.expectBE, beCount)
-			ut.AssertEqual(t, tc.expectCE, ceCount)
+			ut.Equal(t, tc.expectTV, tvCount)
+			ut.Equal(t, tc.expectRV, rvCount)
+			ut.Equal(t, tc.expectTE, teCount)
+			ut.Equal(t, tc.expectFE, feCount)
+			ut.Equal(t, tc.expectBE, beCount)
+			ut.Equal(t, tc.expectCE, ceCount)
 		})
 	}
 }

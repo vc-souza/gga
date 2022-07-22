@@ -23,24 +23,24 @@ func TestTSort_directed(t *testing.T) {
 
 	g, vars, err := ds.Parse(ut.UDGDress)
 
-	ut.AssertNil(t, err)
+	ut.Nil(t, err)
 
 	ord, err := TSort(g)
 
-	ut.AssertNil(t, err)
+	ut.Nil(t, err)
 
 	for i, v := range ord {
-		ut.AssertEqual(t, vars[expect[i]], v)
+		ut.Equal(t, vars[expect[i]], v)
 	}
 }
 
 func TestTSort_undirected(t *testing.T) {
 	g, _, err := ds.Parse(ut.UUGSimple)
 
-	ut.AssertNil(t, err)
+	ut.Nil(t, err)
 
 	_, err = TSort(g)
 
-	ut.AssertNotNil(t, err)
-	ut.AssertTrue(t, errors.Is(err, ds.ErrUndefOp))
+	ut.NotNil(t, err)
+	ut.True(t, errors.Is(err, ds.ErrUndefOp))
 }

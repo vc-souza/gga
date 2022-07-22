@@ -12,7 +12,7 @@ func fail(t *testing.T, v ...any) {
 	t.FailNow()
 }
 
-func AssertEqual[T comparable](t *testing.T, expected T, actual T) {
+func Equal[T comparable](t *testing.T, expected T, actual T) {
 	if reflect.DeepEqual(expected, actual) {
 		return
 	}
@@ -20,7 +20,7 @@ func AssertEqual[T comparable](t *testing.T, expected T, actual T) {
 	fail(t, "expected", expected, "got", actual)
 }
 
-func AssertTrue(t *testing.T, v bool) {
+func True(t *testing.T, v bool) {
 	if v {
 		return
 	}
@@ -28,7 +28,7 @@ func AssertTrue(t *testing.T, v bool) {
 	fail(t, "expected true")
 }
 
-func AssertFalse(t *testing.T, v bool) {
+func False(t *testing.T, v bool) {
 	if !v {
 		return
 	}
@@ -36,7 +36,7 @@ func AssertFalse(t *testing.T, v bool) {
 	fail(t, "expected false")
 }
 
-func AssertNil(t *testing.T, v any) {
+func Nil(t *testing.T, v any) {
 	if reflect.TypeOf(v) == nil {
 		return
 	}
@@ -48,7 +48,7 @@ func AssertNil(t *testing.T, v any) {
 	fail(t, "expected nil value")
 }
 
-func AssertNotNil(t *testing.T, v any) {
+func NotNil(t *testing.T, v any) {
 	if reflect.TypeOf(v) != nil && !reflect.ValueOf(v).IsNil() {
 		return
 	}

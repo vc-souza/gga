@@ -13,7 +13,7 @@ func TestDSetMakeSet(t *testing.T) {
 
 	dset.MakeSet(&i)
 
-	ut.AssertEqual(t, &i, dset.FindSet(&i))
+	ut.Equal(t, &i, dset.FindSet(&i))
 }
 
 func TestDSetFindSet_same_set(t *testing.T) {
@@ -26,7 +26,7 @@ func TestDSetFindSet_same_set(t *testing.T) {
 
 	dset.Union(&vars[0], &vars[1])
 
-	ut.AssertTrue(t, dset.FindSet(&vars[0]) == dset.FindSet(&vars[1]))
+	ut.True(t, dset.FindSet(&vars[0]) == dset.FindSet(&vars[1]))
 }
 
 func TestDSetFindSet_different_set(t *testing.T) {
@@ -37,7 +37,7 @@ func TestDSetFindSet_different_set(t *testing.T) {
 	dset.MakeSet(&vars[0])
 	dset.MakeSet(&vars[1])
 
-	ut.AssertTrue(t, dset.FindSet(&vars[0]) != dset.FindSet(&vars[1]))
+	ut.True(t, dset.FindSet(&vars[0]) != dset.FindSet(&vars[1]))
 }
 
 func TestDSetUnion(t *testing.T) {
@@ -66,6 +66,6 @@ func TestDSetUnion(t *testing.T) {
 	target := dset.FindSet(&vars[0])
 
 	for i := range vars {
-		ut.AssertEqual(t, target, dset.FindSet(&vars[i]))
+		ut.Equal(t, target, dset.FindSet(&vars[i]))
 	}
 }

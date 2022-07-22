@@ -11,11 +11,11 @@ import (
 func TestSCCViz(t *testing.T) {
 	g, _, err := ds.Parse(ut.UDGDeps)
 
-	ut.AssertNil(t, err)
+	ut.Nil(t, err)
 
 	sccs, err := algo.SCCKosaraju(g)
 
-	ut.AssertNil(t, err)
+	ut.Nil(t, err)
 
 	vi := NewSCCViz(g, sccs, nil)
 
@@ -37,7 +37,7 @@ func TestSCCViz(t *testing.T) {
 
 	ExportViz[ds.Text](vi, ut.DummyWriter{})
 
-	ut.AssertEqual(t, g.VertexCount(), vCount)
-	ut.AssertEqual(t, 8, sECount)
-	ut.AssertEqual(t, 6, cECount)
+	ut.Equal(t, g.VertexCount(), vCount)
+	ut.Equal(t, 8, sECount)
+	ut.Equal(t, 6, cECount)
 }

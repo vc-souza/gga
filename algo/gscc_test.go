@@ -30,27 +30,27 @@ func TestGSCC_directed(t *testing.T) {
 
 	g, _, err := ds.Parse(ut.UDGDeps)
 
-	ut.AssertNil(t, err)
+	ut.Nil(t, err)
 
 	gscc, _, err := GSCC(g)
 
-	ut.AssertNil(t, err)
+	ut.Nil(t, err)
 
-	ut.AssertEqual(t, 5, gscc.VertexCount())
-	ut.AssertEqual(t, 5, gscc.EdgeCount())
+	ut.Equal(t, 5, gscc.VertexCount())
+	ut.Equal(t, 5, gscc.EdgeCount())
 
 	for i := range expect {
-		ut.AssertEqual(t, expect[i], groupTag(gscc.V[i].Ptr))
+		ut.Equal(t, expect[i], groupTag(gscc.V[i].Ptr))
 	}
 }
 
 func TestGSCC_undirected(t *testing.T) {
 	g, _, err := ds.Parse(ut.UUGSimple)
 
-	ut.AssertNil(t, err)
+	ut.Nil(t, err)
 
 	_, _, err = GSCC(g)
 
-	ut.AssertNotNil(t, err)
-	ut.AssertTrue(t, errors.Is(err, ds.ErrUndefOp))
+	ut.NotNil(t, err)
+	ut.True(t, errors.Is(err, ds.ErrUndefOp))
 }
