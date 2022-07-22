@@ -2,7 +2,6 @@ package algo
 
 import (
 	"container/heap"
-	"errors"
 	"fmt"
 	"math"
 	"sort"
@@ -46,7 +45,7 @@ Complexity:
 */
 func MSTKruskal[T ds.Item](g *ds.G[T]) (MST[T], error) {
 	if g.Directed() {
-		return nil, ds.ErrUndefOp
+		return nil, ds.ErrDirected
 	}
 
 	edges := make([]*ds.GE[T], g.EdgeCount())
@@ -156,7 +155,7 @@ func (h *primVtxHeap[T]) Pop() any {
 // TODO: docs
 func MSTPrim[T ds.Item](g *ds.G[T]) (MST[T], error) {
 	if g.Directed() {
-		return nil, ds.ErrUndefOp
+		return nil, ds.ErrDirected
 	}
 
 	vtxHeap := make(primVtxHeap[T], 0, g.VertexCount())
@@ -191,7 +190,7 @@ func MSTPrim[T ds.Item](g *ds.G[T]) (MST[T], error) {
 		vtx := heap.Pop(&vtxHeap).(*primVtx[T])
 
 		if math.IsInf(vtx.wt, 1) {
-			return nil, errors.New("input graph is not connected")
+			return nil, ds.WrapErr(ds.ErrUndefOp, "not connected")
 		}
 
 		if vtx.edge != nil {

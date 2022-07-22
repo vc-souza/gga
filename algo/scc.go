@@ -45,7 +45,7 @@ Complexity:
 */
 func SCCKosaraju[T ds.Item](g *ds.G[T]) ([]SCC[T], error) {
 	if g.Undirected() {
-		return nil, ds.ErrUndefOp
+		return nil, ds.ErrUndirected
 	}
 
 	var visit func(*T)
@@ -149,7 +149,7 @@ Complexity:
 */
 func SCCTarjan[T ds.Item](g *ds.G[T]) ([]SCC[T], error) {
 	if g.Undirected() {
-		return nil, ds.ErrUndefOp
+		return nil, ds.ErrUndirected
 	}
 
 	var visit func(*T)

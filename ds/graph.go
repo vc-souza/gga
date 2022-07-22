@@ -261,7 +261,7 @@ func (g *G[T]) RemoveVertex(t *T) error {
 	_, idx, ok := g.GetVertex(t)
 
 	if !ok {
-		return ErrNotExists
+		return ErrDoesNotExist
 	}
 
 	g.removeVertexEdges(t)
@@ -317,7 +317,7 @@ func (g *G[T]) AddWeightedEdge(src, dst *T, wt float64) (*GE[T], error) {
 	}
 
 	if g.Undirected() && src == dst {
-		return nil, ErrInvalidLoop
+		return nil, ErrInvLoop
 	}
 
 	g.AddVertex(src)
@@ -353,7 +353,7 @@ func (g *G[T]) RemoveEdge(src, dst *T) error {
 	_, idx, ok := g.GetEdge(src, dst)
 
 	if !ok {
-		return ErrNotExists
+		return ErrDoesNotExist
 	}
 
 	g.removeEdge(src, idx)
@@ -403,7 +403,7 @@ This is only true for directed graphs: undirected graphs will get a deep copy in
 */
 func (g *G[T]) Transpose() (*G[T], error) {
 	if g.Undirected() {
-		return nil, ErrUndefOp
+		return nil, ErrUndirected
 	}
 
 	res := g.EmptyCopy()

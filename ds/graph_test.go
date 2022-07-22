@@ -403,7 +403,7 @@ func TestGAddWeightedEdge(t *testing.T) {
 			edges:       edgeList{},
 			edge:        edge(&vA, &vA),
 			skipDir:     true,
-			expectErr:   ErrInvalidLoop,
+			expectErr:   ErrInvLoop,
 			expectEdges: false,
 		},
 		{
@@ -485,7 +485,7 @@ func TestGRemoveVertex(t *testing.T) {
 				edge(&vC, &vA),
 			},
 			vert:        &vB,
-			err:         ErrNotExists,
+			err:         ErrDoesNotExist,
 			expectVerts: vertList{&vA, &vC},
 			expectEdges: edgeList{
 				edge(&vA, &vC),

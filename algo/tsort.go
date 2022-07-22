@@ -23,7 +23,7 @@ Complexity:
 */
 func TSort[T ds.Item](g *ds.G[T]) ([]*T, error) {
 	if g.Undirected() {
-		return nil, ds.ErrUndefOp
+		return nil, ds.ErrUndirected
 	}
 
 	var visit func(*T)
