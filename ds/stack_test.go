@@ -26,11 +26,11 @@ func TestStackPush(t *testing.T) {
 func TestStackEmpty(t *testing.T) {
 	s := NewStack[int]()
 
-	ut.Equal(t, true, s.Empty())
+	ut.True(t, s.Empty())
 
 	s.Push(1)
 
-	ut.Equal(t, false, s.Empty())
+	ut.False(t, s.Empty())
 }
 
 func TestStackPeek(t *testing.T) {
@@ -40,34 +40,34 @@ func TestStackPeek(t *testing.T) {
 	s := NewStack[int]()
 
 	_, ok = s.Peek()
-	ut.Equal(t, false, ok)
+	ut.False(t, ok)
 
 	s.Push(1)
 
 	item, ok = s.Peek()
-	ut.Equal(t, true, ok)
+	ut.True(t, ok)
 	ut.Equal(t, 1, item)
 
 	s.Push(2)
 
 	item, ok = s.Peek()
-	ut.Equal(t, true, ok)
+	ut.True(t, ok)
 	ut.Equal(t, 2, item)
 
 	s.Push(3)
 
 	item, ok = s.Peek()
-	ut.Equal(t, true, ok)
+	ut.True(t, ok)
 	ut.Equal(t, 3, item)
 }
 
 func TestStackPeek_empty(t *testing.T) {
 	s := NewStack[int]()
 
-	ut.Equal(t, true, s.Empty())
+	ut.True(t, s.Empty())
 
 	_, ok := s.Peek()
-	ut.Equal(t, false, ok)
+	ut.False(t, ok)
 }
 
 func TestStackPop(t *testing.T) {
@@ -76,32 +76,32 @@ func TestStackPop(t *testing.T) {
 
 	s := NewStack[int]()
 
-	ut.Equal(t, true, s.Empty())
+	ut.True(t, s.Empty())
 
 	s.Push(1, 2, 3)
 
-	ut.Equal(t, false, s.Empty())
+	ut.False(t, s.Empty())
 
 	item, ok = s.Pop()
-	ut.Equal(t, true, ok)
+	ut.True(t, ok)
 	ut.Equal(t, 3, item)
 
 	item, ok = s.Pop()
-	ut.Equal(t, true, ok)
+	ut.True(t, ok)
 	ut.Equal(t, 2, item)
 
 	item, ok = s.Pop()
-	ut.Equal(t, true, ok)
+	ut.True(t, ok)
 	ut.Equal(t, 1, item)
 
-	ut.Equal(t, true, s.Empty())
+	ut.True(t, s.Empty())
 }
 
 func TestStackPop_empty(t *testing.T) {
 	s := NewStack[int]()
 
-	ut.Equal(t, true, s.Empty())
+	ut.True(t, s.Empty())
 
 	_, ok := s.Pop()
-	ut.Equal(t, false, ok)
+	ut.False(t, ok)
 }

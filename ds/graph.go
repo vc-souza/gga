@@ -16,17 +16,12 @@ type GV[T Item] struct {
 }
 
 // Label provides a label for the vertex, straight from its satellite data.
-func (vert *GV[T]) Label() string {
+func (vert GV[T]) Label() string {
 	return (*vert.Ptr).Label()
 }
 
 func (vert GV[T]) String() string {
 	return vert.Label()
-}
-
-// Accept accepts a graph visitor, and guides its execution using double-dispatching.
-func (vert *GV[T]) Accept(v GraphVisitor[T]) {
-	v.VisitVertex(vert)
 }
 
 /*
@@ -50,11 +45,6 @@ type GE[T Item] struct {
 
 	// Wt is the weight/cost associated with the edge.
 	Wt float64
-}
-
-// Accept accepts a graph visitor, and guides its execution using double-dispatching.
-func (e *GE[T]) Accept(v GraphVisitor[T]) {
-	v.VisitEdge(e)
 }
 
 func (e GE[T]) String() string {
@@ -99,9 +89,7 @@ type G[T Item] struct {
 	*/
 	vMap map[*T]int
 
-	// dir indicates whether the graph is directed.
-	dir bool
-
+	dir    bool
 	eCount int
 	vCount int
 }
@@ -273,7 +261,7 @@ func (g *G[T]) RemoveVertex(t *T) error {
 	_, idx, ok := g.GetVertex(t)
 
 	if !ok {
-		return ErrNotExists
+		return ErrDoesNotExist
 	}
 
 	g.removeVertexEdges(t)
@@ -329,7 +317,7 @@ func (g *G[T]) AddWeightedEdge(src, dst *T, wt float64) (*GE[T], error) {
 	}
 
 	if g.Undirected() && src == dst {
-		return nil, ErrInvalidLoop
+		return nil, ErrInvLoop
 	}
 
 	g.AddVertex(src)
@@ -365,7 +353,7 @@ func (g *G[T]) RemoveEdge(src, dst *T) error {
 	_, idx, ok := g.GetEdge(src, dst)
 
 	if !ok {
-		return ErrNotExists
+		return ErrDoesNotExist
 	}
 
 	g.removeEdge(src, idx)
@@ -397,12 +385,12 @@ func (g *G[T]) Accept(v GraphVisitor[T]) {
 	v.VisitGraphStart(g)
 
 	for _, vert := range g.V {
-		vert.Accept(v)
+		v.VisitVertex(vert)
 
 		es := g.E[vert.Ptr]
 
 		for _, e := range es {
-			e.Accept(v)
+			v.VisitEdge(e)
 		}
 	}
 
@@ -415,7 +403,7 @@ This is only true for directed graphs: undirected graphs will get a deep copy in
 */
 func (g *G[T]) Transpose() (*G[T], error) {
 	if g.Undirected() {
-		return nil, ErrUndefOp
+		return nil, ErrUndirected
 	}
 
 	res := g.EmptyCopy()

@@ -19,6 +19,7 @@ const (
 
 var algos = map[string]algo.MSTAlgo[ds.Text]{
 	"kruskal": algo.MSTKruskal[ds.Text],
+	"prim":    algo.MSTPrim[ds.Text],
 }
 
 func input() *ds.G[ds.Text] {

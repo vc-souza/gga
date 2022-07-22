@@ -11,11 +11,11 @@ import (
 func TestTSortViz(t *testing.T) {
 	g, _, err := ds.Parse(ut.UDGDress)
 
-	ut.Equal(t, true, err == nil)
+	ut.Nil(t, err)
 
 	ord, err := algo.TSort(g)
 
-	ut.Equal(t, true, err == nil)
+	ut.Nil(t, err)
 
 	vi := NewTSortViz(g, ord, nil)
 

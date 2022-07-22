@@ -5,20 +5,31 @@ import (
 	"fmt"
 )
 
-var ErrUndefOp = errors.New("undefined operation for this data structure")
+var ErrUndefOp = errors.New("undefined operation")
 
-var ErrNotExists = errors.New("element does not exist")
+var ErrDirected = WrapErr(ErrUndefOp, "directed graph")
 
-var ErrVtxNotExists = fmt.Errorf("vertex: %w", ErrNotExists)
+var ErrUndirected = WrapErr(ErrUndefOp, "undirected graph")
 
-var ErrEdgeNotExists = fmt.Errorf("edge: %w", ErrNotExists)
+var ErrDisconnected = WrapErr(ErrUndefOp, "disconnected graph")
 
-var ErrRevEdgeNotExists = fmt.Errorf("reverse edge: %w", ErrNotExists)
+var ErrDoesNotExist = errors.New("does not exist")
 
-var ErrExists = errors.New("element already exists")
+var ErrNoVtx = WrapErr(ErrDoesNotExist, "vertex")
 
-var ErrNilArg = errors.New("received nil argument")
+var ErrNoEdge = WrapErr(ErrDoesNotExist, "edge")
 
-var ErrInvalidLoop = errors.New("invalid loop")
+var ErrNoRevEdge = WrapErr(ErrDoesNotExist, "reverse edge")
 
-var ErrInvalidType = errors.New("invalid element type")
+var ErrExists = errors.New("already exists")
+
+var ErrNilArg = errors.New("nil argument")
+
+var ErrInvLoop = errors.New("invalid loop")
+
+var ErrInvType = errors.New("invalid type")
+
+// WrapErr wraps an error using the fmt.Errorf function.
+func WrapErr(err error, msg string) error {
+	return fmt.Errorf("%s: %w", msg, err)
+}

@@ -45,7 +45,7 @@ Complexity:
 */
 func SCCKosaraju[T ds.Item](g *ds.G[T]) ([]SCC[T], error) {
 	if g.Undirected() {
-		return nil, ds.ErrUndefOp
+		return nil, ds.ErrUndirected
 	}
 
 	var visit func(*T)
@@ -99,8 +99,11 @@ func SCCKosaraju[T ds.Item](g *ds.G[T]) ([]SCC[T], error) {
 	return sccs, nil
 }
 
-// tjSCC is an auxiliary type used only by SCCTarjan.
-type tjSCC struct {
+/*
+tjSCCAttrs is an auxiliary type used only by SCCTarjan to keep
+track of extra data needed by the algorithm, per vertex.
+*/
+type tjSCCAttrs struct {
 	// index represents when the vertex was first discovered.
 	index int
 
@@ -149,17 +152,17 @@ Complexity:
 */
 func SCCTarjan[T ds.Item](g *ds.G[T]) ([]SCC[T], error) {
 	if g.Undirected() {
-		return nil, ds.ErrUndefOp
+		return nil, ds.ErrUndirected
 	}
 
 	var visit func(*T)
 
 	stack := ds.NewStack[*T]()
-	att := map[*T]*tjSCC{}
+	att := map[*T]*tjSCCAttrs{}
 	sccs := []SCC[T]{}
 
 	for v := range g.E {
-		att[v] = &tjSCC{}
+		att[v] = &tjSCCAttrs{}
 	}
 
 	// using 1 as the starting point so that the zero-value

@@ -33,6 +33,20 @@ var mstCases = []struct {
 			{"d", "e", 9},
 		},
 	},
+	{
+		desc: "Prim",
+		algo: MSTPrim[ds.Text],
+		expect: []expectedMSTEdge{
+			{"a", "b", 4},
+			{"a", "h", 8},
+			{"h", "g", 1},
+			{"g", "f", 2},
+			{"f", "c", 4},
+			{"c", "i", 2},
+			{"c", "d", 7},
+			{"d", "e", 9},
+		},
+	},
 }
 
 func TestMST_directed(t *testing.T) {
@@ -40,12 +54,12 @@ func TestMST_directed(t *testing.T) {
 		t.Run(tc.desc, func(t *testing.T) {
 			g, _, err := ds.Parse(ut.UDGDeps)
 
-			ut.Equal(t, true, err == nil)
+			ut.Nil(t, err)
 
 			_, err = tc.algo(g)
 
-			ut.Equal(t, true, err != nil)
-			ut.Equal(t, true, errors.Is(err, ds.ErrUndefOp))
+			ut.NotNil(t, err)
+			ut.True(t, errors.Is(err, ds.ErrUndefOp))
 		})
 	}
 }
@@ -55,11 +69,11 @@ func TestMST_undirected(t *testing.T) {
 		t.Run(tc.desc, func(t *testing.T) {
 			g, vars, err := ds.Parse(ut.WUGSimple)
 
-			ut.Equal(t, true, err == nil)
+			ut.Nil(t, err)
 
 			mst, err := tc.algo(g)
 
-			ut.Equal(t, true, err == nil)
+			ut.Nil(t, err)
 
 			ut.Equal(t, g.VertexCount()-1, len(mst))
 
@@ -70,4 +84,20 @@ func TestMST_undirected(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestMSTPrim_disconnected(t *testing.T) {
+	g, _, err := ds.Parse(`
+	graph
+	a#b:10
+	b#a:10
+	c#
+	`)
+
+	ut.Nil(t, err)
+
+	_, err = MSTPrim(g)
+
+	ut.NotNil(t, err)
+	ut.True(t, errors.Is(err, ds.ErrDisconnected))
 }

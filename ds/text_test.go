@@ -140,7 +140,7 @@ func TestTextParser(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		for _, gType := range []string{UndirectedGraphKey, DirectedGraphKey} {
+		for _, gType := range []string{undirectedGraphKey, directedGraphKey} {
 			t.Run(tagGraphTest(gType, tc.desc), func(t *testing.T) {
 				var input string
 
@@ -153,15 +153,15 @@ func TestTextParser(t *testing.T) {
 				g, vars, err := Parse(input)
 
 				if len(tc.err) != 0 {
-					ut.Equal(t, true, errors.As(err, new(ErrInvalidSer)))
-					ut.Equal(t, true, strings.Contains(err.Error(), tc.err))
+					ut.True(t, errors.As(err, new(ErrInvalidSer)))
+					ut.True(t, strings.Contains(err.Error(), tc.err))
 					return
 				}
 
-				if gType == UndirectedGraphKey {
-					ut.Equal(t, true, g.Undirected())
+				if gType == undirectedGraphKey {
+					ut.True(t, g.Undirected())
 				} else {
-					ut.Equal(t, true, g.Directed())
+					ut.True(t, g.Directed())
 				}
 
 				ut.Equal(t, tc.vertCount, g.VertexCount())

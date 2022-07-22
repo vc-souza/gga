@@ -11,7 +11,7 @@ import (
 func TestBFS_directed(t *testing.T) {
 	g, vars, err := ds.Parse(ut.UDGSimple)
 
-	ut.Equal(t, true, err == nil)
+	ut.Nil(t, err)
 
 	v1 := vars["1"]
 	v2 := vars["2"]
@@ -22,16 +22,16 @@ func TestBFS_directed(t *testing.T) {
 
 	tree, err := BFS(g, v3)
 
-	ut.Equal(t, true, err == nil)
+	ut.Nil(t, err)
 
-	ut.Equal(t, true, math.IsInf(tree[v1].Distance, 1))
-	ut.Equal(t, nil, tree[v1].Parent)
+	ut.True(t, math.IsInf(tree[v1].Distance, 1))
+	ut.Nil(t, tree[v1].Parent)
 
 	ut.Equal(t, 3, tree[v2].Distance)
 	ut.Equal(t, v4, tree[v2].Parent)
 
 	ut.Equal(t, 0, tree[v3].Distance)
-	ut.Equal(t, nil, tree[v3].Parent)
+	ut.Nil(t, tree[v3].Parent)
 
 	ut.Equal(t, 2, tree[v4].Distance)
 	ut.Equal(t, v5, tree[v4].Parent)
@@ -46,7 +46,7 @@ func TestBFS_directed(t *testing.T) {
 func TestBFS_undirected(t *testing.T) {
 	g, vars, err := ds.Parse(ut.UUGSimple)
 
-	ut.Equal(t, true, err == nil)
+	ut.Nil(t, err)
 
 	vR := vars["r"]
 	vS := vars["s"]
@@ -59,7 +59,7 @@ func TestBFS_undirected(t *testing.T) {
 
 	tree, err := BFS(g, vU)
 
-	ut.Equal(t, true, err == nil)
+	ut.Nil(t, err)
 
 	ut.Equal(t, 4, tree[vR].Distance)
 	ut.Equal(t, vS, tree[vR].Parent)
@@ -71,7 +71,7 @@ func TestBFS_undirected(t *testing.T) {
 	ut.Equal(t, vU, tree[vT].Parent)
 
 	ut.Equal(t, 0, tree[vU].Distance)
-	ut.Equal(t, nil, tree[vU].Parent)
+	ut.Nil(t, tree[vU].Parent)
 
 	ut.Equal(t, 5, tree[vV].Distance)
 	ut.Equal(t, vR, tree[vV].Parent)

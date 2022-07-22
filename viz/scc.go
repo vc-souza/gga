@@ -53,7 +53,7 @@ func (vi *SCCViz[T]) Traverse() error {
 			vtx, _, ok := vi.Graph.GetVertex(v)
 
 			if !ok {
-				return ds.ErrVtxNotExists
+				return ds.ErrNoVtx
 			}
 
 			vi.OnSCCVertex(vtx, i)

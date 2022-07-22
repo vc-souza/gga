@@ -13,7 +13,7 @@ func TestDFS_directed(t *testing.T) {
 		t.Run(fmt.Sprintf("classify: %v", classify), func(t *testing.T) {
 			g, vars, err := ds.Parse(ut.UDGSimple)
 
-			ut.Equal(t, true, err == nil)
+			ut.Nil(t, err)
 
 			v1 := vars["1"]
 			v2 := vars["2"]
@@ -24,7 +24,7 @@ func TestDFS_directed(t *testing.T) {
 
 			fst, tps, err := DFS(g, classify)
 
-			ut.Equal(t, true, err == nil)
+			ut.Nil(t, err)
 
 			if classify {
 				ut.Equal(t, 1, len(tps.Forward))
@@ -38,7 +38,7 @@ func TestDFS_directed(t *testing.T) {
 
 			ut.Equal(t, 1, fst[v1].Discovery)
 			ut.Equal(t, 8, fst[v1].Finish)
-			ut.Equal(t, nil, fst[v1].Parent)
+			ut.Nil(t, fst[v1].Parent)
 
 			ut.Equal(t, 2, fst[v2].Discovery)
 			ut.Equal(t, 7, fst[v2].Finish)
@@ -46,7 +46,7 @@ func TestDFS_directed(t *testing.T) {
 
 			ut.Equal(t, 9, fst[v3].Discovery)
 			ut.Equal(t, 12, fst[v3].Finish)
-			ut.Equal(t, nil, fst[v3].Parent)
+			ut.Nil(t, fst[v3].Parent)
 
 			ut.Equal(t, 4, fst[v4].Discovery)
 			ut.Equal(t, 5, fst[v4].Finish)
@@ -68,7 +68,7 @@ func TestDFS_undirected(t *testing.T) {
 		t.Run(fmt.Sprintf("classify: %v", classify), func(t *testing.T) {
 			g, vars, err := ds.Parse(ut.UUGSimple)
 
-			ut.Equal(t, true, err == nil)
+			ut.Nil(t, err)
 
 			vR := vars["r"]
 			vS := vars["s"]
@@ -81,7 +81,7 @@ func TestDFS_undirected(t *testing.T) {
 
 			fst, tps, err := DFS(g, classify)
 
-			ut.Equal(t, true, err == nil)
+			ut.Nil(t, err)
 
 			ut.Equal(t, 0, len(tps.Forward))
 			ut.Equal(t, 0, len(tps.Cross))
@@ -95,7 +95,7 @@ func TestDFS_undirected(t *testing.T) {
 
 			ut.Equal(t, 1, fst[vR].Discovery)
 			ut.Equal(t, 16, fst[vR].Finish)
-			ut.Equal(t, nil, fst[vR].Parent)
+			ut.Nil(t, fst[vR].Parent)
 
 			ut.Equal(t, 2, fst[vS].Discovery)
 			ut.Equal(t, 13, fst[vS].Finish)

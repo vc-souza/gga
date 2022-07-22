@@ -42,13 +42,13 @@ func TestBFSViz(t *testing.T) {
 		t.Run(tc.desc, func(t *testing.T) {
 			g, vars, err := ds.Parse(tc.input)
 
-			ut.Equal(t, true, err == nil)
+			ut.Nil(t, err)
 
 			src := vars[tc.src]
 
 			tree, err := algo.BFS(g, src)
 
-			ut.Equal(t, true, err == nil)
+			ut.Nil(t, err)
 
 			uvCount := 0
 			tvCount := 0

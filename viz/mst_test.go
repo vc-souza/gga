@@ -11,11 +11,11 @@ import (
 func TestMSTViz(t *testing.T) {
 	g, _, err := ds.Parse(ut.WUGSimple)
 
-	ut.Equal(t, true, err == nil)
+	ut.Nil(t, err)
 
 	mst, err := algo.MSTKruskal(g)
 
-	ut.Equal(t, true, err == nil)
+	ut.Nil(t, err)
 
 	vi := NewMSTViz(g, mst, nil)
 

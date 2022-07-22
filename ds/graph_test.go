@@ -12,8 +12,8 @@ type edgeList []GE[Text]
 type vertList []*Text
 
 var graphGenFuncs = map[string]graphGen{
-	UndirectedGraphKey: NewUndirectedGraph[Text],
-	DirectedGraphKey:   NewDirectedGraph[Text],
+	undirectedGraphKey: NewUndirectedGraph[Text],
+	directedGraphKey:   NewDirectedGraph[Text],
 }
 
 var vA = Text("a")
@@ -72,24 +72,24 @@ func addEdges(g *G[Text], edges edgeList) {
 
 func assertEdge(t *testing.T, g *G[Text], src, dst *Text, wt float64) {
 	e, _, ok := g.GetEdge(src, dst)
-	ut.Equal(t, true, ok)
+	ut.True(t, ok)
 	ut.Equal(t, wt, e.Wt)
 }
 
 func TestNewDirectedGraph(t *testing.T) {
 	g := NewDirectedGraph[Text]()
 
-	ut.Equal(t, true, g != nil)
-	ut.Equal(t, true, g.Directed())
-	ut.Equal(t, false, g.Undirected())
+	ut.NotNil(t, g)
+	ut.True(t, g.Directed())
+	ut.False(t, g.Undirected())
 }
 
 func TestNewUndirectedGraph(t *testing.T) {
 	g := NewUndirectedGraph[Text]()
 
-	ut.Equal(t, true, g != nil)
-	ut.Equal(t, true, g.Undirected())
-	ut.Equal(t, false, g.Directed())
+	ut.NotNil(t, g)
+	ut.True(t, g.Undirected())
+	ut.False(t, g.Directed())
 }
 
 func TestGEmptyCopy(t *testing.T) {
@@ -403,7 +403,7 @@ func TestGAddWeightedEdge(t *testing.T) {
 			edges:       edgeList{},
 			edge:        edge(&vA, &vA),
 			skipDir:     true,
-			expectErr:   ErrInvalidLoop,
+			expectErr:   ErrInvLoop,
 			expectEdges: false,
 		},
 		{
@@ -418,11 +418,11 @@ func TestGAddWeightedEdge(t *testing.T) {
 
 	for _, tc := range cases {
 		for gType, f := range graphGenFuncs {
-			if tc.skipDir && gType == DirectedGraphKey {
+			if tc.skipDir && gType == directedGraphKey {
 				continue
 			}
 
-			if tc.skipUndir && gType == UndirectedGraphKey {
+			if tc.skipUndir && gType == undirectedGraphKey {
 				continue
 			}
 
@@ -437,7 +437,7 @@ func TestGAddWeightedEdge(t *testing.T) {
 				ut.Equal(t, tc.expectErr == nil, err == nil)
 
 				if tc.expectErr != nil {
-					ut.Equal(t, true, errors.Is(err, tc.expectErr))
+					ut.True(t, errors.Is(err, tc.expectErr))
 				}
 
 				if !tc.expectEdges {
@@ -460,7 +460,7 @@ func TestGAddUnweightedEdge(t *testing.T) {
 
 			_, err := g.AddUnweightedEdge(src, dst)
 
-			ut.Equal(t, true, err == nil)
+			ut.Nil(t, err)
 
 			assertEdge(t, g, src, dst, 0)
 		})
@@ -485,7 +485,7 @@ func TestGRemoveVertex(t *testing.T) {
 				edge(&vC, &vA),
 			},
 			vert:        &vB,
-			err:         ErrNotExists,
+			err:         ErrDoesNotExist,
 			expectVerts: vertList{&vA, &vC},
 			expectEdges: edgeList{
 				edge(&vA, &vC),
@@ -563,16 +563,16 @@ func TestGRemoveVertex(t *testing.T) {
 				ut.Equal(t, tc.err == nil, err == nil)
 
 				if tc.err != nil {
-					ut.Equal(t, true, errors.Is(err, tc.err))
+					ut.True(t, errors.Is(err, tc.err))
 				}
 
 				// adjacency list removed
 				_, ok = g.E[tc.vert]
-				ut.Equal(t, false, ok)
+				ut.False(t, ok)
 
 				// vert mapping removed
 				_, ok = g.vMap[tc.vert]
-				ut.Equal(t, false, ok)
+				ut.False(t, ok)
 
 				ut.Equal(t, len(tc.expectVerts), g.VertexCount())
 				ut.Equal(t, len(tc.expectEdges), g.EdgeCount())
@@ -592,7 +592,7 @@ func TestGRemoveVertex(t *testing.T) {
 				// correct edges still in place
 				for _, e := range tc.expectEdges {
 					_, _, ok := g.GetEdge(e.Src, e.Dst)
-					ut.Equal(t, true, ok)
+					ut.True(t, ok)
 				}
 			})
 		}
@@ -648,7 +648,7 @@ func TestGRemoveEdge(t *testing.T) {
 
 				if tc.exists {
 					_, _, ok := g.GetEdge(tc.edge.Src, tc.edge.Dst)
-					ut.Equal(t, true, ok)
+					ut.True(t, ok)
 				}
 
 				err := g.RemoveEdge(tc.edge.Src, tc.edge.Dst)
@@ -662,14 +662,14 @@ func TestGRemoveEdge(t *testing.T) {
 				}
 
 				_, _, ok := g.GetEdge(tc.edge.Src, tc.edge.Dst)
-				ut.Equal(t, false, ok)
+				ut.False(t, ok)
 
 				if g.Directed() {
 					return
 				}
 
 				_, _, ok = g.GetEdge(tc.edge.Dst, tc.edge.Src)
-				ut.Equal(t, false, ok)
+				ut.False(t, ok)
 			})
 		}
 	}
@@ -749,15 +749,15 @@ func TestGTranspose_directed(t *testing.T) {
 	//      ^---------|
 	tp, err := g.Transpose()
 
-	ut.Equal(t, true, err == nil)
+	ut.Nil(t, err)
 	ut.Equal(t, g.VertexCount(), tp.VertexCount())
 	ut.Equal(t, g.EdgeCount(), tp.EdgeCount())
 
-	ut.Equal(t, true, tp.VertexExists(&vA))
-	ut.Equal(t, true, tp.VertexExists(&vB))
-	ut.Equal(t, true, tp.VertexExists(&vC))
-	ut.Equal(t, true, tp.VertexExists(&vD))
-	ut.Equal(t, true, tp.VertexExists(&vE))
+	ut.True(t, tp.VertexExists(&vA))
+	ut.True(t, tp.VertexExists(&vB))
+	ut.True(t, tp.VertexExists(&vC))
+	ut.True(t, tp.VertexExists(&vD))
+	ut.True(t, tp.VertexExists(&vE))
 
 	assertEdge(t, tp, &vA, &vA, 1)
 	assertEdge(t, tp, &vC, &vB, 2)
@@ -771,6 +771,6 @@ func TestGTranspose_undirected(t *testing.T) {
 	g := NewUndirectedGraph[Text]()
 	_, err := g.Transpose()
 
-	ut.Equal(t, true, err != nil)
-	ut.Equal(t, true, errors.Is(err, ErrUndefOp))
+	ut.NotNil(t, err)
+	ut.True(t, errors.Is(err, ErrUndefOp))
 }

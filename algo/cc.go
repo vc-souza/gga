@@ -36,7 +36,7 @@ Complexity:
 */
 func CCDFS[T ds.Item](g *ds.G[T]) ([]CC[T], error) {
 	if g.Directed() {
-		return nil, ds.ErrUndefOp
+		return nil, ds.ErrDirected
 	}
 
 	var visit func(*T)
@@ -101,7 +101,7 @@ Complexity:
 */
 func CCUnionFind[T ds.Item](g *ds.G[T]) ([]CC[T], error) {
 	if g.Directed() {
-		return nil, ds.ErrUndefOp
+		return nil, ds.ErrDirected
 	}
 
 	sets := map[*T]CC[T]{}

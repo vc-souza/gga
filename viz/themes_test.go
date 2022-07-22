@@ -24,7 +24,7 @@ func (t testTheme) SetEdgeFmt(attrs ds.FAttrs) {
 func TestSetTheme(t *testing.T) {
 	g, _, err := ds.Parse(ut.UDGSimple)
 
-	ut.Equal(t, true, err == nil)
+	ut.Nil(t, err)
 
 	e := NewExporter(g)
 

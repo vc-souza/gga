@@ -11,11 +11,11 @@ import (
 func TestCCViz(t *testing.T) {
 	g, _, err := ds.Parse(ut.UUGDisc)
 
-	ut.Equal(t, true, err == nil)
+	ut.Nil(t, err)
 
 	ccs, err := algo.CCDFS(g)
 
-	ut.Equal(t, true, err == nil)
+	ut.Nil(t, err)
 
 	vi := NewCCViz(g, ccs, nil)
 

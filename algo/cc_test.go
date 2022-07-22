@@ -27,12 +27,12 @@ func TestCC_directed(t *testing.T) {
 		t.Run(tc.desc, func(t *testing.T) {
 			g, _, err := ds.Parse(ut.UDGDeps)
 
-			ut.Equal(t, true, err == nil)
+			ut.Nil(t, err)
 
 			_, err = tc.algo(g)
 
-			ut.Equal(t, true, err != nil)
-			ut.Equal(t, true, errors.Is(err, ds.ErrUndefOp))
+			ut.NotNil(t, err)
+			ut.True(t, errors.Is(err, ds.ErrUndefOp))
 		})
 	}
 }
@@ -55,11 +55,11 @@ func TestCC_undirected(t *testing.T) {
 		t.Run(tc.desc, func(t *testing.T) {
 			g, _, err := ds.Parse(ut.UUGDisc)
 
-			ut.Equal(t, true, err == nil)
+			ut.Nil(t, err)
 
 			ccs, err := tc.algo(g)
 
-			ut.Equal(t, true, err == nil)
+			ut.Nil(t, err)
 
 			sets := map[string]int{}
 

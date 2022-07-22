@@ -41,7 +41,7 @@ func (vi *MSTViz[T]) Traverse() error {
 		rev, _, ok := vi.Graph.GetEdge(e.Dst, e.Src)
 
 		if !ok {
-			return ds.ErrRevEdgeNotExists
+			return ds.ErrNoRevEdge
 		}
 
 		vi.OnMSTEdge(rev)

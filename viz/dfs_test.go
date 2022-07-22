@@ -45,11 +45,11 @@ func TestDFSViz(t *testing.T) {
 		t.Run(tc.desc, func(t *testing.T) {
 			g, _, err := ds.Parse(tc.input)
 
-			ut.Equal(t, true, err == nil)
+			ut.Nil(t, err)
 
 			fst, tps, err := algo.DFS(g, true)
 
-			ut.Equal(t, true, err == nil)
+			ut.Nil(t, err)
 
 			tvCount := 0
 			rvCount := 0

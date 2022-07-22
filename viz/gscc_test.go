@@ -11,11 +11,11 @@ import (
 func TestGSCCViz(t *testing.T) {
 	g, _, err := ds.Parse(ut.UDGDeps)
 
-	ut.Equal(t, true, err == nil)
+	ut.Nil(t, err)
 
 	gscc, _, err := algo.GSCC(g)
 
-	ut.Equal(t, true, err == nil)
+	ut.Nil(t, err)
 
 	vi := NewGSCCViz(gscc, nil)
 

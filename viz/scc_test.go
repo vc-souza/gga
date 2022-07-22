@@ -11,11 +11,11 @@ import (
 func TestSCCViz(t *testing.T) {
 	g, _, err := ds.Parse(ut.UDGDeps)
 
-	ut.Equal(t, true, err == nil)
+	ut.Nil(t, err)
 
 	sccs, err := algo.SCCKosaraju(g)
 
-	ut.Equal(t, true, err == nil)
+	ut.Nil(t, err)
 
 	vi := NewSCCViz(g, sccs, nil)
 

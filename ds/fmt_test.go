@@ -34,11 +34,11 @@ func TestAppendFmtAttr_does_not_exist(t *testing.T) {
 func TestResetFmt_empty(t *testing.T) {
 	f := Formattable{}
 
-	ut.Equal(t, true, f.F == nil)
+	ut.Nil(t, f.F)
 
 	f.ResetFmt()
 
-	ut.Equal(t, true, f.F == nil)
+	ut.Nil(t, f.F)
 }
 
 func TestResetFmt_not_empty(t *testing.T) {

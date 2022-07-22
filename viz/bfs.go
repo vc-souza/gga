@@ -55,7 +55,7 @@ func (vi *BFSViz[T]) Traverse() error {
 		vtx, _, ok := vi.Graph.GetVertex(v)
 
 		if !ok {
-			return ds.ErrVtxNotExists
+			return ds.ErrNoVtx
 		}
 
 		if math.IsInf(node.Distance, 1) {
@@ -73,7 +73,7 @@ func (vi *BFSViz[T]) Traverse() error {
 		edge, _, ok := vi.Graph.GetEdge(node.Parent, v)
 
 		if !ok {
-			return ds.ErrEdgeNotExists
+			return ds.ErrNoEdge
 		}
 
 		vi.OnTreeEdge(edge)
@@ -85,7 +85,7 @@ func (vi *BFSViz[T]) Traverse() error {
 		rev, _, ok := vi.Graph.GetEdge(v, node.Parent)
 
 		if !ok {
-			return ds.ErrRevEdgeNotExists
+			return ds.ErrNoRevEdge
 		}
 
 		vi.OnTreeEdge(rev)

@@ -30,14 +30,14 @@ func (s *SliceStack[T]) Push(ts ...T) {
 	}
 }
 
-func (s *SliceStack[T]) Peek() (T, bool) {
+func (s SliceStack[T]) Peek() (T, bool) {
 	var zero T
 
-	if len(*s) == 0 {
+	if len(s) == 0 {
 		return zero, false
 	}
 
-	return (*s)[len(*s)-1], true
+	return s[len(s)-1], true
 }
 
 func (s *SliceStack[T]) Pop() (T, bool) {
@@ -61,6 +61,6 @@ func (s *SliceStack[T]) Pop() (T, bool) {
 	return res, true
 }
 
-func (s *SliceStack[T]) Empty() bool {
-	return len(*s) == 0
+func (s SliceStack[T]) Empty() bool {
+	return len(s) == 0
 }

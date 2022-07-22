@@ -71,5 +71,5 @@ func (d *LLQueue[T]) value(e *list.Element) T {
 		return val
 	}
 
-	panic(ErrInvalidType)
+	panic(ErrInvType)
 }

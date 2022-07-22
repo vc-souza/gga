@@ -8,12 +8,12 @@ import (
 )
 
 const (
-	UndirectedGraphKey = "graph"
-	DirectedGraphKey   = "digraph"
+	undirectedGraphKey = "graph"
+	directedGraphKey   = "digraph"
 )
 
 const (
-	InvalidVertexRunes = "#\n:,"
+	invalidVertexRunes = "#\n:,"
 )
 
 /*
@@ -86,10 +86,10 @@ type TextParser struct {
 func (p *TextParser) parseGraphType(raw string) error {
 	switch raw {
 
-	case UndirectedGraphKey:
+	case undirectedGraphKey:
 		p.graph = NewUndirectedGraph[Text]()
 
-	case DirectedGraphKey:
+	case directedGraphKey:
 		p.graph = NewDirectedGraph[Text]()
 
 	default:
@@ -104,7 +104,7 @@ func (p *TextParser) parseVertex(raw string) (*Text, error) {
 		return nil, errors.New("vertex: empty name")
 	}
 
-	if strings.ContainsAny(raw, InvalidVertexRunes) {
+	if strings.ContainsAny(raw, invalidVertexRunes) {
 		return nil, errors.New("vertex: bad name")
 	}
 

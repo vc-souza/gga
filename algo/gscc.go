@@ -32,7 +32,7 @@ Complexity:
 */
 func GSCC[T ds.Item](g *ds.G[T]) (*ds.G[ds.Group[T]], []SCC[T], error) {
 	if g.Undirected() {
-		return nil, nil, ds.ErrUndefOp
+		return nil, nil, ds.ErrUndirected
 	}
 
 	// Θ(V + E)

@@ -78,7 +78,7 @@ func TestGraphVisitor(t *testing.T) {
 
 			vJohn, err := g.AddVertex(john)
 
-			ut.Equal(t, true, err == nil)
+			ut.Nil(t, err)
 
 			vJohn.SetFmtAttr("shape", "hexagon")
 
@@ -160,34 +160,34 @@ func TestResetGraphFmt(t *testing.T) {
 		t.Run(tc.desc, func(t *testing.T) {
 			g := tc.gen()
 
-			ut.Equal(t, true, isClear(g))
+			ut.True(t, isClear(g))
 
 			john := &person{"John"}
 			jane := &person{"Jane"}
 
 			vJohn, err := g.AddVertex(john)
 
-			ut.Equal(t, true, err == nil)
+			ut.Nil(t, err)
 
 			vJohn.SetFmtAttr("label", "John is here")
 
 			vJane, err := g.AddVertex(jane)
 
-			ut.Equal(t, true, err == nil)
+			ut.Nil(t, err)
 
 			vJane.SetFmtAttr("label", "Jane is here")
 
 			edg, err := g.AddUnweightedEdge(john, jane)
 
-			ut.Equal(t, true, err == nil)
+			ut.Nil(t, err)
 
 			edg.SetFmtAttr("label", "Connection")
 
-			ut.Equal(t, false, isClear(g))
+			ut.False(t, isClear(g))
 
 			ResetGraphFmt(g)
 
-			ut.Equal(t, true, isClear(g))
+			ut.True(t, isClear(g))
 		})
 	}
 }
@@ -230,7 +230,7 @@ func TestSnapshot(t *testing.T) {
 	d#b
 	`)
 
-	ut.Equal(t, true, err == nil)
+	ut.Nil(t, err)
 
 	buf := bytes.Buffer{}
 
