@@ -3,7 +3,7 @@ define rmftype
 endef
 
 bench:
-	go test -benchmem -benchtime 10000x -memprofile mem.out -cpuprofile cpu.out -bench . ./$(PKG)
+	go test -benchmem -benchtime 20000x -memprofile mem.out -cpuprofile cpu.out -bench . ./$(PKG)
 
 test:
 	@go test -v -race -coverprofile coverage.out -tags test ./...

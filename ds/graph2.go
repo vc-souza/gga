@@ -61,6 +61,17 @@ func (g *G2) EdgeCount() int {
 }
 
 // TODO: docs
+func (g *G2) GetVertex(i Item) (*GV2, bool) {
+	idx, ok := g.sat[i]
+
+	if !ok {
+		return nil, false
+	}
+
+	return &g.V[idx], true
+}
+
+// TODO: docs
 func (g *G2) AddVertex(i Item) (*GV2, error) {
 	if idx, ok := g.sat[i]; ok {
 		return &g.V[idx], ErrExists
@@ -76,6 +87,29 @@ func (g *G2) AddVertex(i Item) (*GV2, error) {
 	g.vCount++
 
 	return &g.V[idx], nil
+}
+
+// TODO: docs
+func (g *G2) GetEdge(src Item, dst Item) (*GE2, bool) {
+	iSrc, ok := g.sat[src]
+
+	if !ok {
+		return nil, false
+	}
+
+	iDst, ok := g.sat[dst]
+
+	if !ok {
+		return nil, false
+	}
+
+	for i := range g.V[iSrc].E {
+		if g.V[iSrc].E[i].Dst == iDst {
+			return &g.V[iSrc].E[i], true
+		}
+	}
+
+	return nil, false
 }
 
 // TODO: docs
@@ -99,3 +133,8 @@ func (g *G2) AddEdge(src Item, dst Item, wt float64) (*GE2, error) {
 
 	return &(vSrc.E[len(vSrc.E)-1]), nil
 }
+
+// func (g *G2) RemoveEdge(src Item, dst Item) error {
+
+// 	return nil
+// }
