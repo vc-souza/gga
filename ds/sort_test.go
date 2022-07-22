@@ -4,7 +4,7 @@ import (
 	"sort"
 	"testing"
 
-	"github.com/vc-souza/gga/internal/testutils"
+	ut "github.com/vc-souza/gga/internal/testutils"
 )
 
 var size int = 100
@@ -19,6 +19,6 @@ func TestByEdgeWeight(t *testing.T) {
 	sort.Sort(ByEdgeWeight[Text](edges))
 
 	for i := 0; i < size; i++ {
-		testutils.Equal(t, float64(i), edges[i].Wt)
+		ut.Equal(t, float64(i), edges[i].Wt)
 	}
 }
