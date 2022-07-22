@@ -99,7 +99,10 @@ func SCCKosaraju[T ds.Item](g *ds.G[T]) ([]SCC[T], error) {
 	return sccs, nil
 }
 
-// tjSCCAttrs is an auxiliary type used only by SCCTarjan.
+/*
+tjSCCAttrs is an auxiliary type used only by SCCTarjan to keep
+track of extra data needed by the algorithm, per vertex.
+*/
 type tjSCCAttrs struct {
 	// index represents when the vertex was first discovered.
 	index int

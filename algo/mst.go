@@ -23,7 +23,10 @@ of an undirected graph with weighted edges.
 */
 type MST[T ds.Item] []*ds.GE[T]
 
-// TODO: docs
+/*
+primVtx is an auxiliary type used only by MSTPrim to keep track
+of the status of each vertex in the heap.
+*/
 type primVtx[T ds.Item] struct {
 	// ptr holds a reference to the original vertex.
 	ptr *T
@@ -52,7 +55,7 @@ func (v primVtx[T]) String() string {
 	)
 }
 
-// TODO: docs
+// primVtxHeap implements heap.Interface to provide min-heap features for *primVtx[T] values.
 type primVtxHeap[T ds.Item] []*primVtx[T]
 
 func (h primVtxHeap[T]) Len() int           { return len(h) }
@@ -79,6 +82,72 @@ func (h *primVtxHeap[T]) Pop() any {
 	x.index = -1
 
 	return x
+}
+
+// TODO: docs
+func MSTPrim[T ds.Item](g *ds.G[T]) (MST[T], error) {
+	if g.Directed() {
+		return nil, ds.ErrDirected
+	}
+
+	vtxHeap := make(primVtxHeap[T], 0, g.VertexCount())
+	vtxMap := map[*T]*primVtx[T]{}
+
+	for i, vtx := range g.V {
+		var wt float64
+
+		// source
+		if i == 0 {
+			wt = 0
+		} else {
+			wt = math.Inf(1)
+		}
+
+		pVtx := &primVtx[T]{
+			ptr:   vtx.Ptr,
+			wt:    wt,
+			in:    true,
+			index: i,
+		}
+
+		vtxHeap = append(vtxHeap, pVtx)
+		vtxMap[pVtx.ptr] = pVtx
+	}
+
+	heap.Init(&vtxHeap)
+
+	mst := MST[T]{}
+
+	for len(vtxHeap) != 0 {
+		vtx := heap.Pop(&vtxHeap).(*primVtx[T])
+
+		if math.IsInf(vtx.wt, 1) {
+			return nil, ds.ErrDisconnected
+		}
+
+		if vtx.edge != nil {
+			mst = append(mst, vtx.edge)
+		}
+
+		for _, e := range g.E[vtx.ptr] {
+			dstVtx := vtxMap[e.Dst]
+
+			if !dstVtx.in {
+				continue
+			}
+
+			if e.Wt >= dstVtx.wt {
+				continue
+			}
+
+			dstVtx.edge = e
+			dstVtx.wt = e.Wt
+
+			heap.Fix(&vtxHeap, dstVtx.index)
+		}
+	}
+
+	return mst, nil
 }
 
 /*
@@ -146,72 +215,6 @@ func MSTKruskal[T ds.Item](g *ds.G[T]) (MST[T], error) {
 
 		if len(mst) == max {
 			break
-		}
-	}
-
-	return mst, nil
-}
-
-// TODO: docs
-func MSTPrim[T ds.Item](g *ds.G[T]) (MST[T], error) {
-	if g.Directed() {
-		return nil, ds.ErrDirected
-	}
-
-	vtxHeap := make(primVtxHeap[T], 0, g.VertexCount())
-	vtxMap := map[*T]*primVtx[T]{}
-
-	for i, vtx := range g.V {
-		var wt float64
-
-		// source
-		if i == 0 {
-			wt = 0
-		} else {
-			wt = math.Inf(1)
-		}
-
-		pVtx := &primVtx[T]{
-			ptr:   vtx.Ptr,
-			wt:    wt,
-			in:    true,
-			index: i,
-		}
-
-		vtxHeap = append(vtxHeap, pVtx)
-		vtxMap[pVtx.ptr] = pVtx
-	}
-
-	heap.Init(&vtxHeap)
-
-	mst := MST[T]{}
-
-	for len(vtxHeap) != 0 {
-		vtx := heap.Pop(&vtxHeap).(*primVtx[T])
-
-		if math.IsInf(vtx.wt, 1) {
-			return nil, ds.ErrDisconnected
-		}
-
-		if vtx.edge != nil {
-			mst = append(mst, vtx.edge)
-		}
-
-		for _, e := range g.E[vtx.ptr] {
-			dstVtx := vtxMap[e.Dst]
-
-			if !dstVtx.in {
-				continue
-			}
-
-			if e.Wt >= dstVtx.wt {
-				continue
-			}
-
-			dstVtx.edge = e
-			dstVtx.wt = e.Wt
-
-			heap.Fix(&vtxHeap, dstVtx.index)
 		}
 	}
 

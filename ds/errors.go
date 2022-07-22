@@ -29,7 +29,7 @@ var ErrInvLoop = errors.New("invalid loop")
 
 var ErrInvType = errors.New("invalid type")
 
-// TODO: docs
+// WrapErr wraps an error using the fmt.Errorf function.
 func WrapErr(err error, msg string) error {
 	return fmt.Errorf("%s: %w", msg, err)
 }
