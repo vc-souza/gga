@@ -61,14 +61,14 @@ func (g *G2) EdgeCount() int {
 }
 
 // TODO: docs
-func (g *G2) GetVertex(i Item) (*GV2, bool) {
+func (g *G2) GetVertex(i Item) (*GV2, int, bool) {
 	idx, ok := g.sat[i]
 
 	if !ok {
-		return nil, false
+		return nil, -1, false
 	}
 
-	return &g.V[idx], true
+	return &g.V[idx], idx, true
 }
 
 // TODO: docs
@@ -90,26 +90,26 @@ func (g *G2) AddVertex(i Item) (*GV2, error) {
 }
 
 // TODO: docs
-func (g *G2) GetEdge(src Item, dst Item) (*GE2, bool) {
-	iSrc, ok := g.sat[src]
+func (g *G2) GetEdge(src Item, dst Item) (*GE2, int, bool) {
+	vSrc, _, ok := g.GetVertex(src)
 
 	if !ok {
-		return nil, false
+		return nil, -1, false
 	}
 
 	iDst, ok := g.sat[dst]
 
 	if !ok {
-		return nil, false
+		return nil, -1, false
 	}
 
-	for i := range g.V[iSrc].E {
-		if g.V[iSrc].E[i].Dst == iDst {
-			return &g.V[iSrc].E[i], true
+	for i := range vSrc.E {
+		if vSrc.E[i].Dst == iDst {
+			return &vSrc.E[i], i, true
 		}
 	}
 
-	return nil, false
+	return nil, -1, false
 }
 
 // TODO: docs
@@ -134,7 +134,23 @@ func (g *G2) AddEdge(src Item, dst Item, wt float64) (*GE2, error) {
 	return &(vSrc.E[len(vSrc.E)-1]), nil
 }
 
-// func (g *G2) RemoveEdge(src Item, dst Item) error {
+func (g *G2) RemoveEdge(src Item, dst Item) error {
+	_, idx, ok := g.GetEdge(src, dst)
 
-// 	return nil
-// }
+	if !ok {
+		return ErrNoEdge
+	}
+
+	edges := &g.V[g.sat[src]].E
+
+	copy((*edges)[idx:], (*edges)[idx+1:])
+
+	// avoiding memory leaks
+	(*edges)[len(*edges)-1] = GE2{}
+
+	*edges = (*edges)[:len(*edges)-1]
+
+	g.eCount--
+
+	return nil
+}
