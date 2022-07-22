@@ -85,3 +85,19 @@ func TestMST_undirected(t *testing.T) {
 		})
 	}
 }
+
+func TestMSTPrim_disconnected(t *testing.T) {
+	g, _, err := ds.Parse(`
+	graph
+	a#b:10
+	b#a:10
+	c#
+	`)
+
+	ut.Equal(t, true, err == nil)
+
+	_, err = MSTPrim(g)
+
+	ut.Equal(t, true, err != nil)
+	ut.Equal(t, true, errors.Is(err, ds.ErrDisconnected))
+}

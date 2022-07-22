@@ -23,6 +23,64 @@ of an undirected graph with weighted edges.
 */
 type MST[T ds.Item] []*ds.GE[T]
 
+// TODO: docs
+type primVtx[T ds.Item] struct {
+	// ptr holds a reference to the original vertex.
+	ptr *T
+
+	// wt holds the weight of the best edge found so far that can connect the vertex to the MST.
+	wt float64
+
+	// edge holds the best edge found so far that can connect the vertex to the MST.
+	edge *ds.GE[T]
+
+	// in tells if the vertex is still in the heap.
+	in bool
+
+	// index stores the index of the vertex, in the heap.
+	index int
+}
+
+func (v primVtx[T]) String() string {
+	return fmt.Sprintf(
+		"%s in:%t i:<%d> wt:<%f> edge:[%v]",
+		(*v.ptr).Label(),
+		v.in,
+		v.index,
+		v.wt,
+		v.edge,
+	)
+}
+
+// TODO: docs
+type primVtxHeap[T ds.Item] []*primVtx[T]
+
+func (h primVtxHeap[T]) Len() int           { return len(h) }
+func (h primVtxHeap[T]) Less(i, j int) bool { return h[i].wt < h[j].wt }
+func (h primVtxHeap[T]) Swap(i, j int) {
+	h[i], h[j] = h[j], h[i]
+
+	h[i].index = i
+	h[j].index = j
+}
+
+func (h *primVtxHeap[T]) Push(x any) {
+	*h = append(*h, x.(*primVtx[T]))
+}
+
+func (h *primVtxHeap[T]) Pop() any {
+	n := len(*h)
+	x := (*h)[n-1]
+
+	(*h)[n-1] = nil
+	*h = (*h)[:n-1]
+
+	x.in = false
+	x.index = -1
+
+	return x
+}
+
 /*
 MSTKruskal implements Kruskal's algorithm for finding a minimum spanning tree
 of an undirected graph with weighted edges.
@@ -95,64 +153,6 @@ func MSTKruskal[T ds.Item](g *ds.G[T]) (MST[T], error) {
 }
 
 // TODO: docs
-type primVtx[T ds.Item] struct {
-	// ptr holds a reference to the original vertex.
-	ptr *T
-
-	// wt holds the weight of the best edge found so far that can connect the vertex to the MST.
-	wt float64
-
-	// edge holds the best edge found so far that can connect the vertex to the MST.
-	edge *ds.GE[T]
-
-	// in tells if the vertex is still in the heap.
-	in bool
-
-	// index stores the index of the vertex, in the heap.
-	index int
-}
-
-func (v primVtx[T]) String() string {
-	return fmt.Sprintf(
-		"%s in:%t i:<%d> wt:<%f> edge:[%v]",
-		(*v.ptr).Label(),
-		v.in,
-		v.index,
-		v.wt,
-		v.edge,
-	)
-}
-
-// TODO: docs
-type primVtxHeap[T ds.Item] []*primVtx[T]
-
-func (h primVtxHeap[T]) Len() int           { return len(h) }
-func (h primVtxHeap[T]) Less(i, j int) bool { return h[i].wt < h[j].wt }
-func (h primVtxHeap[T]) Swap(i, j int) {
-	h[i], h[j] = h[j], h[i]
-
-	h[i].index = i
-	h[j].index = j
-}
-
-func (h *primVtxHeap[T]) Push(x any) {
-	*h = append(*h, x.(*primVtx[T]))
-}
-
-func (h *primVtxHeap[T]) Pop() any {
-	n := len(*h)
-	x := (*h)[n-1]
-
-	(*h)[n-1] = nil
-	*h = (*h)[:n-1]
-
-	x.in = false
-	x.index = -1
-
-	return x
-}
-
-// TODO: docs
 func MSTPrim[T ds.Item](g *ds.G[T]) (MST[T], error) {
 	if g.Directed() {
 		return nil, ds.ErrDirected
@@ -190,7 +190,7 @@ func MSTPrim[T ds.Item](g *ds.G[T]) (MST[T], error) {
 		vtx := heap.Pop(&vtxHeap).(*primVtx[T])
 
 		if math.IsInf(vtx.wt, 1) {
-			return nil, ds.WrapErr(ds.ErrUndefOp, "not connected")
+			return nil, ds.ErrDisconnected
 		}
 
 		if vtx.edge != nil {

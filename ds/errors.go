@@ -11,6 +11,8 @@ var ErrDirected = WrapErr(ErrUndefOp, "directed graph")
 
 var ErrUndirected = WrapErr(ErrUndefOp, "undirected graph")
 
+var ErrDisconnected = WrapErr(ErrUndefOp, "disconnected graph")
+
 var ErrDoesNotExist = errors.New("does not exist")
 
 var ErrNoVtx = WrapErr(ErrDoesNotExist, "vertex")
