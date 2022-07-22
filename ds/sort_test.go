@@ -19,6 +19,6 @@ func TestByEdgeWeight(t *testing.T) {
 	sort.Sort(ByEdgeWeight[Text](edges))
 
 	for i := 0; i < size; i++ {
-		ut.Equal(t, float64(i), edges[i].Wt)
+		ut.AssertEqual(t, float64(i), edges[i].Wt)
 	}
 }

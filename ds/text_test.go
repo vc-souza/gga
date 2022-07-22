@@ -10,7 +10,7 @@ import (
 )
 
 func TestTextLabel(t *testing.T) {
-	ut.Equal(t, "test", Text("test").Label())
+	ut.AssertEqual(t, "test", Text("test").Label())
 }
 
 func TestTextParser(t *testing.T) {
@@ -153,32 +153,32 @@ func TestTextParser(t *testing.T) {
 				g, vars, err := Parse(input)
 
 				if len(tc.err) != 0 {
-					ut.Equal(t, true, errors.As(err, new(ErrInvalidSer)))
-					ut.Equal(t, true, strings.Contains(err.Error(), tc.err))
+					ut.AssertTrue(t, errors.As(err, new(ErrInvalidSer)))
+					ut.AssertTrue(t, strings.Contains(err.Error(), tc.err))
 					return
 				}
 
 				if gType == undirectedGraphKey {
-					ut.Equal(t, true, g.Undirected())
+					ut.AssertTrue(t, g.Undirected())
 				} else {
-					ut.Equal(t, true, g.Directed())
+					ut.AssertTrue(t, g.Directed())
 				}
 
-				ut.Equal(t, tc.vertCount, g.VertexCount())
-				ut.Equal(t, tc.vertCount, len(vars))
+				ut.AssertEqual(t, tc.vertCount, g.VertexCount())
+				ut.AssertEqual(t, tc.vertCount, len(vars))
 
 				// expected order by the test case
 				expectVerts := strings.Split(tc.vertOrder, ",")
 
 				// making sure the test case is sane
-				ut.Equal(t, tc.vertCount, len(expectVerts))
+				ut.AssertEqual(t, tc.vertCount, len(expectVerts))
 
 				// actual order in the graph (insertion)
 				for i := 0; i < tc.vertCount; i++ {
-					ut.Equal(t, expectVerts[i], g.V[i].Label())
+					ut.AssertEqual(t, expectVerts[i], g.V[i].Label())
 				}
 
-				ut.Equal(t, tc.edgeCount, g.EdgeCount())
+				ut.AssertEqual(t, tc.edgeCount, g.EdgeCount())
 			})
 		}
 	}

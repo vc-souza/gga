@@ -11,11 +11,11 @@ import (
 func TestMSTViz(t *testing.T) {
 	g, _, err := ds.Parse(ut.WUGSimple)
 
-	ut.Equal(t, true, err == nil)
+	ut.AssertNil(t, err)
 
 	mst, err := algo.MSTKruskal(g)
 
-	ut.Equal(t, true, err == nil)
+	ut.AssertNil(t, err)
 
 	vi := NewMSTViz(g, mst, nil)
 
@@ -27,5 +27,5 @@ func TestMSTViz(t *testing.T) {
 
 	ExportViz[ds.Text](vi, ut.DummyWriter{})
 
-	ut.Equal(t, 2*(g.VertexCount()-1), eCount)
+	ut.AssertEqual(t, 2*(g.VertexCount()-1), eCount)
 }

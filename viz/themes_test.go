@@ -24,25 +24,25 @@ func (t testTheme) SetEdgeFmt(attrs ds.FAttrs) {
 func TestSetTheme(t *testing.T) {
 	g, _, err := ds.Parse(ut.UDGSimple)
 
-	ut.Equal(t, true, err == nil)
+	ut.AssertNil(t, err)
 
 	e := NewExporter(g)
 
 	e.DefaultGraphFmt = make(ds.FAttrs)
 	e.DefaultGraphFmt["gattr"] = "init"
-	ut.Equal(t, "init", e.DefaultGraphFmt["gattr"])
+	ut.AssertEqual(t, "init", e.DefaultGraphFmt["gattr"])
 
 	e.DefaultVertexFmt = make(ds.FAttrs)
 	e.DefaultVertexFmt["vattr"] = "init"
-	ut.Equal(t, "init", e.DefaultVertexFmt["vattr"])
+	ut.AssertEqual(t, "init", e.DefaultVertexFmt["vattr"])
 
 	e.DefaultEdgeFmt = make(ds.FAttrs)
 	e.DefaultEdgeFmt["eattr"] = "init"
-	ut.Equal(t, "init", e.DefaultEdgeFmt["eattr"])
+	ut.AssertEqual(t, "init", e.DefaultEdgeFmt["eattr"])
 
 	SetTheme(e, testTheme{})
 
-	ut.Equal(t, "test", e.DefaultGraphFmt["gattr"])
-	ut.Equal(t, "test", e.DefaultVertexFmt["vattr"])
-	ut.Equal(t, "test", e.DefaultEdgeFmt["eattr"])
+	ut.AssertEqual(t, "test", e.DefaultGraphFmt["gattr"])
+	ut.AssertEqual(t, "test", e.DefaultVertexFmt["vattr"])
+	ut.AssertEqual(t, "test", e.DefaultEdgeFmt["eattr"])
 }

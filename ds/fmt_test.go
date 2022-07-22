@@ -11,7 +11,7 @@ func TestSetFmtAttr(t *testing.T) {
 
 	f.SetFmtAttr("a", "b")
 
-	ut.Equal(t, "b", f.F["a"])
+	ut.AssertEqual(t, "b", f.F["a"])
 }
 
 func TestAppendFmtAttr_exists(t *testing.T) {
@@ -20,7 +20,7 @@ func TestAppendFmtAttr_exists(t *testing.T) {
 	f.SetFmtAttr("a", "b")
 	f.AppendFmtAttr("a", "b")
 
-	ut.Equal(t, "bb", f.F["a"])
+	ut.AssertEqual(t, "bb", f.F["a"])
 }
 
 func TestAppendFmtAttr_does_not_exist(t *testing.T) {
@@ -28,17 +28,17 @@ func TestAppendFmtAttr_does_not_exist(t *testing.T) {
 
 	f.AppendFmtAttr("a", "b")
 
-	ut.Equal(t, "b", f.F["a"])
+	ut.AssertEqual(t, "b", f.F["a"])
 }
 
 func TestResetFmt_empty(t *testing.T) {
 	f := Formattable{}
 
-	ut.Equal(t, true, f.F == nil)
+	ut.AssertNil(t, f.F)
 
 	f.ResetFmt()
 
-	ut.Equal(t, true, f.F == nil)
+	ut.AssertNil(t, f.F)
 }
 
 func TestResetFmt_not_empty(t *testing.T) {
@@ -46,9 +46,9 @@ func TestResetFmt_not_empty(t *testing.T) {
 
 	f.SetFmtAttr("a", "b")
 
-	ut.Equal(t, 1, len(f.F))
+	ut.AssertEqual(t, 1, len(f.F))
 
 	f.ResetFmt()
 
-	ut.Equal(t, 0, len(f.F))
+	ut.AssertEqual(t, 0, len(f.F))
 }

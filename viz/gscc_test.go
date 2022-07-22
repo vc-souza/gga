@@ -11,11 +11,11 @@ import (
 func TestGSCCViz(t *testing.T) {
 	g, _, err := ds.Parse(ut.UDGDeps)
 
-	ut.Equal(t, true, err == nil)
+	ut.AssertNil(t, err)
 
 	gscc, _, err := algo.GSCC(g)
 
-	ut.Equal(t, true, err == nil)
+	ut.AssertNil(t, err)
 
 	vi := NewGSCCViz(gscc, nil)
 
@@ -27,5 +27,5 @@ func TestGSCCViz(t *testing.T) {
 
 	ExportViz[ds.Group[ds.Text]](vi, ut.DummyWriter{})
 
-	ut.Equal(t, gscc.VertexCount(), vCount)
+	ut.AssertEqual(t, gscc.VertexCount(), vCount)
 }

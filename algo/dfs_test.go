@@ -13,7 +13,7 @@ func TestDFS_directed(t *testing.T) {
 		t.Run(fmt.Sprintf("classify: %v", classify), func(t *testing.T) {
 			g, vars, err := ds.Parse(ut.UDGSimple)
 
-			ut.Equal(t, true, err == nil)
+			ut.AssertNil(t, err)
 
 			v1 := vars["1"]
 			v2 := vars["2"]
@@ -24,41 +24,41 @@ func TestDFS_directed(t *testing.T) {
 
 			fst, tps, err := DFS(g, classify)
 
-			ut.Equal(t, true, err == nil)
+			ut.AssertNil(t, err)
 
 			if classify {
-				ut.Equal(t, 1, len(tps.Forward))
-				ut.Equal(t, 2, len(tps.Back))
-				ut.Equal(t, 1, len(tps.Cross))
+				ut.AssertEqual(t, 1, len(tps.Forward))
+				ut.AssertEqual(t, 2, len(tps.Back))
+				ut.AssertEqual(t, 1, len(tps.Cross))
 			} else {
-				ut.Equal(t, 0, len(tps.Forward))
-				ut.Equal(t, 0, len(tps.Back))
-				ut.Equal(t, 0, len(tps.Cross))
+				ut.AssertEqual(t, 0, len(tps.Forward))
+				ut.AssertEqual(t, 0, len(tps.Back))
+				ut.AssertEqual(t, 0, len(tps.Cross))
 			}
 
-			ut.Equal(t, 1, fst[v1].Discovery)
-			ut.Equal(t, 8, fst[v1].Finish)
-			ut.Equal(t, nil, fst[v1].Parent)
+			ut.AssertEqual(t, 1, fst[v1].Discovery)
+			ut.AssertEqual(t, 8, fst[v1].Finish)
+			ut.AssertEqual(t, nil, fst[v1].Parent)
 
-			ut.Equal(t, 2, fst[v2].Discovery)
-			ut.Equal(t, 7, fst[v2].Finish)
-			ut.Equal(t, v1, fst[v2].Parent)
+			ut.AssertEqual(t, 2, fst[v2].Discovery)
+			ut.AssertEqual(t, 7, fst[v2].Finish)
+			ut.AssertEqual(t, v1, fst[v2].Parent)
 
-			ut.Equal(t, 9, fst[v3].Discovery)
-			ut.Equal(t, 12, fst[v3].Finish)
-			ut.Equal(t, nil, fst[v3].Parent)
+			ut.AssertEqual(t, 9, fst[v3].Discovery)
+			ut.AssertEqual(t, 12, fst[v3].Finish)
+			ut.AssertEqual(t, nil, fst[v3].Parent)
 
-			ut.Equal(t, 4, fst[v4].Discovery)
-			ut.Equal(t, 5, fst[v4].Finish)
-			ut.Equal(t, v5, fst[v4].Parent)
+			ut.AssertEqual(t, 4, fst[v4].Discovery)
+			ut.AssertEqual(t, 5, fst[v4].Finish)
+			ut.AssertEqual(t, v5, fst[v4].Parent)
 
-			ut.Equal(t, 3, fst[v5].Discovery)
-			ut.Equal(t, 6, fst[v5].Finish)
-			ut.Equal(t, v2, fst[v5].Parent)
+			ut.AssertEqual(t, 3, fst[v5].Discovery)
+			ut.AssertEqual(t, 6, fst[v5].Finish)
+			ut.AssertEqual(t, v2, fst[v5].Parent)
 
-			ut.Equal(t, 10, fst[v6].Discovery)
-			ut.Equal(t, 11, fst[v6].Finish)
-			ut.Equal(t, v3, fst[v6].Parent)
+			ut.AssertEqual(t, 10, fst[v6].Discovery)
+			ut.AssertEqual(t, 11, fst[v6].Finish)
+			ut.AssertEqual(t, v3, fst[v6].Parent)
 		})
 	}
 }
@@ -68,7 +68,7 @@ func TestDFS_undirected(t *testing.T) {
 		t.Run(fmt.Sprintf("classify: %v", classify), func(t *testing.T) {
 			g, vars, err := ds.Parse(ut.UUGSimple)
 
-			ut.Equal(t, true, err == nil)
+			ut.AssertNil(t, err)
 
 			vR := vars["r"]
 			vS := vars["s"]
@@ -81,49 +81,49 @@ func TestDFS_undirected(t *testing.T) {
 
 			fst, tps, err := DFS(g, classify)
 
-			ut.Equal(t, true, err == nil)
+			ut.AssertNil(t, err)
 
-			ut.Equal(t, 0, len(tps.Forward))
-			ut.Equal(t, 0, len(tps.Cross))
+			ut.AssertEqual(t, 0, len(tps.Forward))
+			ut.AssertEqual(t, 0, len(tps.Cross))
 
 			if classify {
 				// undirected graph, so two for each edge
-				ut.Equal(t, 6, len(tps.Back))
+				ut.AssertEqual(t, 6, len(tps.Back))
 			} else {
-				ut.Equal(t, 0, len(tps.Back))
+				ut.AssertEqual(t, 0, len(tps.Back))
 			}
 
-			ut.Equal(t, 1, fst[vR].Discovery)
-			ut.Equal(t, 16, fst[vR].Finish)
-			ut.Equal(t, nil, fst[vR].Parent)
+			ut.AssertEqual(t, 1, fst[vR].Discovery)
+			ut.AssertEqual(t, 16, fst[vR].Finish)
+			ut.AssertEqual(t, nil, fst[vR].Parent)
 
-			ut.Equal(t, 2, fst[vS].Discovery)
-			ut.Equal(t, 13, fst[vS].Finish)
-			ut.Equal(t, vR, fst[vS].Parent)
+			ut.AssertEqual(t, 2, fst[vS].Discovery)
+			ut.AssertEqual(t, 13, fst[vS].Finish)
+			ut.AssertEqual(t, vR, fst[vS].Parent)
 
-			ut.Equal(t, 4, fst[vT].Discovery)
-			ut.Equal(t, 11, fst[vT].Finish)
-			ut.Equal(t, vW, fst[vT].Parent)
+			ut.AssertEqual(t, 4, fst[vT].Discovery)
+			ut.AssertEqual(t, 11, fst[vT].Finish)
+			ut.AssertEqual(t, vW, fst[vT].Parent)
 
-			ut.Equal(t, 5, fst[vU].Discovery)
-			ut.Equal(t, 10, fst[vU].Finish)
-			ut.Equal(t, vT, fst[vU].Parent)
+			ut.AssertEqual(t, 5, fst[vU].Discovery)
+			ut.AssertEqual(t, 10, fst[vU].Finish)
+			ut.AssertEqual(t, vT, fst[vU].Parent)
 
-			ut.Equal(t, 14, fst[vV].Discovery)
-			ut.Equal(t, 15, fst[vV].Finish)
-			ut.Equal(t, vR, fst[vV].Parent)
+			ut.AssertEqual(t, 14, fst[vV].Discovery)
+			ut.AssertEqual(t, 15, fst[vV].Finish)
+			ut.AssertEqual(t, vR, fst[vV].Parent)
 
-			ut.Equal(t, 3, fst[vW].Discovery)
-			ut.Equal(t, 12, fst[vW].Finish)
-			ut.Equal(t, vS, fst[vW].Parent)
+			ut.AssertEqual(t, 3, fst[vW].Discovery)
+			ut.AssertEqual(t, 12, fst[vW].Finish)
+			ut.AssertEqual(t, vS, fst[vW].Parent)
 
-			ut.Equal(t, 6, fst[vX].Discovery)
-			ut.Equal(t, 9, fst[vX].Finish)
-			ut.Equal(t, vU, fst[vX].Parent)
+			ut.AssertEqual(t, 6, fst[vX].Discovery)
+			ut.AssertEqual(t, 9, fst[vX].Finish)
+			ut.AssertEqual(t, vU, fst[vX].Parent)
 
-			ut.Equal(t, 7, fst[vY].Discovery)
-			ut.Equal(t, 8, fst[vY].Finish)
-			ut.Equal(t, vX, fst[vY].Parent)
+			ut.AssertEqual(t, 7, fst[vY].Discovery)
+			ut.AssertEqual(t, 8, fst[vY].Finish)
+			ut.AssertEqual(t, vX, fst[vY].Parent)
 		})
 	}
 }

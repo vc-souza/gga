@@ -11,7 +11,7 @@ import (
 func TestBFS_directed(t *testing.T) {
 	g, vars, err := ds.Parse(ut.UDGSimple)
 
-	ut.Equal(t, true, err == nil)
+	ut.AssertNil(t, err)
 
 	v1 := vars["1"]
 	v2 := vars["2"]
@@ -22,31 +22,31 @@ func TestBFS_directed(t *testing.T) {
 
 	tree, err := BFS(g, v3)
 
-	ut.Equal(t, true, err == nil)
+	ut.AssertNil(t, err)
 
-	ut.Equal(t, true, math.IsInf(tree[v1].Distance, 1))
-	ut.Equal(t, nil, tree[v1].Parent)
+	ut.AssertTrue(t, math.IsInf(tree[v1].Distance, 1))
+	ut.AssertEqual(t, nil, tree[v1].Parent)
 
-	ut.Equal(t, 3, tree[v2].Distance)
-	ut.Equal(t, v4, tree[v2].Parent)
+	ut.AssertEqual(t, 3, tree[v2].Distance)
+	ut.AssertEqual(t, v4, tree[v2].Parent)
 
-	ut.Equal(t, 0, tree[v3].Distance)
-	ut.Equal(t, nil, tree[v3].Parent)
+	ut.AssertEqual(t, 0, tree[v3].Distance)
+	ut.AssertEqual(t, nil, tree[v3].Parent)
 
-	ut.Equal(t, 2, tree[v4].Distance)
-	ut.Equal(t, v5, tree[v4].Parent)
+	ut.AssertEqual(t, 2, tree[v4].Distance)
+	ut.AssertEqual(t, v5, tree[v4].Parent)
 
-	ut.Equal(t, 1, tree[v5].Distance)
-	ut.Equal(t, v3, tree[v5].Parent)
+	ut.AssertEqual(t, 1, tree[v5].Distance)
+	ut.AssertEqual(t, v3, tree[v5].Parent)
 
-	ut.Equal(t, 1, tree[v6].Distance)
-	ut.Equal(t, v3, tree[v6].Parent)
+	ut.AssertEqual(t, 1, tree[v6].Distance)
+	ut.AssertEqual(t, v3, tree[v6].Parent)
 }
 
 func TestBFS_undirected(t *testing.T) {
 	g, vars, err := ds.Parse(ut.UUGSimple)
 
-	ut.Equal(t, true, err == nil)
+	ut.AssertNil(t, err)
 
 	vR := vars["r"]
 	vS := vars["s"]
@@ -59,29 +59,29 @@ func TestBFS_undirected(t *testing.T) {
 
 	tree, err := BFS(g, vU)
 
-	ut.Equal(t, true, err == nil)
+	ut.AssertNil(t, err)
 
-	ut.Equal(t, 4, tree[vR].Distance)
-	ut.Equal(t, vS, tree[vR].Parent)
+	ut.AssertEqual(t, 4, tree[vR].Distance)
+	ut.AssertEqual(t, vS, tree[vR].Parent)
 
-	ut.Equal(t, 3, tree[vS].Distance)
-	ut.Equal(t, vW, tree[vS].Parent)
+	ut.AssertEqual(t, 3, tree[vS].Distance)
+	ut.AssertEqual(t, vW, tree[vS].Parent)
 
-	ut.Equal(t, 1, tree[vT].Distance)
-	ut.Equal(t, vU, tree[vT].Parent)
+	ut.AssertEqual(t, 1, tree[vT].Distance)
+	ut.AssertEqual(t, vU, tree[vT].Parent)
 
-	ut.Equal(t, 0, tree[vU].Distance)
-	ut.Equal(t, nil, tree[vU].Parent)
+	ut.AssertEqual(t, 0, tree[vU].Distance)
+	ut.AssertEqual(t, nil, tree[vU].Parent)
 
-	ut.Equal(t, 5, tree[vV].Distance)
-	ut.Equal(t, vR, tree[vV].Parent)
+	ut.AssertEqual(t, 5, tree[vV].Distance)
+	ut.AssertEqual(t, vR, tree[vV].Parent)
 
-	ut.Equal(t, 2, tree[vW].Distance)
-	ut.Equal(t, vT, tree[vW].Parent)
+	ut.AssertEqual(t, 2, tree[vW].Distance)
+	ut.AssertEqual(t, vT, tree[vW].Parent)
 
-	ut.Equal(t, 1, tree[vX].Distance)
-	ut.Equal(t, vU, tree[vX].Parent)
+	ut.AssertEqual(t, 1, tree[vX].Distance)
+	ut.AssertEqual(t, vU, tree[vX].Parent)
 
-	ut.Equal(t, 1, tree[vY].Distance)
-	ut.Equal(t, vU, tree[vY].Parent)
+	ut.AssertEqual(t, 1, tree[vY].Distance)
+	ut.AssertEqual(t, vU, tree[vY].Parent)
 }

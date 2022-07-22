@@ -15,26 +15,26 @@ func TestQueueEnqueue(t *testing.T) {
 	q.Enqueue(1, 2, 3)
 
 	item, ok = q.(*LLQueue[int]).get(0)
-	ut.Equal(t, true, ok)
-	ut.Equal(t, 1, item)
+	ut.AssertTrue(t, ok)
+	ut.AssertEqual(t, 1, item)
 
 	item, ok = q.(*LLQueue[int]).get(1)
-	ut.Equal(t, true, ok)
-	ut.Equal(t, 2, item)
+	ut.AssertTrue(t, ok)
+	ut.AssertEqual(t, 2, item)
 
 	item, ok = q.(*LLQueue[int]).get(2)
-	ut.Equal(t, true, ok)
-	ut.Equal(t, 3, item)
+	ut.AssertTrue(t, ok)
+	ut.AssertEqual(t, 3, item)
 }
 
 func TestQueueEmpty(t *testing.T) {
 	q := NewQueue[int]()
 
-	ut.Equal(t, true, q.Empty())
+	ut.AssertTrue(t, q.Empty())
 
 	q.Enqueue(1)
 
-	ut.Equal(t, false, q.Empty())
+	ut.AssertFalse(t, q.Empty())
 }
 
 func TestQueueDequeue(t *testing.T) {
@@ -43,34 +43,34 @@ func TestQueueDequeue(t *testing.T) {
 
 	q := NewQueue[int]()
 
-	ut.Equal(t, true, q.Empty())
+	ut.AssertTrue(t, q.Empty())
 
 	q.Enqueue(1, 2, 3)
 
-	ut.Equal(t, false, q.Empty())
+	ut.AssertFalse(t, q.Empty())
 
 	item, ok = q.Dequeue()
-	ut.Equal(t, true, ok)
-	ut.Equal(t, 1, item)
+	ut.AssertTrue(t, ok)
+	ut.AssertEqual(t, 1, item)
 
 	item, ok = q.Dequeue()
-	ut.Equal(t, true, ok)
-	ut.Equal(t, 2, item)
+	ut.AssertTrue(t, ok)
+	ut.AssertEqual(t, 2, item)
 
 	item, ok = q.Dequeue()
-	ut.Equal(t, true, ok)
-	ut.Equal(t, 3, item)
+	ut.AssertTrue(t, ok)
+	ut.AssertEqual(t, 3, item)
 
-	ut.Equal(t, true, q.Empty())
+	ut.AssertTrue(t, q.Empty())
 }
 
 func TestQueueDequeue_empty(t *testing.T) {
 	q := NewQueue[int]()
 
-	ut.Equal(t, true, q.Empty())
+	ut.AssertTrue(t, q.Empty())
 
 	_, ok := q.Dequeue()
-	ut.Equal(t, false, ok)
+	ut.AssertFalse(t, ok)
 }
 
 func TestQueueDequeue_wrong_type(t *testing.T) {
@@ -97,15 +97,15 @@ func TestLLQueueGet(t *testing.T) {
 	d.PushFront(3)
 
 	v, ok := d.get(0)
-	ut.Equal(t, true, ok)
-	ut.Equal(t, 3, v)
+	ut.AssertTrue(t, ok)
+	ut.AssertEqual(t, 3, v)
 }
 
 func TestLLQueueGet_invalid(t *testing.T) {
 	d := new(LLQueue[int])
 
 	_, ok := d.get(-1)
-	ut.Equal(t, false, ok)
+	ut.AssertFalse(t, ok)
 }
 
 func TestLLQueueGet_wrong_type(t *testing.T) {

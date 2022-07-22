@@ -42,13 +42,13 @@ func TestBFSViz(t *testing.T) {
 		t.Run(tc.desc, func(t *testing.T) {
 			g, vars, err := ds.Parse(tc.input)
 
-			ut.Equal(t, true, err == nil)
+			ut.AssertNil(t, err)
 
 			src := vars[tc.src]
 
 			tree, err := algo.BFS(g, src)
 
-			ut.Equal(t, true, err == nil)
+			ut.AssertNil(t, err)
 
 			uvCount := 0
 			tvCount := 0
@@ -67,10 +67,10 @@ func TestBFSViz(t *testing.T) {
 
 			ExportViz[ds.Text](vi, ut.DummyWriter{})
 
-			ut.Equal(t, tc.expectUV, uvCount)
-			ut.Equal(t, tc.expectTV, tvCount)
-			ut.Equal(t, tc.expectSV, svCount)
-			ut.Equal(t, tc.expectTE, teCount)
+			ut.AssertEqual(t, tc.expectUV, uvCount)
+			ut.AssertEqual(t, tc.expectTV, tvCount)
+			ut.AssertEqual(t, tc.expectSV, svCount)
+			ut.AssertEqual(t, tc.expectTE, teCount)
 		})
 	}
 }
