@@ -12,7 +12,6 @@ func fail(t *testing.T, v ...any) {
 	t.FailNow()
 }
 
-// AssertEqual asserts that two values of same type are equal, otherwise the test fails.
 func AssertEqual[T comparable](t *testing.T, expected T, actual T) {
 	if reflect.DeepEqual(expected, actual) {
 		return
@@ -21,7 +20,6 @@ func AssertEqual[T comparable](t *testing.T, expected T, actual T) {
 	fail(t, "expected", expected, "got", actual)
 }
 
-// TODO: docs
 func AssertTrue(t *testing.T, v bool) {
 	if v {
 		return
@@ -30,7 +28,6 @@ func AssertTrue(t *testing.T, v bool) {
 	fail(t, "expected true")
 }
 
-// TODO: docs
 func AssertFalse(t *testing.T, v bool) {
 	if !v {
 		return
@@ -39,7 +36,6 @@ func AssertFalse(t *testing.T, v bool) {
 	fail(t, "expected false")
 }
 
-// TODO: docs
 func AssertNil(t *testing.T, v any) {
 	if reflect.TypeOf(v) == nil {
 		return
@@ -52,7 +48,6 @@ func AssertNil(t *testing.T, v any) {
 	fail(t, "expected nil value")
 }
 
-// TODO: docs
 func AssertNotNil(t *testing.T, v any) {
 	if reflect.TypeOf(v) != nil && !reflect.ValueOf(v).IsNil() {
 		return
