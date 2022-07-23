@@ -304,9 +304,7 @@ func (g *G) Transpose() (*G, error) {
 	}
 
 	for i := range g.V {
-		for j := range g.V[i].E {
-			edge := &g.V[i].E[j]
-
+		for _, edge := range g.V[i].E {
 			res.AddEdge(
 				g.V[edge.Dst].Item,
 				g.V[edge.Src].Item,
