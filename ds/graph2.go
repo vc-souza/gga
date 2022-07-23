@@ -36,14 +36,14 @@ func (v *GV2) String() string {
 	b := strings.Builder{}
 	es := []string{}
 
-	b.WriteString(fmt.Sprintf("Vertex '%s' i:<%d> adj:<", v.Item.Label(), v.Index))
+	b.WriteString(fmt.Sprintf("Vertex '%s' @<%d> adj [", v.Item.Label(), v.Index))
 
 	for i := range v.E {
 		es = append(es, v.E[i].String())
 	}
 
 	b.WriteString(strings.Join(es, ", "))
-	b.WriteString(">\n")
+	b.WriteString("]\n")
 
 	return b.String()
 }
@@ -68,6 +68,16 @@ func NewG2(dir bool) *G2 {
 	g.dir = dir
 
 	return g
+}
+
+// TODO: docs
+func NewGraph() *G2 {
+	return NewG2(false)
+}
+
+// TODO: docs
+func NewDigraph() *G2 {
+	return NewG2(true)
 }
 
 func (g *G2) String() string {
@@ -104,11 +114,6 @@ func (g *G2) VertexCount() int {
 }
 
 // TODO: docs
-func (g *G2) EdgeCount() int {
-	return g.eCount
-}
-
-// TODO: docs
 func (g *G2) GetVertex(i Item) (*GV2, int, bool) {
 	idx, ok := g.sat[i]
 
@@ -117,6 +122,11 @@ func (g *G2) GetVertex(i Item) (*GV2, int, bool) {
 	}
 
 	return &g.V[idx], idx, true
+}
+
+// TODO: docs
+func (g *G2) FromIndex(idx int) *GV2 {
+	return &g.V[idx]
 }
 
 // TODO: docs
@@ -145,51 +155,62 @@ func (g *G2) RemoveVertex(i Item) error {
 		return ErrNoVtx
 	}
 
-	eCount := len(g.V[iDel].E)
-
-	for i := range g.V {
-		if i == iDel {
-			continue
-		}
-
-		toDel := []int{}
-
-		for j := range g.V[i].E {
-			if g.V[i].E[j].Dst == iDel {
-				toDel = append(toDel, j)
+	fixEdges := func() {
+		for i := range g.V {
+			if i == iDel {
+				g.eCount -= len(g.V[i].E)
 				continue
 			}
 
-			// TODO: explain fix
-			if g.V[i].E[j].Src > iDel {
-				g.V[i].E[j].Src--
+			toDel := []int{}
+
+			for j := range g.V[i].E {
+				if g.V[i].E[j].Dst == iDel {
+					toDel = append(toDel, j)
+					continue
+				}
+
+				// TODO: explain fix
+				if g.V[i].E[j].Src > iDel {
+					g.V[i].E[j].Src--
+				}
+
+				// TODO: explain fix
+				if g.V[i].E[j].Dst > iDel {
+					g.V[i].E[j].Dst--
+				}
 			}
 
-			// TODO: explain fix
-			if g.V[i].E[j].Dst > iDel {
-				g.V[i].E[j].Dst--
+			for _, eIdx := range toDel {
+				Cut(&g.V[i].E, eIdx)
+				g.eCount--
 			}
-		}
-
-		for _, eIdx := range toDel {
-			Cut(&g.V[i].E, eIdx)
-			eCount++
 		}
 	}
 
-	Cut(&g.V, iDel)
-	delete(g.sat, i)
-
-	// TODO: explain fix
-	for i := iDel; i < len(g.V); i++ {
-		g.V[i].Index = i
-		g.sat[g.V[i].Item] = i
+	deleteVertex := func() {
+		Cut(&g.V, iDel)
+		delete(g.sat, i)
+		g.vCount--
 	}
 
-	g.eCount -= eCount
-	g.vCount--
+	fixVertices := func() {
+		for i := iDel; i < len(g.V); i++ {
+			g.V[i].Index = i
+			g.sat[g.V[i].Item] = i
+		}
+	}
+
+	fixEdges()
+	deleteVertex()
+	fixVertices()
 
 	return nil
+}
+
+// TODO: docs
+func (g *G2) EdgeCount() int {
+	return g.eCount
 }
 
 // TODO: docs
@@ -253,17 +274,41 @@ func (g *G2) RemoveEdge(src Item, dst Item) error {
 }
 
 // TODO: docs
-func Cut[T any](s *[]T, idx int) {
-	if idx < 0 || idx >= len(*s) {
-		return
+func (g *G2) Accept(v GraphVisitor2) {
+	v.VisitGraphStart(g)
+
+	for i := range g.V {
+		v.VisitVertex(&g.V[i])
+
+		for j := range g.V[i].E {
+			v.VisitEdge(&g.V[i].E[j])
+		}
 	}
 
-	copy((*s)[idx:], (*s)[idx+1:])
+	v.VisitGraphEnd(g)
+}
 
-	// avoiding memory leak by assigning the
-	// zero value to the duplicated position
-	var zero T
-	(*s)[len(*s)-1] = zero
+// TODO: docs (right place? maybe algo?)
+func (g *G2) Transpose() (*G2, error) {
+	if g.Undirected() {
+		return nil, ErrUndirected
+	}
 
-	*s = (*s)[:len(*s)-1]
+	res := NewDigraph()
+
+	for i := range g.V {
+		res.AddVertex(g.V[i].Item)
+	}
+
+	for i := range g.V {
+		for j := range g.V[i].E {
+			res.AddEdge(
+				g.V[g.V[i].E[j].Dst].Item,
+				g.V[g.V[i].E[j].Src].Item,
+				g.V[i].E[j].Wt,
+			)
+		}
+	}
+
+	return res, nil
 }

@@ -60,3 +60,19 @@ func RemoveFromPointersSlice[T any](s []*T, idx int) []*T {
 	// the new slice reference where its old slice used to be stored.
 	return s[:len(s)-1]
 }
+
+// TODO: docs (remove the one above ^^^^^)
+func Cut[T any](s *[]T, idx int) {
+	if idx < 0 || idx >= len(*s) {
+		return
+	}
+
+	copy((*s)[idx:], (*s)[idx+1:])
+
+	// avoiding memory leak by assigning the
+	// zero value to the duplicated position
+	var zero T
+	(*s)[len(*s)-1] = zero
+
+	*s = (*s)[:len(*s)-1]
+}
