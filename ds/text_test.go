@@ -9,6 +9,10 @@ import (
 	ut "github.com/vc-souza/gga/internal/testutils"
 )
 
+func tagGraphTest(gType, desc string) string {
+	return gType + " " + desc
+}
+
 func TestTextLabel(t *testing.T) {
 	ut.Equal(t, "test", Text("test").Label())
 }
