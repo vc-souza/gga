@@ -11,12 +11,12 @@ import (
 func TestSCC_directed(t *testing.T) {
 	cases := []struct {
 		desc   string
-		algo   SCCAlgo[ds.Text]
+		algo   SCCAlgo
 		expect map[string]int
 	}{
 		{
 			desc: "Kosaraju",
-			algo: SCCKosaraju[ds.Text],
+			algo: SCCKosaraju,
 			expect: map[string]int{
 				"q": 2,
 				"r": 0,
@@ -32,7 +32,7 @@ func TestSCC_directed(t *testing.T) {
 		},
 		{
 			desc: "Tarjan",
-			algo: SCCTarjan[ds.Text],
+			algo: SCCTarjan,
 			expect: map[string]int{
 				"q": 2,
 				"r": 4,
@@ -50,7 +50,7 @@ func TestSCC_directed(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
-			g, _, err := ds.Parse(ut.UDGDeps)
+			g, idx, err := ds.Parse(ut.UDGDeps)
 
 			ut.Nil(t, err)
 
@@ -58,16 +58,16 @@ func TestSCC_directed(t *testing.T) {
 
 			ut.Nil(t, err)
 
-			sets := map[string]int{}
+			sets := map[int]int{}
 
 			for i, scc := range sccs {
 				for _, v := range scc {
-					sets[v.Label()] = i
+					sets[v] = i
 				}
 			}
 
 			for k, cc := range tc.expect {
-				ut.Equal(t, cc, sets[k])
+				ut.Equal(t, cc, sets[idx(k)])
 			}
 		})
 	}
@@ -76,15 +76,15 @@ func TestSCC_directed(t *testing.T) {
 func TestSCC_undirected(t *testing.T) {
 	cases := []struct {
 		desc string
-		algo SCCAlgo[ds.Text]
+		algo SCCAlgo
 	}{
 		{
 			desc: "Kosaraju",
-			algo: SCCKosaraju[ds.Text],
+			algo: SCCKosaraju,
 		},
 		{
 			desc: "Tarjan",
-			algo: SCCTarjan[ds.Text],
+			algo: SCCTarjan,
 		},
 	}
 

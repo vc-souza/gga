@@ -31,8 +31,8 @@ func TSort(g *ds.G) ([]int, error) {
 	count := g.VertexCount()
 	ordIdx := count - 1
 
-	ord := make([]int, count)
 	visited := make([]bool, count)
+	ord := make([]int, count)
 
 	visit = func(v int) {
 		visited[v] = true
