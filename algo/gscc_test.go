@@ -9,7 +9,7 @@ import (
 	ut "github.com/vc-souza/gga/internal/testutils"
 )
 
-func groupTag(ig *ds.Group[ds.Text]) string {
+func groupTag(ig *ds.Group) string {
 	s := make([]string, 0, len(ig.Items))
 
 	for _, item := range ig.Items {
@@ -40,7 +40,7 @@ func TestGSCC_directed(t *testing.T) {
 	ut.Equal(t, 5, gscc.EdgeCount())
 
 	for i := range expect {
-		ut.Equal(t, expect[i], groupTag(gscc.V[i].Ptr))
+		ut.Equal(t, expect[i], groupTag(gscc.V[i].Item.(*ds.Group)))
 	}
 }
 
