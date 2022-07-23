@@ -165,19 +165,21 @@ func (g *G2) RemoveVertex(i Item) error {
 			toDel := []int{}
 
 			for j := range g.V[i].E {
-				if g.V[i].E[j].Dst == iDel {
+				edge := &g.V[i].E[j]
+
+				if edge.Dst == iDel {
 					toDel = append(toDel, j)
 					continue
 				}
 
 				// TODO: explain fix
-				if g.V[i].E[j].Src > iDel {
-					g.V[i].E[j].Src--
+				if edge.Src > iDel {
+					edge.Src--
 				}
 
 				// TODO: explain fix
-				if g.V[i].E[j].Dst > iDel {
-					g.V[i].E[j].Dst--
+				if edge.Dst > iDel {
+					edge.Dst--
 				}
 			}
 
@@ -302,10 +304,12 @@ func (g *G2) Transpose() (*G2, error) {
 
 	for i := range g.V {
 		for j := range g.V[i].E {
+			edge := &g.V[i].E[j]
+
 			res.AddEdge(
-				g.V[g.V[i].E[j].Dst].Item,
-				g.V[g.V[i].E[j].Src].Item,
-				g.V[i].E[j].Wt,
+				g.V[edge.Dst].Item,
+				g.V[edge.Src].Item,
+				edge.Wt,
 			)
 		}
 	}
