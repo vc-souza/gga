@@ -97,12 +97,10 @@ func (d *Exporter) VisitGraphEnd(ds.G) {
 }
 
 func (d *Exporter) VisitVertex(g ds.G, v int) {
-	vtx := g.V[v]
-
 	d.add(fmt.Sprintf(
 		"%s%s",
-		Quoted(vtx.Item),
-		DotAttrs(vtx.F),
+		Quoted(g.V[v].Item),
+		DotAttrs(g.V[v].F),
 	))
 }
 
