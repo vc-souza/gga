@@ -79,18 +79,18 @@ Sample (Directed)
 */
 type TextParser struct {
 	vars    map[string]*Text
-	graph   *G[Text]
 	pending map[*Text]string
+	graph   *G
 }
 
 func (p *TextParser) parseGraphType(raw string) error {
 	switch raw {
 
 	case undirectedGraphKey:
-		p.graph = NewUndirectedGraph[Text]()
+		p.graph = NewGraph()
 
 	case directedGraphKey:
-		p.graph = NewDirectedGraph[Text]()
+		p.graph = NewDigraph()
 
 	default:
 		return errors.New("graph type: bad name")
@@ -117,7 +117,7 @@ func (p *TextParser) parseVertex(raw string) (*Text, error) {
 		p.vars[raw] = &v
 		res = &v
 
-		p.graph.UnsafeAddVertex(res)
+		p.graph.AddVertex(res)
 	}
 
 	return res, nil
@@ -152,7 +152,7 @@ func (p *TextParser) parseEdge(src *Text, raw string) error {
 		wt = pWt
 	}
 
-	p.graph.UnsafeAddWeightedEdge(src, dst, wt)
+	p.graph.AddEdge(src, dst, wt)
 
 	return nil
 }
@@ -192,7 +192,7 @@ func (p *TextParser) parseAdjEntry(raw string) error {
 }
 
 // Parse parses the input string, generating a new graph.
-func (p *TextParser) Parse(s string) (*G[Text], map[string]*Text, error) {
+func (p *TextParser) Parse(s string) (*G, map[string]*Text, error) {
 	p.vars = map[string]*Text{}
 	p.pending = map[*Text]string{}
 	p.graph = nil
@@ -227,6 +227,6 @@ func (p *TextParser) Parse(s string) (*G[Text], map[string]*Text, error) {
 }
 
 // Parse is a shorthand for creating a new TextParser and then using it to parse the input.
-func Parse(s string) (*G[Text], map[string]*Text, error) {
+func Parse(s string) (*G, map[string]*Text, error) {
 	return (&TextParser{}).Parse(s)
 }
