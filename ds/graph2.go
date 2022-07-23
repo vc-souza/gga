@@ -145,7 +145,8 @@ func (g *G2) RemoveEdge(src Item, dst Item) error {
 
 	copy((*edges)[idx:], (*edges)[idx+1:])
 
-	// avoiding memory leaks
+	// avoiding memory leak by assigning the
+	// zero value to the duplicated position
 	(*edges)[len(*edges)-1] = GE2{}
 
 	*edges = (*edges)[:len(*edges)-1]
