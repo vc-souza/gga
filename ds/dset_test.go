@@ -9,7 +9,7 @@ import (
 func TestDSetMakeSet(t *testing.T) {
 	i := 10
 
-	dset := NewDSet[int]()
+	dset := NewDSet[*int]()
 
 	dset.MakeSet(&i)
 
@@ -19,7 +19,7 @@ func TestDSetMakeSet(t *testing.T) {
 func TestDSetFindSet_same_set(t *testing.T) {
 	vars := []int{0, 1}
 
-	dset := NewDSet[int]()
+	dset := NewDSet[*int]()
 
 	dset.MakeSet(&vars[0])
 	dset.MakeSet(&vars[1])
@@ -32,7 +32,7 @@ func TestDSetFindSet_same_set(t *testing.T) {
 func TestDSetFindSet_different_set(t *testing.T) {
 	vars := []int{0, 1}
 
-	dset := NewDSet[int]()
+	dset := NewDSet[*int]()
 
 	dset.MakeSet(&vars[0])
 	dset.MakeSet(&vars[1])
@@ -42,7 +42,7 @@ func TestDSetFindSet_different_set(t *testing.T) {
 
 func TestDSetUnion(t *testing.T) {
 	vars := []int{0, 1, 2, 3, 4}
-	dset := NewDSet[int]()
+	dset := NewDSet[*int]()
 
 	// {0} {1} {2} {3} {4}
 	for i := range vars {

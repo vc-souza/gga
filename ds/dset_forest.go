@@ -1,10 +1,10 @@
 package ds
 
 // A dsfNode represents a node in a Disjoint-Set Forest.
-type dsfNode[T any] struct {
+type dsfNode[T comparable] struct {
 	parent *dsfNode[T]
 	rank   int
-	ptr    *T
+	val    T
 }
 
 /*
@@ -17,37 +17,37 @@ The function α(n) is the inverse of the Ackermann function, and grows extremely
 slowly, with α(n) == 4 for pretty much any practical value of n, which makes
 O(m α(n)) asymptotically superlinear, ω(m), but close to linear in practice.
 */
-type DSetForest[T any] map[*T]*dsfNode[T]
+type DSetForest[T comparable] map[T]*dsfNode[T]
 
 // NewDSet returns a new DSet, using a Disjoint-Set Forest implementation.
-func NewDSet[T any]() DSet[T] {
+func NewDSet[T comparable]() DSet[T] {
 	return DSet[T](&DSetForest[T]{})
 }
 
-func (f DSetForest[T]) MakeSet(x *T) {
-	node := &dsfNode[T]{ptr: x}
+func (f DSetForest[T]) MakeSet(x T) {
+	node := &dsfNode[T]{val: x}
 	node.parent = node
 	f[x] = node
 }
 
-func (f DSetForest[T]) FindSet(x *T) *T {
+func (f DSetForest[T]) FindSet(x T) T {
 	node := f[x]
 
 	if node.parent == node {
-		return node.ptr
+		return node.val
 	}
 
 	f.compress(node)
 
-	return node.parent.ptr
+	return node.parent.val
 }
 
-func (f DSetForest[T]) Union(x, y *T) {
+func (f DSetForest[T]) Union(x, y T) {
 	f.link(f.FindSet(x), f.FindSet(y))
 }
 
 // link implements the union-by-rank heuristic.
-func (f DSetForest[T]) link(x, y *T) {
+func (f DSetForest[T]) link(x, y T) {
 	parent := f[y]
 	child := f[x]
 
