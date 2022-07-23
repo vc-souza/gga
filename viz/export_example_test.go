@@ -22,7 +22,7 @@ func ExampleExporter() {
 	pot := &pokemon{Type: "water", Name: "Politoed"}
 	pow := &pokemon{Type: "water/fighting", Name: "Poliwrath"}
 
-	g := ds.NewDirectedGraph[pokemon]()
+	g := ds.NewDigraph()
 	e := NewExporter(g)
 
 	g.AddUnweightedEdge(pwag, pwl)
