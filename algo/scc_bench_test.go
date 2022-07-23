@@ -8,19 +8,19 @@ import (
 	ut "github.com/vc-souza/gga/internal/testutils"
 )
 
-func sccBenchGen(n int) *ds.G[ut.BenchItem] {
-	g := ds.NewDirectedGraph[ut.BenchItem]()
+func sccBenchGen(n int) *ds.G {
+	g := ds.NewDigraph()
 
 	for i := 0; i < n; i++ {
 		v := ut.BenchItem(i)
-		g.UnsafeAddVertex(&v)
+		g.AddVertex(&v)
 	}
 
 	for i := 0; i < n; i++ {
 		for j := 0; j < n; j++ {
-			g.UnsafeAddWeightedEdge(
-				g.V[i].Ptr,
-				g.V[j].Ptr,
+			g.AddEdge(
+				g.V[i].Item,
+				g.V[j].Item,
 				0,
 			)
 		}
