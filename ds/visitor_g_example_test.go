@@ -37,11 +37,13 @@ func ExampleGraphVisitor() {
 
 	g := NewDigraph()
 
+	g.AddVertex(john)
+	g.AddVertex(jane)
+	g.AddVertex(jonas)
+
 	g.AddEdge(john, jane, 0)
 	g.AddEdge(jane, john, 0)
 	g.AddEdge(jane, jane, 0)
-
-	g.AddVertex(jonas)
 
 	g.Accept(&ConsoleVisitor{g})
 

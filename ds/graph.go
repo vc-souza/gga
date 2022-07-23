@@ -36,7 +36,7 @@ func (v *GV) String() string {
 	b := strings.Builder{}
 	es := []string{}
 
-	b.WriteString(fmt.Sprintf("Vertex '%s' @<%d> adj [", v.Item.Label(), v.Index))
+	b.WriteString(fmt.Sprintf("Vertex '%s' @%d adj [", v.Item.Label(), v.Index))
 
 	for i := range v.E {
 		es = append(es, v.E[i].String())
@@ -90,6 +90,8 @@ func (g *G) String() string {
 	}
 
 	b.WriteString(fmt.Sprintf("%d map entries\n", len(g.sat)))
+	b.WriteString(fmt.Sprintf("%d vertices\n", g.VertexCount()))
+	b.WriteString(fmt.Sprintf("%d edges\n", g.EdgeCount()))
 
 	for i := range g.V {
 		b.WriteString(g.V[i].String())
@@ -114,25 +116,15 @@ func (g *G) VertexCount() int {
 }
 
 // TODO: docs
-func (g *G) GetVertex(i Item) (*GV, int, bool) {
+func (g *G) GetVertex(i Item) (int, bool) {
 	idx, ok := g.sat[i]
-
-	if !ok {
-		return nil, -1, false
-	}
-
-	return &g.V[idx], idx, true
+	return idx, ok
 }
 
 // TODO: docs
-func (g *G) FromIndex(idx int) *GV {
-	return &g.V[idx]
-}
-
-// TODO: docs
-func (g *G) AddVertex(i Item) (*GV, error) {
-	if idx, ok := g.sat[i]; ok {
-		return &g.V[idx], ErrExists
+func (g *G) AddVertex(i Item) (int, error) {
+	if _, ok := g.sat[i]; ok {
+		return 0, ErrExists
 	}
 
 	g.V = append(g.V, GV{Item: i})
@@ -144,7 +136,7 @@ func (g *G) AddVertex(i Item) (*GV, error) {
 
 	g.vCount++
 
-	return &g.V[idx], nil
+	return idx, nil
 }
 
 // TODO: docs
@@ -216,59 +208,68 @@ func (g *G) EdgeCount() int {
 }
 
 // TODO: docs
-func (g *G) GetEdge(src Item, dst Item) (*GE, int, bool) {
-	vSrc, _, ok := g.GetVertex(src)
+func (g *G) GetEdge(src Item, dst Item) (int, int, bool) {
+	iSrc, ok := g.GetVertex(src)
 
 	if !ok {
-		return nil, -1, false
+		return 0, 0, false
 	}
 
 	iDst, ok := g.sat[dst]
 
 	if !ok {
-		return nil, -1, false
+		return 0, 0, false
 	}
 
-	for i := range vSrc.E {
-		if vSrc.E[i].Dst == iDst {
-			return &vSrc.E[i], i, true
+	for j := range g.V[iSrc].E {
+		if g.V[iSrc].E[j].Dst == iDst {
+			return iSrc, j, true
 		}
 	}
 
-	return nil, -1, false
+	return 0, 0, false
 }
 
 // TODO: docs
-func (g *G) AddEdge(src Item, dst Item, wt float64) (*GE, error) {
+func (g *G) AddEdge(src Item, dst Item, wt float64) (int, error) {
 	if g.Undirected() && src == dst {
-		return nil, ErrInvLoop
+		return 0, ErrInvLoop
 	}
 
-	vSrc, _ := g.AddVertex(src)
-	vDst, _ := g.AddVertex(dst)
+	iSrc, ok := g.GetVertex(src)
 
-	for i := range vSrc.E {
-		if vSrc.E[i].Dst == vDst.Index {
-			return nil, ErrExists
+	if !ok {
+		return 0, ErrNoVtx
+	}
+
+	iDst, ok := g.GetVertex(dst)
+
+	if !ok {
+		return 0, ErrNoVtx
+	}
+
+	for j := range g.V[iSrc].E {
+		if g.V[iSrc].E[j].Dst == iDst {
+			return 0, ErrExists
 		}
 	}
 
-	vSrc.E = append(vSrc.E, GE{Src: vSrc.Index, Dst: vDst.Index, Wt: wt})
+	g.V[iSrc].E = append(g.V[iSrc].E, GE{Src: iSrc, Dst: iDst, Wt: wt})
 
 	g.eCount++
 
-	return &(vSrc.E[len(vSrc.E)-1]), nil
+	return len(g.V[iSrc].E) - 1, nil
 }
 
 // TODO: docs
 func (g *G) RemoveEdge(src Item, dst Item) error {
-	_, idx, ok := g.GetEdge(src, dst)
+	vIdx, idx, ok := g.GetEdge(src, dst)
 
 	if !ok {
 		return ErrNoEdge
 	}
 
-	Cut(&g.V[g.sat[src]].E, idx)
+	Cut(&g.V[vIdx].E, idx)
 
 	g.eCount--
 
