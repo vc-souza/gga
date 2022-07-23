@@ -10,15 +10,15 @@ import (
 
 var ccCases = []struct {
 	desc string
-	algo CCAlgo[ds.Text]
+	algo CCAlgo
 }{
 	{
 		desc: "DFS",
-		algo: CCDFS[ds.Text],
+		algo: CCDFS,
 	},
 	{
 		desc: "Union-Find",
-		algo: CCUnionFind[ds.Text],
+		algo: CCUnionFind,
 	},
 }
 
@@ -53,7 +53,7 @@ func TestCC_undirected(t *testing.T) {
 
 	for _, tc := range ccCases {
 		t.Run(tc.desc, func(t *testing.T) {
-			g, _, err := ds.Parse(ut.UUGDisc)
+			g, idx, err := ds.Parse(ut.UUGDisc)
 
 			ut.Nil(t, err)
 
@@ -61,16 +61,16 @@ func TestCC_undirected(t *testing.T) {
 
 			ut.Nil(t, err)
 
-			sets := map[string]int{}
+			sets := map[int]int{}
 
 			for i, cc := range ccs {
 				for _, v := range cc {
-					sets[v.Label()] = i
+					sets[v] = i
 				}
 			}
 
 			for k, cc := range expect {
-				ut.Equal(t, cc, sets[k])
+				ut.Equal(t, cc, sets[idx(k)])
 			}
 		})
 	}

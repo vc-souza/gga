@@ -32,11 +32,7 @@ func TSort(g *ds.G) ([]int, error) {
 	ordIdx := count - 1
 
 	ord := make([]int, count)
-	visited := map[int]bool{}
-
-	for i := range g.V {
-		visited[i] = false
-	}
+	visited := make([]bool, count)
 
 	visit = func(v int) {
 		visited[v] = true
