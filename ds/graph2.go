@@ -1,5 +1,10 @@
 package ds
 
+import (
+	"fmt"
+	"strings"
+)
+
 // TODO: docs
 type GE2 struct {
 	Formattable
@@ -9,13 +14,38 @@ type GE2 struct {
 	Wt  float64
 }
 
+func (e *GE2) String() string {
+	return fmt.Sprintf(
+		"%d -> %d <%.2f>",
+		e.Src,
+		e.Dst,
+		e.Wt,
+	)
+}
+
 // TODO: docs
 type GV2 struct {
 	Formattable
 
+	Index int
 	Item  Item
 	E     []GE2
-	Index int
+}
+
+func (v *GV2) String() string {
+	b := strings.Builder{}
+	es := []string{}
+
+	b.WriteString(fmt.Sprintf("Vertex '%s' i:<%d> adj:<", v.Item.Label(), v.Index))
+
+	for i := range v.E {
+		es = append(es, v.E[i].String())
+	}
+
+	b.WriteString(strings.Join(es, ", "))
+	b.WriteString(">\n")
+
+	return b.String()
 }
 
 // TODO: docs
@@ -38,6 +68,24 @@ func NewG2(dir bool) *G2 {
 	g.dir = dir
 
 	return g
+}
+
+func (g *G2) String() string {
+	b := strings.Builder{}
+
+	if g.Undirected() {
+		b.WriteString("Undirected Graph\n")
+	} else {
+		b.WriteString("Directed Graph\n")
+	}
+
+	b.WriteString(fmt.Sprintf("%d map entries\n", len(g.sat)))
+
+	for i := range g.V {
+		b.WriteString(g.V[i].String())
+	}
+
+	return b.String()
 }
 
 // TODO: docs
@@ -112,12 +160,12 @@ func (g *G2) RemoveVertex(i Item) error {
 				continue
 			}
 
-			// TODO: explain
+			// TODO: explain fix
 			if g.V[i].E[j].Src > iDel {
 				g.V[i].E[j].Src--
 			}
 
-			// TODO: explain
+			// TODO: explain fix
 			if g.V[i].E[j].Dst > iDel {
 				g.V[i].E[j].Dst--
 			}
@@ -131,6 +179,12 @@ func (g *G2) RemoveVertex(i Item) error {
 
 	Cut(&g.V, iDel)
 	delete(g.sat, i)
+
+	// TODO: explain fix
+	for i := iDel; i < len(g.V); i++ {
+		g.V[i].Index = i
+		g.sat[g.V[i].Item] = i
+	}
 
 	g.eCount -= eCount
 	g.vCount--
