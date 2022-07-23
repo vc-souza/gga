@@ -14,20 +14,25 @@ type ConsoleVisitor struct {
 	g *G
 }
 
-func (cv *ConsoleVisitor) VisitGraphStart(g *G) {
+func (cv *ConsoleVisitor) VisitGraphStart(G) {
 	fmt.Println("graph start")
 }
 
-func (cv *ConsoleVisitor) VisitGraphEnd(*G) {
+func (cv *ConsoleVisitor) VisitGraphEnd(G) {
 	fmt.Println("graph end")
 }
 
-func (cv *ConsoleVisitor) VisitVertex(v *GV) {
-	fmt.Println("vertex", v.Item.Label())
+func (cv *ConsoleVisitor) VisitVertex(g G, v int) {
+	fmt.Println("vertex", g.V[v].Item.Label())
 }
 
-func (cv *ConsoleVisitor) VisitEdge(e *GE) {
-	fmt.Println("edge,", cv.g.V[e.Src].Item.Label(), "to", cv.g.V[e.Dst].Item.Label())
+func (cv *ConsoleVisitor) VisitEdge(g G, v int, e int) {
+	fmt.Println(
+		"edge,",
+		g.V[cv.g.V[v].E[e].Src].Item.Label(),
+		"to",
+		g.V[cv.g.V[v].E[e].Dst].Item.Label(),
+	)
 }
 
 func ExampleGraphVisitor() {
