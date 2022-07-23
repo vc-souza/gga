@@ -90,6 +90,55 @@ func (g *G2) AddVertex(i Item) (*GV2, error) {
 }
 
 // TODO: docs
+func (g *G2) RemoveVertex(i Item) error {
+	iDel, ok := g.sat[i]
+
+	if !ok {
+		return ErrNoVtx
+	}
+
+	eCount := len(g.V[iDel].E)
+
+	for i := range g.V {
+		if i == iDel {
+			continue
+		}
+
+		toDel := []int{}
+
+		for j := range g.V[i].E {
+			if g.V[i].E[j].Dst == iDel {
+				toDel = append(toDel, j)
+				continue
+			}
+
+			// TODO: explain
+			if g.V[i].E[j].Src > iDel {
+				g.V[i].E[j].Src--
+			}
+
+			// TODO: explain
+			if g.V[i].E[j].Dst > iDel {
+				g.V[i].E[j].Dst--
+			}
+		}
+
+		for _, eIdx := range toDel {
+			Cut(&g.V[i].E, eIdx)
+			eCount++
+		}
+	}
+
+	Cut(&g.V, iDel)
+	delete(g.sat, i)
+
+	g.eCount -= eCount
+	g.vCount--
+
+	return nil
+}
+
+// TODO: docs
 func (g *G2) GetEdge(src Item, dst Item) (*GE2, int, bool) {
 	vSrc, _, ok := g.GetVertex(src)
 
@@ -134,6 +183,7 @@ func (g *G2) AddEdge(src Item, dst Item, wt float64) (*GE2, error) {
 	return &(vSrc.E[len(vSrc.E)-1]), nil
 }
 
+// TODO: docs
 func (g *G2) RemoveEdge(src Item, dst Item) error {
 	_, idx, ok := g.GetEdge(src, dst)
 
@@ -141,17 +191,25 @@ func (g *G2) RemoveEdge(src Item, dst Item) error {
 		return ErrNoEdge
 	}
 
-	edges := &g.V[g.sat[src]].E
-
-	copy((*edges)[idx:], (*edges)[idx+1:])
-
-	// avoiding memory leak by assigning the
-	// zero value to the duplicated position
-	(*edges)[len(*edges)-1] = GE2{}
-
-	*edges = (*edges)[:len(*edges)-1]
+	Cut(&g.V[g.sat[src]].E, idx)
 
 	g.eCount--
 
 	return nil
+}
+
+// TODO: docs
+func Cut[T any](s *[]T, idx int) {
+	if idx < 0 || idx >= len(*s) {
+		return
+	}
+
+	copy((*s)[idx:], (*s)[idx+1:])
+
+	// avoiding memory leak by assigning the
+	// zero value to the duplicated position
+	var zero T
+	(*s)[len(*s)-1] = zero
+
+	*s = (*s)[:len(*s)-1]
 }
