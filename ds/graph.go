@@ -277,14 +277,14 @@ func (g *G) RemoveEdge(src Item, dst Item) error {
 }
 
 // TODO: docs
-func (g *G) Accept(v GraphVisitor) {
+func (g G) Accept(v GraphVisitor) {
 	v.VisitGraphStart(g)
 
 	for i := range g.V {
-		v.VisitVertex(&g.V[i])
+		v.VisitVertex(g, i)
 
 		for j := range g.V[i].E {
-			v.VisitEdge(&g.V[i].E[j])
+			v.VisitEdge(g, i, j)
 		}
 	}
 

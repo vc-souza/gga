@@ -17,7 +17,6 @@ Full specification of the DOT language, by Graphviz can be found here:
 https://graphviz.org/doc/info/lang.html
 */
 type Exporter struct {
-	Graph *ds.G
 	Lines []string
 	Extra []string
 
@@ -30,10 +29,8 @@ type Exporter struct {
 }
 
 // NewExporter creates an initialized Exporter.
-func NewExporter(graph *ds.G) *Exporter {
+func NewExporter() *Exporter {
 	res := Exporter{}
-
-	res.Graph = graph
 
 	res.UndirectedArrow = "--"
 	res.DirectedArrow = "->"
@@ -50,7 +47,7 @@ func (d *Exporter) addDefault(pfx string, attrs ds.FAttrs) {
 		return
 	}
 
-	d.add(fmt.Sprintf("%s %s", pfx, DotAttrs(attrs)))
+	d.add(fmt.Sprintf("%s%s", pfx, DotAttrs(attrs)))
 }
 
 func (d *Exporter) addDefaults() {
@@ -69,8 +66,8 @@ func (d *Exporter) AddExtra(s ...string) {
 }
 
 // Export writes the data it has accumulated to an io.Writer.
-func (d *Exporter) Export(w io.Writer) {
-	d.Graph.Accept(d)
+func (d *Exporter) Export(g ds.G, w io.Writer) {
+	g.Accept(d)
 
 	s := strings.Join(d.Lines, "\n")
 	r := strings.NewReader(s)
@@ -78,7 +75,7 @@ func (d *Exporter) Export(w io.Writer) {
 	io.Copy(w, r)
 }
 
-func (d *Exporter) VisitGraphStart(g *ds.G) {
+func (d *Exporter) VisitGraphStart(g ds.G) {
 	var start string
 
 	if g.Directed() {
@@ -91,7 +88,7 @@ func (d *Exporter) VisitGraphStart(g *ds.G) {
 	d.addDefaults()
 }
 
-func (d *Exporter) VisitGraphEnd(g *ds.G) {
+func (d *Exporter) VisitGraphEnd(ds.G) {
 	if len(d.Extra) != 0 {
 		d.add(d.Extra...)
 	}
@@ -99,46 +96,49 @@ func (d *Exporter) VisitGraphEnd(g *ds.G) {
 	d.add("}\n")
 }
 
-func (d *Exporter) VisitVertex(v *ds.GV) {
-	var line string
+func (d *Exporter) VisitVertex(g ds.G, v int) {
+	vtx := g.V[v]
 
-	if len(v.F) == 0 {
-		line = Quoted(v.Item)
-	} else {
-		line = fmt.Sprintf("%s %s", Quoted(v.Item), DotAttrs(v.F))
-	}
-
-	d.add(line)
+	d.add(fmt.Sprintf(
+		"%s%s",
+		Quoted(vtx.Item),
+		DotAttrs(vtx.F),
+	))
 }
 
-func (d *Exporter) VisitEdge(e *ds.GE) {
-	var line string
+func (d *Exporter) VisitEdge(g ds.G, v int, e int) {
 	var op string
 
-	if d.Graph.Directed() {
+	if g.Directed() {
 		op = d.DirectedArrow
 	} else {
 		op = d.UndirectedArrow
 	}
 
-	rel := fmt.Sprintf(
-		"%s %s %s",
-		Quoted(d.Graph.V[e.Src].Item),
+	edge := g.V[v].E[e]
+	attrs := ds.FAttrs{}
+
+	for k, v := range edge.F {
+		attrs[k] = v
+	}
+
+	if edge.Wt != 0 {
+		label, ok := attrs["label"]
+
+		if ok {
+			label += " "
+		}
+
+		attrs["label"] = fmt.Sprintf("%s%.2f", label, edge.Wt)
+	}
+
+	d.add(fmt.Sprintf(
+		"%s %s %s%s",
+		Quoted(g.V[edge.Src].Item),
 		op,
-		Quoted(d.Graph.V[e.Dst].Item),
-	)
-
-	if e.Wt != 0 {
-		e.AppendFmtAttr("label", fmt.Sprintf(" %.2f", e.Wt))
-	}
-
-	if len(e.F) == 0 {
-		line = rel
-	} else {
-		line = fmt.Sprintf("%s %s", rel, DotAttrs(e.F))
-	}
-
-	d.add(line)
+		Quoted(g.V[edge.Dst].Item),
+		DotAttrs(attrs),
+	))
 }
 
 /*
@@ -150,7 +150,7 @@ func DotAttrs(f ds.FAttrs) string {
 		return ""
 	}
 
-	s := []string{"["}
+	s := []string{" ["}
 
 	for k, v := range f {
 		s = append(s, fmt.Sprintf(`%s="%s"`, k, v))
@@ -173,10 +173,10 @@ func ResetGraphFmt(g *ds.G) {
 }
 
 // Snapshot implements a shorthand for the quick export of a graph, using a theme.
-func Snapshot(g *ds.G, w io.Writer, t Theme) {
-	ex := NewExporter(g)
+func Snapshot(g ds.G, w io.Writer, t Theme) {
+	ex := NewExporter()
 	SetTheme(ex, t)
-	ex.Export(w)
+	ex.Export(g, w)
 }
 
 // Quoted adds quotes to the label of a ds.Item, which is useful for labels containing special characters.
