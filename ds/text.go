@@ -192,7 +192,7 @@ func (p *TextParser) parseAdjEntry(raw string) error {
 }
 
 // Parse parses the input string, generating a new graph.
-func (p *TextParser) Parse(s string) (*G, map[string]*Text, error) {
+func (p *TextParser) Parse(s string) (*G, func(string) int, error) {
 	p.vars = map[string]*Text{}
 	p.pending = map[*Text]string{}
 	p.graph = nil
@@ -223,10 +223,18 @@ func (p *TextParser) Parse(s string) (*G, map[string]*Text, error) {
 		}
 	}
 
-	return p.graph, p.vars, nil
+	return p.graph, idxFunc(p.graph, p.vars), nil
 }
 
 // Parse is a shorthand for creating a new TextParser and then using it to parse the input.
-func Parse(s string) (*G, map[string]*Text, error) {
+func Parse(s string) (*G, func(string) int, error) {
 	return (&TextParser{}).Parse(s)
+}
+
+// TODO: docs
+func idxFunc(g *G, vars map[string]*Text) func(string) int {
+	return func(s string) int {
+		i, _ := g.GetVertex(vars[s])
+		return i
+	}
 }

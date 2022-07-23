@@ -14,6 +14,12 @@ type GE struct {
 	Wt  float64
 }
 
+// TODO: docs
+type GEIdx struct {
+	V int
+	E int
+}
+
 func (e *GE) String() string {
 	return fmt.Sprintf(
 		"%d -> %d <%.2f>",

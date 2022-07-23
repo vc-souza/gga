@@ -9,7 +9,7 @@ A DFNode node represents a node in a Depth-First tree in a Depth-First forest, h
 the attributes produced by a DFS, for a particular vertex. At the end of the DFS, every
 vertex is part of one of the DF trees in the DF forest produced by the algorithm.
 */
-type DFNode[T ds.Item] struct {
+type DFNode struct {
 	// Discovery records when the vertex was marked as discovered.
 	Discovery int
 
@@ -23,7 +23,7 @@ type DFNode[T ds.Item] struct {
 
 		After a DFS, every root of a DF tree in the DF forest will have a nil Parent.
 	*/
-	Parent *T
+	Parent int
 
 	visited bool
 }
@@ -39,9 +39,9 @@ or edges is changed.
 The gga graph implementation guarantees both vertex and edge traversal in insertion order,
 so repeated DFS calls always produce the same DF forest.
 */
-type DFForest[T ds.Item] map[*T]*DFNode[T]
+type DFForest []DFNode
 
-func classifyDirectedEdge[T ds.Item](fst DFForest[T], tps *EdgeTypes[T], e *ds.GE[T]) {
+func classifyDirectedEdge(fst DFForest, tps *EdgeTypes, e ds.GE, i ds.GEIdx) {
 	// the vertex being reached (Dst) was discovered before
 	// the vertex being explored (Src), so Dst is either
 	// an ancestor of Src, or they do not have a direct
@@ -50,18 +50,18 @@ func classifyDirectedEdge[T ds.Item](fst DFForest[T], tps *EdgeTypes[T], e *ds.G
 		// ancestor/descendant relationship,
 		// self-loops included here
 		if fst[e.Dst].Finish == 0 {
-			tps.Back = append(tps.Back, e)
+			tps.Back = append(tps.Back, i)
 		} else {
-			tps.Cross = append(tps.Cross, e)
+			tps.Cross = append(tps.Cross, i)
 		}
 	} else {
 		// Src is an ancestor of Dst, and since Dst has
 		// been discovered before, this is a Forward edge
-		tps.Forward = append(tps.Forward, e)
+		tps.Forward = append(tps.Forward, i)
 	}
 }
 
-func classifyUndirectedEdge[T ds.Item](fst DFForest[T], tps *EdgeTypes[T], e *ds.GE[T]) {
+func classifyUndirectedEdge(fst DFForest, tps *EdgeTypes, e ds.GE, i ds.GEIdx) {
 	// due to how adjacency lists work, undirected
 	// graphs represent the same edge twice, so
 	// if we're dealing with the reverse of a tree
@@ -75,7 +75,7 @@ func classifyUndirectedEdge[T ds.Item](fst DFForest[T], tps *EdgeTypes[T], e *ds
 	// even if this looks like a forward edge from one
 	// side, it will be classified as a back edge
 	// when the reverse edge gets classified
-	tps.Back = append(tps.Back, e)
+	tps.Back = append(tps.Back, i)
 }
 
 /*
@@ -105,48 +105,50 @@ Complexity:
 	- Space (without edge classification): Θ(V)
 	- Space (wit edge classification): Θ(V) + O(E)
 */
-func DFS[T ds.Item](g *ds.G[T], classify bool) (DFForest[T], *EdgeTypes[T], error) {
-	var visit func(*T)
+func DFS(g *ds.G, classify bool) (DFForest, *EdgeTypes, error) {
+	var visit func(int)
 
-	fst := DFForest[T]{}
-	tps := &EdgeTypes[T]{}
+	fst := make(DFForest, g.VertexCount())
+	tps := &EdgeTypes{}
 	t := 0
 
-	for v := range g.E {
-		fst[v] = &DFNode[T]{}
+	for i := range g.V {
+		fst[i].Parent = -1
 	}
 
-	visit = func(vtx *T) {
+	visit = func(v int) {
 		t++
 
-		fst[vtx].Discovery = t
-		fst[vtx].visited = true
+		fst[v].Discovery = t
+		fst[v].visited = true
 
-		for _, e := range g.E[vtx] {
+		for j, e := range g.V[v].E {
 			if fst[e.Dst].visited {
 				if !classify {
 					continue
 				}
 
+				idx := ds.GEIdx{V: v, E: j}
+
 				if g.Directed() {
-					classifyDirectedEdge(fst, tps, e)
+					classifyDirectedEdge(fst, tps, e, idx)
 				} else {
-					classifyUndirectedEdge(fst, tps, e)
+					classifyUndirectedEdge(fst, tps, e, idx)
 				}
 			} else {
-				fst[e.Dst].Parent = vtx
+				fst[e.Dst].Parent = v
 				visit(e.Dst)
 			}
 		}
 
 		t++
 
-		fst[vtx].Finish = t
+		fst[v].Finish = t
 	}
 
-	for _, vert := range g.V {
-		if !fst[vert.Ptr].visited {
-			visit(vert.Ptr)
+	for v := range g.V {
+		if !fst[v].visited {
+			visit(v)
 		}
 	}
 
