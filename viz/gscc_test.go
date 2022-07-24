@@ -21,11 +21,11 @@ func TestGSCCViz(t *testing.T) {
 
 	vCount := 0
 
-	vi.OnGSCCVertex = func(*ds.GV[ds.Group[ds.Text]]) {
+	vi.OnGSCCVertex = func(int) {
 		vCount++
 	}
 
-	ExportViz[ds.Group[ds.Text]](vi, ut.DummyWriter{})
+	ExportViz(vi, ut.DummyWriter{})
 
 	ut.Equal(t, gscc.VertexCount(), vCount)
 }
