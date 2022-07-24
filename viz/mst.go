@@ -38,7 +38,7 @@ func (vi *MSTViz) Traverse() error {
 	for _, e := range vi.MST {
 		vi.OnMSTEdge(e.Src, e.Index)
 
-		iV, iE, ok := vi.Graph.GetEdgeIndex(
+		iV, iE, ok := vi.Graph.EdgeIndex(
 			vi.Graph.V[e.Dst].Item,
 			vi.Graph.V[e.Src].Item,
 		)

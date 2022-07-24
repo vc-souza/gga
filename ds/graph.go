@@ -156,10 +156,38 @@ func (g *G) VertexCount() int {
 	return g.vCount
 }
 
-// GetVertexIndex retrieves the index of the vertex associated with the given Item.
-func (g *G) GetVertexIndex(i Item) (int, bool) {
+// EdgeCount calculates the size of the set of edges, |E|, in O(1) time.
+func (g *G) EdgeCount() int {
+	return g.eCount
+}
+
+// VertexIndex retrieves the index of the vertex associated with the given Item.
+func (g *G) VertexIndex(i Item) (int, bool) {
 	idx, ok := g.sat[i]
 	return idx, ok
+}
+
+// EdgeIndex retrieves the index(es) of the edge associated with the given Items.
+func (g *G) EdgeIndex(src Item, dst Item) (int, int, bool) {
+	iSrc, ok := g.VertexIndex(src)
+
+	if !ok {
+		return 0, 0, false
+	}
+
+	iDst, ok := g.sat[dst]
+
+	if !ok {
+		return 0, 0, false
+	}
+
+	for e := range g.V[iSrc].E {
+		if g.V[iSrc].E[e].Dst == iDst {
+			return iSrc, e, true
+		}
+	}
+
+	return 0, 0, false
 }
 
 // AddVertex adds a new vertex to the graph, associated with the given Item.
@@ -178,6 +206,45 @@ func (g *G) AddVertex(i Item) (int, error) {
 	g.vCount++
 
 	return idx, nil
+}
+
+// AddEdge adds a new weighted edge between the given Items, but only if their vertices have already been added.
+func (g *G) AddEdge(src Item, dst Item, wt float64) (int, int, error) {
+	if g.Undirected() && src == dst {
+		return 0, 0, ErrInvLoop
+	}
+
+	iSrc, ok := g.VertexIndex(src)
+
+	if !ok {
+		return 0, 0, ErrNoVtx
+	}
+
+	iDst, ok := g.VertexIndex(dst)
+
+	if !ok {
+		return 0, 0, ErrNoVtx
+	}
+
+	for e := range g.V[iSrc].E {
+		if g.V[iSrc].E[e].Dst == iDst {
+			return 0, 0, ErrExists
+		}
+	}
+
+	g.V[iSrc].E = append(
+		g.V[iSrc].E,
+		GE{
+			Index: len(g.V[iSrc].E),
+			Src:   iSrc,
+			Dst:   iDst,
+			Wt:    wt,
+		},
+	)
+
+	g.eCount++
+
+	return iSrc, len(g.V[iSrc].E) - 1, nil
 }
 
 // RemoveVertex removes the vertex associated with the given Item, along with any edges incident on it.
@@ -259,76 +326,9 @@ func (g *G) RemoveVertex(i Item) error {
 	return nil
 }
 
-// EdgeCount calculates the size of the set of edges, |E|, in O(1) time.
-func (g *G) EdgeCount() int {
-	return g.eCount
-}
-
-// GetEdgeIndex retrieves the index(es) of the edge associated with the given Items.
-func (g *G) GetEdgeIndex(src Item, dst Item) (int, int, bool) {
-	iSrc, ok := g.GetVertexIndex(src)
-
-	if !ok {
-		return 0, 0, false
-	}
-
-	iDst, ok := g.sat[dst]
-
-	if !ok {
-		return 0, 0, false
-	}
-
-	for e := range g.V[iSrc].E {
-		if g.V[iSrc].E[e].Dst == iDst {
-			return iSrc, e, true
-		}
-	}
-
-	return 0, 0, false
-}
-
-// AddEdge adds a new weighted edge between the given Items, but only if their vertices have already been added.
-func (g *G) AddEdge(src Item, dst Item, wt float64) (int, int, error) {
-	if g.Undirected() && src == dst {
-		return 0, 0, ErrInvLoop
-	}
-
-	iSrc, ok := g.GetVertexIndex(src)
-
-	if !ok {
-		return 0, 0, ErrNoVtx
-	}
-
-	iDst, ok := g.GetVertexIndex(dst)
-
-	if !ok {
-		return 0, 0, ErrNoVtx
-	}
-
-	for e := range g.V[iSrc].E {
-		if g.V[iSrc].E[e].Dst == iDst {
-			return 0, 0, ErrExists
-		}
-	}
-
-	g.V[iSrc].E = append(
-		g.V[iSrc].E,
-		GE{
-			Index: len(g.V[iSrc].E),
-			Src:   iSrc,
-			Dst:   iDst,
-			Wt:    wt,
-		},
-	)
-
-	g.eCount++
-
-	return iSrc, len(g.V[iSrc].E) - 1, nil
-}
-
 // RemoveEdge removes the edge associated with the given Items.
 func (g *G) RemoveEdge(src Item, dst Item) error {
-	vIdx, idx, ok := g.GetEdgeIndex(src, dst)
+	vIdx, idx, ok := g.EdgeIndex(src, dst)
 
 	if !ok {
 		return ErrNoEdge

@@ -66,7 +66,7 @@ func (vi *DFSViz) Traverse() error {
 			continue
 		}
 
-		iV, iE, ok := vi.Graph.GetEdgeIndex(
+		iV, iE, ok := vi.Graph.EdgeIndex(
 			vi.Graph.V[node.Parent].Item,
 			vi.Graph.V[v].Item,
 		)
@@ -81,7 +81,7 @@ func (vi *DFSViz) Traverse() error {
 			continue
 		}
 
-		iV, iE, ok = vi.Graph.GetEdgeIndex(
+		iV, iE, ok = vi.Graph.EdgeIndex(
 			vi.Graph.V[v].Item,
 			vi.Graph.V[node.Parent].Item,
 		)

@@ -46,19 +46,19 @@ func ExampleExporter() {
 		"arrowhead": "open",
 	}
 
-	if i, ok := g.GetVertexIndex(pwag); ok {
+	if i, ok := g.VertexIndex(pwag); ok {
 		g.V[i].SetFmtAttr("shape", "square")
 	}
 
-	if v, e, ok := g.GetEdgeIndex(pwag, pwl); ok {
+	if v, e, ok := g.EdgeIndex(pwag, pwl); ok {
 		g.V[v].E[e].SetFmtAttr("label", "Level 25")
 	}
 
-	if v, e, ok := g.GetEdgeIndex(pwl, pot); ok {
+	if v, e, ok := g.EdgeIndex(pwl, pot); ok {
 		g.V[v].E[e].SetFmtAttr("label", "Trade holding King's Rock")
 	}
 
-	if v, e, ok := g.GetEdgeIndex(pwl, pow); ok {
+	if v, e, ok := g.EdgeIndex(pwl, pow); ok {
 		g.V[v].E[e].SetFmtAttr("label", "Water Stone")
 	}
 

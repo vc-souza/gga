@@ -224,7 +224,7 @@ func (p *TextParser) Parse(s string) (*G, func(string) int, error) {
 	}
 
 	idx := func(s string) int {
-		i, _ := p.graph.GetVertexIndex(p.vars[s])
+		i, _ := p.graph.VertexIndex(p.vars[s])
 		return i
 	}
 

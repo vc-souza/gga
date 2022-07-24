@@ -41,14 +41,14 @@ func addVerts(t *testing.T, g *G, is ...Item) {
 	}
 }
 
-func addEdges(t *testing.T, g *G, rev bool, es ...edge) {
+func addEdges(t *testing.T, g *G, es ...edge) {
 	var err error
 
 	for _, e := range es {
 		_, _, err = g.AddEdge(e.src, e.dst, e.wt)
 		ut.Nil(t, err)
 
-		if !rev {
+		if g.Directed() {
 			continue
 		}
 
@@ -58,7 +58,7 @@ func addEdges(t *testing.T, g *G, rev bool, es ...edge) {
 }
 
 func assertEdge(t *testing.T, g *G, e edge) {
-	iV, iE, ok := g.GetEdgeIndex(e.src, e.dst)
+	iV, iE, ok := g.EdgeIndex(e.src, e.dst)
 	ut.True(t, ok)
 	ut.Equal(t, e.wt, g.V[iV].E[iE].Wt)
 }
@@ -193,13 +193,109 @@ func TestGEdgeCount(t *testing.T) {
 				g := gen()
 
 				addVerts(t, g, tc.verts...)
-				addEdges(t, g, g.Undirected(), tc.edges...)
+				addEdges(t, g, tc.edges...)
 
 				if g.Undirected() {
 					ut.Equal(t, tc.expect*2, g.EdgeCount())
 				} else {
 					ut.Equal(t, tc.expect, g.EdgeCount())
 				}
+			})
+		}
+	}
+}
+
+func TestGVertexIndex(t *testing.T) {
+	cases := []struct {
+		desc     string
+		verts    []Item
+		item     Item
+		expectV  int
+		expectOK bool
+	}{
+		{
+			desc: "zero vertices",
+			item: vA,
+		},
+		{
+			desc:     "one vertex",
+			verts:    []Item{vA},
+			item:     vA,
+			expectV:  0,
+			expectOK: true,
+		},
+		{
+			desc:     "multiple vertices",
+			verts:    []Item{vA, vB, vC},
+			item:     vB,
+			expectV:  1,
+			expectOK: true,
+		},
+	}
+
+	for _, tc := range cases {
+		for gType, gen := range graphGen {
+			t.Run(tagGraphTest(gType, tc.desc), func(t *testing.T) {
+				g := gen()
+
+				addVerts(t, g, tc.verts...)
+
+				v, ok := g.VertexIndex(tc.item)
+
+				ut.Equal(t, tc.expectOK, ok)
+				ut.Equal(t, tc.expectV, v)
+			})
+		}
+	}
+}
+
+func TestGEdgeIndex(t *testing.T) {
+	cases := []struct {
+		desc     string
+		verts    []Item
+		edges    []edge
+		input    edge
+		expectV  int
+		expectE  int
+		expectOK bool
+	}{
+		{
+			desc:  "zero edges",
+			input: edge{vA, vB, 0},
+		},
+		{
+			desc:     "one edge",
+			verts:    []Item{vA, vB},
+			edges:    []edge{{vA, vB, 0}},
+			input:    edge{vA, vB, 0},
+			expectV:  0,
+			expectE:  0,
+			expectOK: true,
+		},
+		{
+			desc:     "multiple edges",
+			verts:    []Item{vA, vB, vC},
+			edges:    []edge{{vB, vA, 0}, {vB, vC, 0}},
+			input:    edge{vB, vC, 0},
+			expectV:  1,
+			expectE:  1,
+			expectOK: true,
+		},
+	}
+
+	for _, tc := range cases {
+		for gType, gen := range graphGen {
+			t.Run(tagGraphTest(gType, tc.desc), func(t *testing.T) {
+				g := gen()
+
+				addVerts(t, g, tc.verts...)
+				addEdges(t, g, tc.edges...)
+
+				v, e, ok := g.EdgeIndex(tc.input.src, tc.input.dst)
+
+				ut.Equal(t, tc.expectOK, ok)
+				ut.Equal(t, tc.expectV, v)
+				ut.Equal(t, tc.expectE, e)
 			})
 		}
 	}
