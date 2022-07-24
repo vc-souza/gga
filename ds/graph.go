@@ -6,8 +6,9 @@ import (
 )
 
 /*
-A GE represents a connection between two vertices in a graph, with an optional weight.
-The directed/undirected nature of the edge is given by the graph that owns it.
+A GE represents an edge in a graph, which is a connection between two vertices,
+with an optional weight. The directed/undirected nature of the edge is given by
+the graph that owns it.
 */
 type GE struct {
 	Formattable
@@ -27,7 +28,10 @@ type GE struct {
 	// Wt is the weight/cost associated with the edge.
 	Wt float64
 
-	// Index is the position of this edge in Src's adjacency list.
+	/*
+		Index is the position of this edge in Src's adjacency list.
+		This information is useful when passing around copies of the edge.
+	*/
 	Index int
 }
 
@@ -77,12 +81,18 @@ func (v *GV) String() string {
 
 /*
 G implements a directed or undirected graph G = (V, E), using adjacency lists
-to achieve linear space complexity: Θ(V + E). Due to the nature of adjacency lists,
-checking whether an edge (u, v) exists has O(E) time complexity. For applications
-that make heavy use of this operation, an adjacency matrix would be a better fit
-(O(1) time complexity), with the trade-off being a worse space complexity of Θ(V²).
+to achieve linear space complexity: Θ(V + E).
+
+Due to the nature of adjacency lists, checking whether an edge (u, v) exists
+has O(E) time complexity. For applications that make heavy use of this operation,
+an adjacency matrix would be a better fit (O(1) time complexity), with the
+trade-off being a worse space complexity of Θ(V²).
 */
 type G struct {
+	/*
+		V is the list of vertices in the graph, ordered by vertex insertion time,
+		an ordering that is respected during any internal traversals.
+	*/
 	V []GV
 
 	sat    map[Item]int
@@ -131,28 +141,28 @@ func (g *G) String() string {
 	return b.String()
 }
 
-// TODO: docs
+// Directed checks whether or not the graph is directed.
 func (g *G) Directed() bool {
 	return g.dir
 }
 
-// TODO: docs
+// Undirected checks whether or not the graph is undirected.
 func (g *G) Undirected() bool {
 	return !g.dir
 }
 
-// TODO: docs
+// VertexCount calculates the size of the set of vertices, |V|, in O(1) time.
 func (g *G) VertexCount() int {
 	return g.vCount
 }
 
-// TODO: docs
-func (g *G) GetVertex(i Item) (int, bool) {
+// GetVertexIndex retrieves the index of the vertex associated with the given Item.
+func (g *G) GetVertexIndex(i Item) (int, bool) {
 	idx, ok := g.sat[i]
 	return idx, ok
 }
 
-// TODO: docs
+// AddVertex adds a new vertex to the graph, associated with the given Item.
 func (g *G) AddVertex(i Item) (int, error) {
 	if _, ok := g.sat[i]; ok {
 		return 0, ErrExists
@@ -170,7 +180,7 @@ func (g *G) AddVertex(i Item) (int, error) {
 	return idx, nil
 }
 
-// TODO: docs
+// RemoveVertex removes the vertex associated with the given Item, along with any edges incident on it.
 func (g *G) RemoveVertex(i Item) error {
 	iDel, ok := g.sat[i]
 
@@ -185,33 +195,44 @@ func (g *G) RemoveVertex(i Item) error {
 				continue
 			}
 
-			toDel := []int{}
-			dec := 0
+			remove := []int{}
+			shifts := 0
 
 			for e := range g.V[v].E {
 				edge := &g.V[v].E[e]
 
+				// found a edge that arrives at the vertex
+				// being removed: schedule it for removal
+				// and increase the amount of shits that
+				// later edges will be subjected to
 				if edge.Dst == iDel {
-					toDel = append(toDel, e)
-					dec++
+					remove = append(remove, e)
+					shifts++
 					continue
 				}
 
-				// TODO: explain fix
+				// anticipating the removal of the vertex,
+				// decrease any references to vertices that
+				// will end up being shifted to the left
 				if edge.Src > iDel {
 					edge.Src--
 				}
 
-				// TODO: explain fix
+				// anticipating the removal of the vertex,
+				// decrease any references to vertices that
+				// will end up being shifted to the left
 				if edge.Dst > iDel {
 					edge.Dst--
 				}
 
-				// TODO: explain fix
-				edge.Index -= dec
+				// anticipating the removal of edges,
+				// decrease the index of the current
+				// edge by the number of edges that
+				// will be deleted so far
+				edge.Index -= shifts
 			}
 
-			for _, eIdx := range toDel {
+			for _, eIdx := range remove {
 				Cut(&g.V[v].E, eIdx)
 				g.eCount--
 			}
@@ -226,8 +247,8 @@ func (g *G) RemoveVertex(i Item) error {
 
 	fixVertices := func() {
 		for i := iDel; i < len(g.V); i++ {
-			g.V[i].Index = i
 			g.sat[g.V[i].Item] = i
+			g.V[i].Index = i
 		}
 	}
 
@@ -238,14 +259,14 @@ func (g *G) RemoveVertex(i Item) error {
 	return nil
 }
 
-// TODO: docs
+// EdgeCount calculates the size of the set of edges, |E|, in O(1) time.
 func (g *G) EdgeCount() int {
 	return g.eCount
 }
 
-// TODO: docs
-func (g *G) GetEdge(src Item, dst Item) (int, int, bool) {
-	iSrc, ok := g.GetVertex(src)
+// GetEdgeIndex retrieves the index(es) of the edge associated with the given Items.
+func (g *G) GetEdgeIndex(src Item, dst Item) (int, int, bool) {
+	iSrc, ok := g.GetVertexIndex(src)
 
 	if !ok {
 		return 0, 0, false
@@ -266,19 +287,19 @@ func (g *G) GetEdge(src Item, dst Item) (int, int, bool) {
 	return 0, 0, false
 }
 
-// TODO: docs
+// AddEdge adds a new weighted edge between the given Items.
 func (g *G) AddEdge(src Item, dst Item, wt float64) (int, int, error) {
 	if g.Undirected() && src == dst {
 		return 0, 0, ErrInvLoop
 	}
 
-	iSrc, ok := g.GetVertex(src)
+	iSrc, ok := g.GetVertexIndex(src)
 
 	if !ok {
 		return 0, 0, ErrNoVtx
 	}
 
-	iDst, ok := g.GetVertex(dst)
+	iDst, ok := g.GetVertexIndex(dst)
 
 	if !ok {
 		return 0, 0, ErrNoVtx
@@ -305,9 +326,9 @@ func (g *G) AddEdge(src Item, dst Item, wt float64) (int, int, error) {
 	return iSrc, len(g.V[iSrc].E) - 1, nil
 }
 
-// TODO: docs
+// RemoveEdge removes the edge associated with the given Items.
 func (g *G) RemoveEdge(src Item, dst Item) error {
-	vIdx, idx, ok := g.GetEdge(src, dst)
+	vIdx, idx, ok := g.GetEdgeIndex(src, dst)
 
 	if !ok {
 		return ErrNoEdge
@@ -324,7 +345,7 @@ func (g *G) RemoveEdge(src Item, dst Item) error {
 	return nil
 }
 
-// TODO: docs
+// Accept accepts a graph visitor, and guides its execution using double-dispatching.
 func (g G) Accept(vis GraphVisitor) {
 	vis.VisitGraphStart(g)
 
@@ -339,7 +360,7 @@ func (g G) Accept(vis GraphVisitor) {
 	vis.VisitGraphEnd(g)
 }
 
-// TODO: docs (right place? maybe algo?)
+// Transpose creates a transpose graph for a directed graph, where all original edges are reversed.
 func Transpose(g *G) (*G, error) {
 	if g.Undirected() {
 		return nil, ErrUndirected

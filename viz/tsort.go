@@ -59,7 +59,7 @@ func (vi *TSortViz) Traverse() error {
 		next = v
 
 		if prev != -1 {
-			_, idx, ok := vi.Graph.GetEdge(
+			_, idx, ok := vi.Graph.GetEdgeIndex(
 				vi.Graph.V[prev].Item,
 				vi.Graph.V[next].Item,
 			)

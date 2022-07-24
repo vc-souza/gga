@@ -223,17 +223,15 @@ func (p *TextParser) Parse(s string) (*G, func(string) int, error) {
 		}
 	}
 
-	return p.graph, idxFunc(p.graph, p.vars), nil
+	idx := func(s string) int {
+		i, _ := p.graph.GetVertexIndex(p.vars[s])
+		return i
+	}
+
+	return p.graph, idx, nil
 }
 
 // Parse is a shorthand for creating a new TextParser and then using it to parse the input.
 func Parse(s string) (*G, func(string) int, error) {
 	return (&TextParser{}).Parse(s)
-}
-
-func idxFunc(g *G, vars map[string]*Text) func(string) int {
-	return func(s string) int {
-		i, _ := g.GetVertex(vars[s])
-		return i
-	}
 }
