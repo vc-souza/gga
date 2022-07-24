@@ -96,15 +96,15 @@ func (d *Exporter) VisitGraphEnd(ds.G) {
 	d.add("}\n")
 }
 
-func (d *Exporter) VisitVertex(g ds.G, v int) {
+func (d *Exporter) VisitVertex(g ds.G, v ds.GV) {
 	d.add(fmt.Sprintf(
 		"%s%s",
-		Quoted(g.V[v].Item),
-		DotAttrs(g.V[v].F),
+		Quoted(v.Item),
+		DotAttrs(v.F),
 	))
 }
 
-func (d *Exporter) VisitEdge(g ds.G, v int, e int) {
+func (d *Exporter) VisitEdge(g ds.G, e ds.GE) {
 	var op string
 
 	if g.Directed() {
@@ -113,28 +113,27 @@ func (d *Exporter) VisitEdge(g ds.G, v int, e int) {
 		op = d.UndirectedArrow
 	}
 
-	edge := g.V[v].E[e]
 	attrs := ds.FAttrs{}
 
-	for k, v := range edge.F {
+	for k, v := range e.F {
 		attrs[k] = v
 	}
 
-	if edge.Wt != 0 {
+	if e.Wt != 0 {
 		label, ok := attrs["label"]
 
 		if ok {
 			label += " "
 		}
 
-		attrs["label"] = fmt.Sprintf("%s%.2f", label, edge.Wt)
+		attrs["label"] = fmt.Sprintf("%s%.2f", label, e.Wt)
 	}
 
 	d.add(fmt.Sprintf(
 		"%s %s %s%s",
-		Quoted(g.V[edge.Src].Item),
+		Quoted(g.V[e.Src].Item),
 		op,
-		Quoted(g.V[edge.Dst].Item),
+		Quoted(g.V[e.Dst].Item),
 		DotAttrs(attrs),
 	))
 }

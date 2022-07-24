@@ -13,8 +13,8 @@ type GraphVisitor interface {
 	VisitGraphEnd(g G)
 
 	// VisitVertex is called when visiting a graph vertex.
-	VisitVertex(g G, v int)
+	VisitVertex(g G, v GV)
 
 	// VisitEdge is called when visiting a graph edge.
-	VisitEdge(g G, v int, e int)
+	VisitEdge(g G, e GE)
 }

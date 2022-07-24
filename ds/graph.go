@@ -300,10 +300,10 @@ func (g G) Accept(v GraphVisitor) {
 	v.VisitGraphStart(g)
 
 	for i := range g.V {
-		v.VisitVertex(g, i)
+		v.VisitVertex(g, g.V[i])
 
 		for j := range g.V[i].E {
-			v.VisitEdge(g, i, j)
+			v.VisitEdge(g, g.V[i].E[j])
 		}
 	}
 

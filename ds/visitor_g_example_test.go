@@ -10,9 +10,7 @@ func (p person) Label() string {
 	return p.Name
 }
 
-type ConsoleVisitor struct {
-	g *G
-}
+type ConsoleVisitor struct{}
 
 func (cv *ConsoleVisitor) VisitGraphStart(G) {
 	fmt.Println("graph start")
@@ -22,16 +20,16 @@ func (cv *ConsoleVisitor) VisitGraphEnd(G) {
 	fmt.Println("graph end")
 }
 
-func (cv *ConsoleVisitor) VisitVertex(g G, v int) {
-	fmt.Println("vertex", g.V[v].Item.Label())
+func (cv *ConsoleVisitor) VisitVertex(g G, v GV) {
+	fmt.Println("vertex", v.Item.Label())
 }
 
-func (cv *ConsoleVisitor) VisitEdge(g G, v int, e int) {
+func (cv *ConsoleVisitor) VisitEdge(g G, e GE) {
 	fmt.Println(
 		"edge,",
-		g.V[cv.g.V[v].E[e].Src].Item.Label(),
+		g.V[e.Src].Item.Label(),
 		"to",
-		g.V[cv.g.V[v].E[e].Dst].Item.Label(),
+		g.V[e.Dst].Item.Label(),
 	)
 }
 
@@ -50,7 +48,7 @@ func ExampleGraphVisitor() {
 	g.AddEdge(jane, john, 0)
 	g.AddEdge(jane, jane, 0)
 
-	g.Accept(&ConsoleVisitor{g})
+	g.Accept(&ConsoleVisitor{})
 
 	// Output:
 	// graph start
