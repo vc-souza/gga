@@ -14,7 +14,7 @@ type DFSViz struct {
 	ThemedGraphViz
 
 	Forest algo.DFForest
-	Edges  *algo.EdgeTypes
+	Edges  algo.EdgeTypes
 
 	// OnTreeVertex is called for every vertex in the graph.
 	OnTreeVertex func(int, algo.DFNode)
@@ -36,7 +36,7 @@ type DFSViz struct {
 }
 
 // NewDFSViz initializes a new DFSViz with NOOP hooks.
-func NewDFSViz(g *ds.G, f algo.DFForest, e *algo.EdgeTypes, t Theme) *DFSViz {
+func NewDFSViz(g *ds.G, f algo.DFForest, e algo.EdgeTypes, t Theme) *DFSViz {
 	res := &DFSViz{}
 
 	res.Forest = f

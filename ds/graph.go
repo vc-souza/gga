@@ -315,7 +315,7 @@ func (g G) Accept(vis GraphVisitor) {
 }
 
 // TODO: docs (right place? maybe algo?)
-func (g *G) Transpose() (*G, error) {
+func Transpose(g *G) (*G, error) {
 	if g.Undirected() {
 		return nil, ErrUndirected
 	}

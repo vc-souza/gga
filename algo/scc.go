@@ -62,7 +62,7 @@ func SCCKosaraju(g *ds.G) ([]SCC, error) {
 	}
 
 	// Θ(V + E)
-	tg, err := g.Transpose()
+	tg, err := ds.Transpose(g)
 
 	if err != nil {
 		return nil, err

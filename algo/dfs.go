@@ -105,11 +105,11 @@ Complexity:
 	- Space (without edge classification): Θ(V)
 	- Space (wit edge classification): Θ(V) + O(E)
 */
-func DFS(g *ds.G, classify bool) (DFForest, *EdgeTypes, error) {
+func DFS(g *ds.G, classify bool) (DFForest, EdgeTypes, error) {
 	var visit func(int)
 
 	fst := make(DFForest, g.VertexCount())
-	tps := &EdgeTypes{}
+	tps := EdgeTypes{}
 	t := 0
 
 	for v := range g.V {
@@ -129,9 +129,9 @@ func DFS(g *ds.G, classify bool) (DFForest, *EdgeTypes, error) {
 				}
 
 				if g.Directed() {
-					classifyDirectedEdge(fst, tps, e)
+					classifyDirectedEdge(fst, &tps, e)
 				} else {
-					classifyUndirectedEdge(fst, tps, e)
+					classifyUndirectedEdge(fst, &tps, e)
 				}
 			} else {
 				fst[e.Dst].Parent = v
