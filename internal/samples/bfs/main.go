@@ -68,7 +68,6 @@ func main() {
 
 	vi.OnTreeVertex = func(v int, n algo.BFNode) {
 		label := fmt.Sprintf(`{ %s | d = %d }`, vi.Graph.V[v].Label(), int(n.Distance))
-
 		vi.Graph.V[v].SetFmtAttr("label", label)
 	}
 
