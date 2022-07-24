@@ -22,11 +22,7 @@ func (t testTheme) SetEdgeFmt(attrs ds.FAttrs) {
 }
 
 func TestSetTheme(t *testing.T) {
-	g, _, err := ds.Parse(ut.UDGSimple)
-
-	ut.Nil(t, err)
-
-	e := NewExporter(g)
+	e := NewExporter()
 
 	e.DefaultGraphFmt = make(ds.FAttrs)
 	e.DefaultGraphFmt["gattr"] = "init"

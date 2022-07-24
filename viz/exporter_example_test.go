@@ -23,11 +23,16 @@ func ExampleExporter() {
 	pow := &pokemon{Type: "water/fighting", Name: "Poliwrath"}
 
 	g := ds.NewDigraph()
-	e := NewExporter(g)
+	e := NewExporter()
 
-	g.AddUnweightedEdge(pwag, pwl)
-	g.AddUnweightedEdge(pwl, pot)
-	g.AddUnweightedEdge(pwl, pow)
+	g.AddVertex(pwag)
+	g.AddVertex(pwl)
+	g.AddVertex(pot)
+	g.AddVertex(pow)
+
+	g.AddEdge(pwag, pwl, 0)
+	g.AddEdge(pwl, pot, 0)
+	g.AddEdge(pwl, pow, 0)
 
 	e.DefaultGraphFmt = ds.FAttrs{
 		"rankdir": "LR",
@@ -41,23 +46,23 @@ func ExampleExporter() {
 		"arrowhead": "open",
 	}
 
-	if v, _, ok := g.GetVertex(pwag); ok {
-		v.SetFmtAttr("shape", "square")
+	if i, ok := g.GetVertex(pwag); ok {
+		g.V[i].SetFmtAttr("shape", "square")
 	}
 
-	if e, _, ok := g.GetEdge(pwag, pwl); ok {
-		e.SetFmtAttr("label", "Level 25")
+	if v, e, ok := g.GetEdge(pwag, pwl); ok {
+		g.V[v].E[e].SetFmtAttr("label", "Level 25")
 	}
 
-	if e, _, ok := g.GetEdge(pwl, pot); ok {
-		e.SetFmtAttr("label", "Trade holding King's Rock")
+	if v, e, ok := g.GetEdge(pwl, pot); ok {
+		g.V[v].E[e].SetFmtAttr("label", "Trade holding King's Rock")
 	}
 
-	if e, _, ok := g.GetEdge(pwl, pow); ok {
-		e.SetFmtAttr("label", "Water Stone")
+	if v, e, ok := g.GetEdge(pwl, pow); ok {
+		g.V[v].E[e].SetFmtAttr("label", "Water Stone")
 	}
 
-	e.Export(os.Stdout)
+	e.Export(g, os.Stdout)
 
 	// Output:
 	// strict digraph {
