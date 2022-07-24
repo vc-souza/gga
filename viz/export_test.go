@@ -42,17 +42,17 @@ func (p person) Label() string {
 func TestGraphVisitor(t *testing.T) {
 	cases := []struct {
 		desc   string
-		gen    func() *ds.G[person]
+		gen    func() *ds.G
 		expect string
 	}{
 		{
 			desc:   "graph",
-			gen:    ds.NewUndirectedGraph[person],
+			gen:    ds.NewGraph,
 			expect: ExpectedUndirectedDOT,
 		},
 		{
 			desc:   "digraph",
-			gen:    ds.NewDirectedGraph[person],
+			gen:    ds.NewDigraph,
 			expect: ExpectedDirectedDOT,
 		},
 	}
@@ -60,7 +60,7 @@ func TestGraphVisitor(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
 			g := tc.gen()
-			e := NewExporter(g)
+			e := NewExporter()
 
 			john := &person{"John"}
 			jane := &person{"Jane"}
@@ -76,19 +76,21 @@ func TestGraphVisitor(t *testing.T) {
 
 			g.AddVertex(jonas)
 
-			vJohn, err := g.AddVertex(john)
+			iJohn, err := g.AddVertex(john)
+
+			g.AddVertex(jane)
 
 			ut.Nil(t, err)
 
-			vJohn.SetFmtAttr("shape", "hexagon")
+			g.V[iJohn].SetFmtAttr("shape", "hexagon")
 
-			g.AddUnweightedEdge(john, jane)
-			g.AddUnweightedEdge(jane, john)
-			g.AddUnweightedEdge(jane, jane)
+			g.AddEdge(john, jane, 0)
+			g.AddEdge(jane, john, 0)
+			g.AddEdge(jane, jane, 0)
 
 			buf := bytes.Buffer{}
 
-			e.Export(&buf)
+			e.Export(g, &buf)
 
 			ut.Equal(t, tc.expect, buf.String())
 		})
@@ -109,7 +111,7 @@ func TestDotAttrs(t *testing.T) {
 		{
 			desc:   "single pair",
 			attrs:  ds.FAttrs{"a": "b"},
-			expect: `[ a="b" ]`,
+			expect: ` [ a="b" ]`,
 		},
 	}
 
@@ -121,16 +123,14 @@ func TestDotAttrs(t *testing.T) {
 }
 
 func TestResetGraphFmt(t *testing.T) {
-	isClear := func(g *ds.G[person]) bool {
-		for _, vtx := range g.V {
-			if len(vtx.F) != 0 {
+	isClear := func(g *ds.G) bool {
+		for v := range g.V {
+			if len(g.V[v].F) != 0 {
 				return false
 			}
-		}
 
-		for _, es := range g.E {
-			for _, e := range es {
-				if len(e.F) != 0 {
+			for j := range g.V[v].E {
+				if len(g.V[v].E[j].F) != 0 {
 					return false
 				}
 			}
@@ -141,17 +141,17 @@ func TestResetGraphFmt(t *testing.T) {
 
 	cases := []struct {
 		desc   string
-		gen    func() *ds.G[person]
+		gen    func() *ds.G
 		expect string
 	}{
 		{
 			desc:   "graph",
-			gen:    ds.NewUndirectedGraph[person],
+			gen:    ds.NewGraph,
 			expect: ExpectedUndirectedDOT,
 		},
 		{
 			desc:   "digraph",
-			gen:    ds.NewDirectedGraph[person],
+			gen:    ds.NewDigraph,
 			expect: ExpectedDirectedDOT,
 		},
 	}
@@ -165,23 +165,23 @@ func TestResetGraphFmt(t *testing.T) {
 			john := &person{"John"}
 			jane := &person{"Jane"}
 
-			vJohn, err := g.AddVertex(john)
+			iJohn, err := g.AddVertex(john)
 
 			ut.Nil(t, err)
 
-			vJohn.SetFmtAttr("label", "John is here")
+			g.V[iJohn].SetFmtAttr("label", "John is here")
 
-			vJane, err := g.AddVertex(jane)
-
-			ut.Nil(t, err)
-
-			vJane.SetFmtAttr("label", "Jane is here")
-
-			edg, err := g.AddUnweightedEdge(john, jane)
+			iJane, err := g.AddVertex(jane)
 
 			ut.Nil(t, err)
 
-			edg.SetFmtAttr("label", "Connection")
+			g.V[iJane].SetFmtAttr("label", "Jane is here")
+
+			iVtx, iEdge, err := g.AddEdge(john, jane, 0)
+
+			ut.Nil(t, err)
+
+			g.V[iVtx].E[iEdge].SetFmtAttr("label", "Connection")
 
 			ut.False(t, isClear(g))
 

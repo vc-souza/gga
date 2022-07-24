@@ -238,26 +238,26 @@ func (g *G) GetEdge(src Item, dst Item) (int, int, bool) {
 }
 
 // TODO: docs
-func (g *G) AddEdge(src Item, dst Item, wt float64) (int, error) {
+func (g *G) AddEdge(src Item, dst Item, wt float64) (int, int, error) {
 	if g.Undirected() && src == dst {
-		return 0, ErrInvLoop
+		return 0, 0, ErrInvLoop
 	}
 
 	iSrc, ok := g.GetVertex(src)
 
 	if !ok {
-		return 0, ErrNoVtx
+		return 0, 0, ErrNoVtx
 	}
 
 	iDst, ok := g.GetVertex(dst)
 
 	if !ok {
-		return 0, ErrNoVtx
+		return 0, 0, ErrNoVtx
 	}
 
 	for j := range g.V[iSrc].E {
 		if g.V[iSrc].E[j].Dst == iDst {
-			return 0, ErrExists
+			return 0, 0, ErrExists
 		}
 	}
 
@@ -273,7 +273,7 @@ func (g *G) AddEdge(src Item, dst Item, wt float64) (int, error) {
 
 	g.eCount++
 
-	return len(g.V[iSrc].E) - 1, nil
+	return iSrc, len(g.V[iSrc].E) - 1, nil
 }
 
 // TODO: docs

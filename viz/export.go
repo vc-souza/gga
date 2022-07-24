@@ -66,7 +66,7 @@ func (d *Exporter) AddExtra(s ...string) {
 }
 
 // Export writes the data it has accumulated to an io.Writer.
-func (d *Exporter) Export(g ds.G, w io.Writer) {
+func (d *Exporter) Export(g *ds.G, w io.Writer) {
 	g.Accept(d)
 
 	s := strings.Join(d.Lines, "\n")
@@ -170,7 +170,7 @@ func ResetGraphFmt(g *ds.G) {
 }
 
 // Snapshot implements a shorthand for the quick export of a graph, using a theme.
-func Snapshot(g ds.G, w io.Writer, t Theme) {
+func Snapshot(g *ds.G, w io.Writer, t Theme) {
 	ex := NewExporter()
 	SetTheme(ex, t)
 	ex.Export(g, w)
