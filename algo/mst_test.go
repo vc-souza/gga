@@ -20,20 +20,20 @@ var mstCases = []struct {
 	algo   MSTAlgo
 	expect []expectedMSTEdge
 }{
-	// {
-	// 	desc: "Kruskal",
-	// 	algo: MSTKruskal[ds.Text],
-	// 	expect: []expectedMSTEdge{
-	// 		{"g", "h", 1},
-	// 		{"c", "i", 2},
-	// 		{"f", "g", 2},
-	// 		{"a", "b", 4},
-	// 		{"c", "f", 4},
-	// 		{"c", "d", 7},
-	// 		{"a", "h", 8},
-	// 		{"d", "e", 9},
-	// 	},
-	// },
+	{
+		desc: "Kruskal",
+		algo: MSTKruskal,
+		expect: []expectedMSTEdge{
+			{"g", "h", 1},
+			{"c", "i", 2},
+			{"f", "g", 2},
+			{"a", "b", 4},
+			{"c", "f", 4},
+			{"c", "d", 7},
+			{"a", "h", 8},
+			{"d", "e", 9},
+		},
+	},
 	{
 		desc: "Prim",
 		algo: MSTPrim,

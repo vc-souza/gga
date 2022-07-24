@@ -3,6 +3,7 @@ package algo
 import (
 	"container/heap"
 	"math"
+	"sort"
 
 	"github.com/vc-souza/gga/ds"
 )
@@ -166,73 +167,70 @@ func MSTPrim(g *ds.G) (MST, error) {
 	return mst, nil
 }
 
-// /*
-// MSTKruskal implements Kruskal's algorithm for finding a minimum spanning tree
-// of an undirected graph with weighted edges.
+/*
+MSTKruskal implements Kruskal's algorithm for finding a minimum spanning tree
+of an undirected graph with weighted edges.
 
-// This is a greedy algorithm that applies the greedy-choice property by first
-// sorting all edges of the graph in order of non-decreasing edge weights, and
-// then iterating over the sorted list of edges, always picking the edge of
-// least weight (greedy choice, locally optimal) that connects previously
-// unlinked components. A disjoint-set data structure is used to keep track
-// of the components, and at the end of the algorithm, the list of edges
-// returned forms an MST of the original graph (globally optimal solution).
+This is a greedy algorithm that applies the greedy-choice property by first
+sorting all edges of the graph in order of non-decreasing edge weights, and
+then iterating over the sorted list of edges, always picking the edge of
+least weight (greedy choice, locally optimal) that connects previously
+unlinked components. A disjoint-set data structure is used to keep track
+of the components, and at the end of the algorithm, the list of edges
+returned forms an MST of the original graph (globally optimal solution).
 
-// Expectations:
-// 	- The graph is correctly built.
-// 	- The graph is undirected.
+Expectations:
+	- The graph is correctly built.
+	- The graph is undirected.
 
-// Complexity:
-// 	- Time:  O(E log V)
-// 	- Space: Θ(V + E).
-// */
-// func MSTKruskal[T ds.Item](g *ds.G[T]) (MST[T], error) {
-// 	if g.Directed() {
-// 		return nil, ds.ErrDirected
-// 	}
+Complexity:
+	- Time:  O(E log V)
+	- Space: Θ(V + E).
+*/
+func MSTKruskal(g *ds.G) (MST, error) {
+	if g.Directed() {
+		return nil, ds.ErrDirected
+	}
 
-// 	edges := make([]*ds.GE[T], g.EdgeCount())
+	edges := make([]ds.GE, g.EdgeCount())
 
-// 	// By iterating over G.V and adding edges using their original
-// 	// insertion order, we can guarantee that every call of the
-// 	// algorithm on the same graph always yields the same MST,
-// 	// since multiple MSTs might exist for the same graph.
-// 	for i, eIdx := 0, 0; i < len(g.V); i++ {
-// 		es := g.E[g.V[i].Ptr]
+	// By iterating over G.V and adding edges using their original
+	// insertion order, we can guarantee that every call of the
+	// algorithm on the same graph always yields the same MST,
+	// since multiple MSTs might exist for the same graph.
+	for i, eIdx := 0, 0; i < len(g.V); i++ {
+		copy(edges[eIdx:], g.V[i].E)
+		eIdx += len(g.V[i].E)
+	}
 
-// 		copy(edges[eIdx:], es)
+	// By using a stable sorting algorithm to sort the sequence
+	// of edges in O(E log E) time, we make sure that if a tie
+	// happens between edges of same weight, the original insertion
+	// order is respected, and a consistent result is achieved.
+	sort.Stable(ds.ByEdgeWeight(edges))
 
-// 		eIdx += len(es)
-// 	}
+	d := ds.NewDSet[int]()
 
-// 	// By using a stable sorting algorithm to sort the sequence
-// 	// of edges in O(E log E) time, we make sure that if a tie
-// 	// happens between edges of same weight, the original insertion
-// 	// order is respected, and a consistent result is achieved.
-// 	sort.Stable(ds.ByEdgeWeight[T](edges))
+	for i := range g.V {
+		d.MakeSet(i)
+	}
 
-// 	d := ds.NewDSet[T]()
+	max := g.VertexCount() - 1
+	mst := MST{}
 
-// 	for _, vtx := range g.V {
-// 		d.MakeSet(vtx.Ptr)
-// 	}
+	for _, e := range edges {
+		if d.FindSet(e.Src) == d.FindSet(e.Dst) {
+			continue
+		}
 
-// 	max := g.VertexCount() - 1
-// 	mst := MST[T]{}
+		d.Union(e.Src, e.Dst)
 
-// 	for _, e := range edges {
-// 		if d.FindSet(e.Src) == d.FindSet(e.Dst) {
-// 			continue
-// 		}
+		mst = append(mst, e)
 
-// 		d.Union(e.Src, e.Dst)
+		if len(mst) == max {
+			break
+		}
+	}
 
-// 		mst = append(mst, e)
-
-// 		if len(mst) == max {
-// 			break
-// 		}
-// 	}
-
-// 	return mst, nil
-// }
+	return mst, nil
+}
