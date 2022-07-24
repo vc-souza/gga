@@ -136,18 +136,18 @@ func MSTPrim(g *ds.G) (MST, error) {
 	mst := MST{}
 
 	for len(vtxHeap) != 0 {
-		v := heap.Pop(&vtxHeap).(*primVtx)
+		vtx := heap.Pop(&vtxHeap).(*primVtx)
 
-		if math.IsInf(v.wt, 1) {
+		if math.IsInf(vtx.wt, 1) {
 			return nil, ds.ErrDisconnected
 		}
 
-		if v.edge != nil {
-			mst = append(mst, *v.edge)
+		if vtx.edge != nil {
+			mst = append(mst, *vtx.edge)
 		}
 
-		for i := range g.V[v.id].E {
-			edge := &g.V[v.id].E[i]
+		for e := range g.V[vtx.id].E {
+			edge := &g.V[vtx.id].E[e]
 
 			if !att[edge.Dst].in {
 				continue
@@ -211,8 +211,8 @@ func MSTKruskal(g *ds.G) (MST, error) {
 
 	d := ds.NewDSet[int]()
 
-	for i := range g.V {
-		d.MakeSet(i)
+	for v := range g.V {
+		d.MakeSet(v)
 	}
 
 	max := g.VertexCount() - 1

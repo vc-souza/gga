@@ -13,7 +13,7 @@ func TestMSTViz(t *testing.T) {
 
 	ut.Nil(t, err)
 
-	mst, err := algo.MSTKruskal(g)
+	mst, err := algo.MSTPrim(g)
 
 	ut.Nil(t, err)
 
@@ -21,11 +21,11 @@ func TestMSTViz(t *testing.T) {
 
 	eCount := 0
 
-	vi.OnMSTEdge = func(*ds.GE[ds.Text]) {
+	vi.OnMSTEdge = func(int, int) {
 		eCount++
 	}
 
-	ExportViz[ds.Text](vi, ut.DummyWriter{})
+	ExportViz(vi, ut.DummyWriter{})
 
 	ut.Equal(t, 2*(g.VertexCount()-1), eCount)
 }

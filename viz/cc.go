@@ -44,8 +44,8 @@ func (vi *CCViz) Traverse() error {
 		for _, v := range vi.CCs[i] {
 			vi.OnCCVertex(v, i)
 
-			for j := range vi.Graph.V[v].E {
-				vi.OnCCEdge(v, j, i)
+			for e := range vi.Graph.V[v].E {
+				vi.OnCCEdge(v, e, i)
 			}
 		}
 	}

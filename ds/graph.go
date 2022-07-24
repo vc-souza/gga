@@ -99,8 +99,8 @@ func (g *G) String() string {
 	b.WriteString(fmt.Sprintf(" |V| = %d", g.VertexCount()))
 	b.WriteString(fmt.Sprintf(" |E| = %d\n", g.EdgeCount()))
 
-	for i := range g.V {
-		b.WriteString(g.V[i].String())
+	for v := range g.V {
+		b.WriteString(g.V[v].String())
 	}
 
 	return b.String()
@@ -154,20 +154,20 @@ func (g *G) RemoveVertex(i Item) error {
 	}
 
 	fixEdges := func() {
-		for i := range g.V {
-			if i == iDel {
-				g.eCount -= len(g.V[i].E)
+		for v := range g.V {
+			if v == iDel {
+				g.eCount -= len(g.V[v].E)
 				continue
 			}
 
 			toDel := []int{}
 			dec := 0
 
-			for j := range g.V[i].E {
-				edge := &g.V[i].E[j]
+			for e := range g.V[v].E {
+				edge := &g.V[v].E[e]
 
 				if edge.Dst == iDel {
-					toDel = append(toDel, j)
+					toDel = append(toDel, e)
 					dec++
 					continue
 				}
@@ -187,7 +187,7 @@ func (g *G) RemoveVertex(i Item) error {
 			}
 
 			for _, eIdx := range toDel {
-				Cut(&g.V[i].E, eIdx)
+				Cut(&g.V[v].E, eIdx)
 				g.eCount--
 			}
 		}
@@ -232,9 +232,9 @@ func (g *G) GetEdge(src Item, dst Item) (int, int, bool) {
 		return 0, 0, false
 	}
 
-	for j := range g.V[iSrc].E {
-		if g.V[iSrc].E[j].Dst == iDst {
-			return iSrc, j, true
+	for e := range g.V[iSrc].E {
+		if g.V[iSrc].E[e].Dst == iDst {
+			return iSrc, e, true
 		}
 	}
 
@@ -259,8 +259,8 @@ func (g *G) AddEdge(src Item, dst Item, wt float64) (int, int, error) {
 		return 0, 0, ErrNoVtx
 	}
 
-	for j := range g.V[iSrc].E {
-		if g.V[iSrc].E[j].Dst == iDst {
+	for e := range g.V[iSrc].E {
+		if g.V[iSrc].E[e].Dst == iDst {
 			return 0, 0, ErrExists
 		}
 	}
@@ -300,18 +300,18 @@ func (g *G) RemoveEdge(src Item, dst Item) error {
 }
 
 // TODO: docs
-func (g G) Accept(v GraphVisitor) {
-	v.VisitGraphStart(g)
+func (g G) Accept(vis GraphVisitor) {
+	vis.VisitGraphStart(g)
 
-	for i := range g.V {
-		v.VisitVertex(g, g.V[i])
+	for v := range g.V {
+		vis.VisitVertex(g, g.V[v])
 
-		for j := range g.V[i].E {
-			v.VisitEdge(g, g.V[i].E[j])
+		for e := range g.V[v].E {
+			vis.VisitEdge(g, g.V[v].E[e])
 		}
 	}
 
-	v.VisitGraphEnd(g)
+	vis.VisitGraphEnd(g)
 }
 
 // TODO: docs (right place? maybe algo?)
@@ -322,12 +322,12 @@ func (g *G) Transpose() (*G, error) {
 
 	res := NewDigraph()
 
-	for i := range g.V {
-		res.AddVertex(g.V[i].Item)
+	for v := range g.V {
+		res.AddVertex(g.V[v].Item)
 	}
 
-	for i := range g.V {
-		for _, edge := range g.V[i].E {
+	for v := range g.V {
+		for _, edge := range g.V[v].E {
 			res.AddEdge(
 				g.V[edge.Dst].Item,
 				g.V[edge.Src].Item,

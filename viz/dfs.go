@@ -66,13 +66,31 @@ func (vi *DFSViz) Traverse() error {
 			continue
 		}
 
-		vi.OnTreeEdge(node.Parent, v)
+		v, e, ok := vi.Graph.GetEdge(
+			vi.Graph.V[node.Parent].Item,
+			vi.Graph.V[v].Item,
+		)
+
+		if !ok {
+			return ds.ErrNoEdge
+		}
+
+		vi.OnTreeEdge(v, e)
 
 		if vi.Graph.Directed() {
 			continue
 		}
 
-		vi.OnTreeEdge(v, node.Parent)
+		v, e, ok = vi.Graph.GetEdge(
+			vi.Graph.V[v].Item,
+			vi.Graph.V[node.Parent].Item,
+		)
+
+		if !ok {
+			return ds.ErrNoRevEdge
+		}
+
+		vi.OnTreeEdge(v, e)
 	}
 
 	for _, e := range vi.Edges.Forward {

@@ -112,8 +112,8 @@ func DFS(g *ds.G, classify bool) (DFForest, *EdgeTypes, error) {
 	tps := &EdgeTypes{}
 	t := 0
 
-	for i := range g.V {
-		fst[i].Parent = -1
+	for v := range g.V {
+		fst[v].Parent = -1
 	}
 
 	visit = func(v int) {

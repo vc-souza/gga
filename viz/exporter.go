@@ -160,11 +160,11 @@ func DotAttrs(f ds.FAttrs) string {
 
 // ResetGraphFmt resets custom formatting attributes for every vertex and edge of a graph.
 func ResetGraphFmt(g *ds.G) {
-	for i := range g.V {
-		g.V[i].ResetFmt()
+	for v := range g.V {
+		g.V[v].ResetFmt()
 
-		for j := range g.V[i].E {
-			g.V[i].E[j].ResetFmt()
+		for e := range g.V[v].E {
+			g.V[v].E[e].ResetFmt()
 		}
 	}
 }

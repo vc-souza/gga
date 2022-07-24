@@ -63,9 +63,9 @@ func BFS(g *ds.G, src int) (BFTree, error) {
 	tree := make(BFTree, g.VertexCount())
 	queue := ds.NewQueue[int]()
 
-	for i := range g.V {
-		tree[i].Distance = math.Inf(1)
-		tree[i].Parent = -1
+	for v := range g.V {
+		tree[v].Distance = math.Inf(1)
+		tree[v].Parent = -1
 	}
 
 	tree[src].Distance = 0
