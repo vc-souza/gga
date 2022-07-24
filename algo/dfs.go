@@ -41,7 +41,7 @@ so repeated DFS calls always produce the same DF forest.
 */
 type DFForest []DFNode
 
-func classifyDirectedEdge(fst DFForest, tps *EdgeTypes, e ds.GE, i ds.GEIdx) {
+func classifyDirectedEdge(fst DFForest, tps *EdgeTypes, e ds.GE) {
 	// the vertex being reached (Dst) was discovered before
 	// the vertex being explored (Src), so Dst is either
 	// an ancestor of Src, or they do not have a direct
@@ -50,18 +50,18 @@ func classifyDirectedEdge(fst DFForest, tps *EdgeTypes, e ds.GE, i ds.GEIdx) {
 		// ancestor/descendant relationship,
 		// self-loops included here
 		if fst[e.Dst].Finish == 0 {
-			tps.Back = append(tps.Back, i)
+			tps.Back = append(tps.Back, e)
 		} else {
-			tps.Cross = append(tps.Cross, i)
+			tps.Cross = append(tps.Cross, e)
 		}
 	} else {
 		// Src is an ancestor of Dst, and since Dst has
 		// been discovered before, this is a Forward edge
-		tps.Forward = append(tps.Forward, i)
+		tps.Forward = append(tps.Forward, e)
 	}
 }
 
-func classifyUndirectedEdge(fst DFForest, tps *EdgeTypes, e ds.GE, i ds.GEIdx) {
+func classifyUndirectedEdge(fst DFForest, tps *EdgeTypes, e ds.GE) {
 	// due to how adjacency lists work, undirected
 	// graphs represent the same edge twice, so
 	// if we're dealing with the reverse of a tree
@@ -75,7 +75,7 @@ func classifyUndirectedEdge(fst DFForest, tps *EdgeTypes, e ds.GE, i ds.GEIdx) {
 	// even if this looks like a forward edge from one
 	// side, it will be classified as a back edge
 	// when the reverse edge gets classified
-	tps.Back = append(tps.Back, i)
+	tps.Back = append(tps.Back, e)
 }
 
 /*
@@ -122,18 +122,16 @@ func DFS(g *ds.G, classify bool) (DFForest, *EdgeTypes, error) {
 		fst[v].Discovery = t
 		fst[v].visited = true
 
-		for j, e := range g.V[v].E {
+		for _, e := range g.V[v].E {
 			if fst[e.Dst].visited {
 				if !classify {
 					continue
 				}
 
-				idx := ds.GEIdx{V: v, E: j}
-
 				if g.Directed() {
-					classifyDirectedEdge(fst, tps, e, idx)
+					classifyDirectedEdge(fst, tps, e)
 				} else {
-					classifyUndirectedEdge(fst, tps, e, idx)
+					classifyUndirectedEdge(fst, tps, e)
 				}
 			} else {
 				fst[e.Dst].Parent = v

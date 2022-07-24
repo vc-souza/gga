@@ -16,12 +16,6 @@ type GE struct {
 	Index int
 }
 
-// TODO: docs
-type GEIdx struct {
-	V int
-	E int
-}
-
 func (e *GE) String() string {
 	return fmt.Sprintf(
 		"@%d %d -> %d <%.2f>",
