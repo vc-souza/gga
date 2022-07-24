@@ -94,7 +94,7 @@ func main() {
 	vi := viz.NewGSCCViz(gscc, customTheme{})
 
 	vi.OnGSCCVertex = func(v int) {
-		items := vi.Graph.V[v].Item.(ds.Group).Items
+		items := vi.Graph.V[v].Item.(*ds.Group).Items
 
 		s := make([]string, 0, len(items))
 

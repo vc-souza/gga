@@ -231,7 +231,6 @@ func Parse(s string) (*G, func(string) int, error) {
 	return (&TextParser{}).Parse(s)
 }
 
-// TODO: docs
 func idxFunc(g *G, vars map[string]*Text) func(string) int {
 	return func(s string) int {
 		i, _ := g.GetVertex(vars[s])
