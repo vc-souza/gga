@@ -2,6 +2,7 @@ package algo
 
 import (
 	"errors"
+	"fmt"
 	"testing"
 
 	"github.com/vc-souza/gga/ds"
@@ -16,26 +17,26 @@ type expectedMSTEdge struct {
 
 var mstCases = []struct {
 	desc   string
-	algo   MSTAlgo[ds.Text]
+	algo   MSTAlgo
 	expect []expectedMSTEdge
 }{
-	{
-		desc: "Kruskal",
-		algo: MSTKruskal[ds.Text],
-		expect: []expectedMSTEdge{
-			{"g", "h", 1},
-			{"c", "i", 2},
-			{"f", "g", 2},
-			{"a", "b", 4},
-			{"c", "f", 4},
-			{"c", "d", 7},
-			{"a", "h", 8},
-			{"d", "e", 9},
-		},
-	},
+	// {
+	// 	desc: "Kruskal",
+	// 	algo: MSTKruskal[ds.Text],
+	// 	expect: []expectedMSTEdge{
+	// 		{"g", "h", 1},
+	// 		{"c", "i", 2},
+	// 		{"f", "g", 2},
+	// 		{"a", "b", 4},
+	// 		{"c", "f", 4},
+	// 		{"c", "d", 7},
+	// 		{"a", "h", 8},
+	// 		{"d", "e", 9},
+	// 	},
+	// },
 	{
 		desc: "Prim",
-		algo: MSTPrim[ds.Text],
+		algo: MSTPrim,
 		expect: []expectedMSTEdge{
 			{"a", "b", 4},
 			{"a", "h", 8},
@@ -67,7 +68,7 @@ func TestMST_directed(t *testing.T) {
 func TestMST_undirected(t *testing.T) {
 	for _, tc := range mstCases {
 		t.Run(tc.desc, func(t *testing.T) {
-			g, vars, err := ds.Parse(ut.WUGSimple)
+			g, idx, err := ds.Parse(ut.WUGSimple)
 
 			ut.Nil(t, err)
 
@@ -78,8 +79,8 @@ func TestMST_undirected(t *testing.T) {
 			ut.Equal(t, g.VertexCount()-1, len(mst))
 
 			for i := 0; i < len(mst); i++ {
-				ut.Equal(t, vars[tc.expect[i].src], mst[i].Src)
-				ut.Equal(t, vars[tc.expect[i].dst], mst[i].Dst)
+				ut.Equal(t, idx(tc.expect[i].src), mst[i].Src)
+				ut.Equal(t, idx(tc.expect[i].dst), mst[i].Dst)
 				ut.Equal(t, tc.expect[i].wt, mst[i].Wt)
 			}
 		})
@@ -96,7 +97,10 @@ func TestMSTPrim_disconnected(t *testing.T) {
 
 	ut.Nil(t, err)
 
-	_, err = MSTPrim(g)
+	mst, err := MSTPrim(g)
+
+	fmt.Println(mst)
+	fmt.Println(err)
 
 	ut.NotNil(t, err)
 	ut.True(t, errors.Is(err, ds.ErrDisconnected))

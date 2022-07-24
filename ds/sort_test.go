@@ -10,10 +10,10 @@ import (
 var size int = 100
 
 func TestByEdgeWeight(t *testing.T) {
-	edges := make([]*GE, size)
+	edges := make([]GE, size)
 
 	for i := 0; i < size; i++ {
-		edges[i] = &GE{Wt: float64(100 - i - 1)}
+		edges[i] = GE{Wt: float64(100 - i - 1)}
 	}
 
 	sort.Sort(ByEdgeWeight(edges))
