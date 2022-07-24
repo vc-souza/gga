@@ -17,7 +17,7 @@ const (
 	fileOut = "TSort-after.dot"
 )
 
-func input() *ds.G[ds.Text] {
+func input() *ds.G {
 	g, _, err := ds.Parse(ut.UDGDress)
 
 	if err != nil {
@@ -27,7 +27,7 @@ func input() *ds.G[ds.Text] {
 	return g
 }
 
-func exportStart(g *ds.G[ds.Text]) {
+func exportStart(g *ds.G) {
 	fIn, err := os.Create(fileIn)
 
 	if err != nil {
@@ -39,7 +39,7 @@ func exportStart(g *ds.G[ds.Text]) {
 	viz.Snapshot(g, fIn, viz.Themes.LightBreeze)
 }
 
-func exportEnd(v viz.AlgoViz[ds.Text]) {
+func exportEnd(v viz.AlgoViz) {
 	fOut, err := os.Create(fileOut)
 
 	if err != nil {
@@ -76,11 +76,12 @@ func main() {
 
 	vi := viz.NewTSortViz(g, ord, customTheme{})
 
-	vi.OnVertexRank = func(v *ds.GV[ds.Text], rank int) {
-		v.SetFmtAttr("label", fmt.Sprintf(`%s | %d`, v.Label(), rank))
+	vi.OnVertexRank = func(v int, rank int) {
+		label := fmt.Sprintf(`%s | %d`, vi.Graph.V[v].Label(), rank)
+		vi.Graph.V[v].SetFmtAttr("label", label)
 	}
 
-	vi.OnOrderEdge = func(e *ds.GE[ds.Text], exists bool) {
+	vi.OnOrderEdge = func(v int, e int, dst int, exists bool) {
 		if exists {
 			return
 		}
@@ -89,8 +90,8 @@ func main() {
 			vi.Extra,
 			fmt.Sprintf(
 				"%s -> %s [style=invis]",
-				viz.Quoted(e.Src),
-				viz.Quoted(e.Dst),
+				viz.Quoted(vi.Graph.V[v].Item),
+				viz.Quoted(vi.Graph.V[dst].Item),
 			),
 		)
 	}
