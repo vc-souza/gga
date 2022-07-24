@@ -25,7 +25,9 @@ func TestGSCCViz(t *testing.T) {
 		vCount++
 	}
 
-	ExportViz(vi, ut.DummyWriter{})
+	err = ExportViz(vi, ut.DummyWriter{})
+
+	ut.Nil(t, err)
 
 	ut.Equal(t, gscc.VertexCount(), vCount)
 }

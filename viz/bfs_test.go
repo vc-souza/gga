@@ -65,7 +65,9 @@ func TestBFSViz(t *testing.T) {
 
 			vi.OnTreeEdge = func(int, int) { teCount++ }
 
-			ExportViz(vi, ut.DummyWriter{})
+			err = ExportViz(vi, ut.DummyWriter{})
+
+			ut.Nil(t, err)
 
 			ut.Equal(t, tc.expectUV, uvCount)
 			ut.Equal(t, tc.expectTV, tvCount)

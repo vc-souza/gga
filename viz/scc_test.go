@@ -35,7 +35,9 @@ func TestSCCViz(t *testing.T) {
 		cECount++
 	}
 
-	ExportViz(vi, ut.DummyWriter{})
+	err = ExportViz(vi, ut.DummyWriter{})
+
+	ut.Nil(t, err)
 
 	ut.Equal(t, g.VertexCount(), vCount)
 	ut.Equal(t, 8, sECount)

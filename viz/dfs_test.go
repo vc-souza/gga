@@ -68,7 +68,9 @@ func TestDFSViz(t *testing.T) {
 			vi.OnBackEdge = func(int, int) { beCount++ }
 			vi.OnCrossEdge = func(int, int) { ceCount++ }
 
-			ExportViz(vi, ut.DummyWriter{})
+			err = ExportViz(vi, ut.DummyWriter{})
+
+			ut.Nil(t, err)
 
 			ut.Equal(t, tc.expectTV, tvCount)
 			ut.Equal(t, tc.expectRV, rvCount)

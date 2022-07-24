@@ -25,7 +25,9 @@ func TestMSTViz(t *testing.T) {
 		eCount++
 	}
 
-	ExportViz(vi, ut.DummyWriter{})
+	err = ExportViz(vi, ut.DummyWriter{})
+
+	ut.Nil(t, err)
 
 	ut.Equal(t, 2*(g.VertexCount()-1), eCount)
 }
