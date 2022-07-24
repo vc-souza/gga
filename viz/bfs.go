@@ -64,7 +64,7 @@ func (vi *BFSViz) Traverse() error {
 			continue
 		}
 
-		v, e, ok := vi.Graph.GetEdge(
+		iV, iE, ok := vi.Graph.GetEdge(
 			vi.Graph.V[node.Parent].Item,
 			vi.Graph.V[v].Item,
 		)
@@ -73,13 +73,13 @@ func (vi *BFSViz) Traverse() error {
 			return ds.ErrNoEdge
 		}
 
-		vi.OnTreeEdge(v, e)
+		vi.OnTreeEdge(iV, iE)
 
 		if vi.Graph.Directed() {
 			continue
 		}
 
-		v, e, ok = vi.Graph.GetEdge(
+		iV, iE, ok = vi.Graph.GetEdge(
 			vi.Graph.V[v].Item,
 			vi.Graph.V[node.Parent].Item,
 		)
@@ -88,7 +88,7 @@ func (vi *BFSViz) Traverse() error {
 			return ds.ErrNoRevEdge
 		}
 
-		vi.OnTreeEdge(v, e)
+		vi.OnTreeEdge(iV, iE)
 	}
 
 	return nil

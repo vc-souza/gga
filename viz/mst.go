@@ -38,7 +38,7 @@ func (vi *MSTViz) Traverse() error {
 	for _, e := range vi.MST {
 		vi.OnMSTEdge(e.Src, e.Index)
 
-		v, e, ok := vi.Graph.GetEdge(
+		iV, iE, ok := vi.Graph.GetEdge(
 			vi.Graph.V[e.Dst].Item,
 			vi.Graph.V[e.Src].Item,
 		)
@@ -47,7 +47,7 @@ func (vi *MSTViz) Traverse() error {
 			return ds.ErrNoRevEdge
 		}
 
-		vi.OnMSTEdge(v, e)
+		vi.OnMSTEdge(iV, iE)
 	}
 
 	return nil

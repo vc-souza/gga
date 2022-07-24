@@ -1,6 +1,7 @@
 package viz
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/vc-souza/gga/algo"
@@ -66,6 +67,8 @@ func TestBFSViz(t *testing.T) {
 			vi.OnTreeEdge = func(int, int) { teCount++ }
 
 			err = ExportViz(vi, ut.DummyWriter{})
+
+			fmt.Println(err)
 
 			ut.Nil(t, err)
 
