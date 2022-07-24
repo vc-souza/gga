@@ -12,28 +12,28 @@ BFSViz formats and exports a graph after the execution of the BFS algorithm.
 The output of the algorithm is traversed, and hooks are provided so that
 custom formatting can be applied to the graph, its vertices and edges.
 */
-type BFSViz[T ds.Item] struct {
-	ThemedGraphViz[T]
+type BFSViz struct {
+	ThemedGraphViz
 
-	Tree   algo.BFTree[T]
-	Source *T
+	Tree   algo.BFTree
+	Source int
 
 	// OnUnVertex is called when an unreachable vertex is found.
-	OnUnVertex func(*ds.GV[T], *algo.BFNode[T])
+	OnUnVertex func(int, algo.BFNode)
 
 	// OnSourceVertex is called when the source vertex is found.
-	OnSourceVertex func(*ds.GV[T], *algo.BFNode[T])
+	OnSourceVertex func(int, algo.BFNode)
 
 	// OnTreeVertex is called when any tree vertex is found, including the source vertex.
-	OnTreeVertex func(*ds.GV[T], *algo.BFNode[T])
+	OnTreeVertex func(int, algo.BFNode)
 
 	// OnTreeEdge is called when a tree edge is found.
-	OnTreeEdge func(*ds.GE[T])
+	OnTreeEdge func(int, int)
 }
 
 // NewBFSViz initializes a new BFSViz with NOOP hooks.
-func NewBFSViz[T ds.Item](g *ds.G[T], tree algo.BFTree[T], src *T, t Theme) *BFSViz[T] {
-	res := &BFSViz[T]{}
+func NewBFSViz(g *ds.G, tree algo.BFTree, src int, t Theme) *BFSViz {
+	res := &BFSViz{}
 
 	res.Tree = tree
 	res.Source = src
@@ -41,54 +41,36 @@ func NewBFSViz[T ds.Item](g *ds.G[T], tree algo.BFTree[T], src *T, t Theme) *BFS
 	res.Graph = g
 	res.Theme = t
 
-	res.OnUnVertex = func(*ds.GV[T], *algo.BFNode[T]) {}
-	res.OnSourceVertex = func(*ds.GV[T], *algo.BFNode[T]) {}
-	res.OnTreeVertex = func(*ds.GV[T], *algo.BFNode[T]) {}
-	res.OnTreeEdge = func(*ds.GE[T]) {}
+	res.OnUnVertex = func(int, algo.BFNode) {}
+	res.OnSourceVertex = func(int, algo.BFNode) {}
+	res.OnTreeVertex = func(int, algo.BFNode) {}
+	res.OnTreeEdge = func(int, int) {}
 
 	return res
 }
 
 // Traverse iterates over the results of a BFS execution, calling its hooks when appropriate.
-func (vi *BFSViz[T]) Traverse() error {
+func (vi *BFSViz) Traverse() error {
 	for v, node := range vi.Tree {
-		vtx, _, ok := vi.Graph.GetVertex(v)
-
-		if !ok {
-			return ds.ErrNoVtx
-		}
-
 		if math.IsInf(node.Distance, 1) {
-			vi.OnUnVertex(vtx, node)
+			vi.OnUnVertex(v, node)
 			continue
 		}
 
-		vi.OnTreeVertex(vtx, node)
+		vi.OnTreeVertex(v, node)
 
 		if node.Distance == 0 {
-			vi.OnSourceVertex(vtx, node)
+			vi.OnSourceVertex(v, node)
 			continue
 		}
 
-		edge, _, ok := vi.Graph.GetEdge(node.Parent, v)
-
-		if !ok {
-			return ds.ErrNoEdge
-		}
-
-		vi.OnTreeEdge(edge)
+		vi.OnTreeEdge(node.Parent, v)
 
 		if vi.Graph.Directed() {
 			continue
 		}
 
-		rev, _, ok := vi.Graph.GetEdge(v, node.Parent)
-
-		if !ok {
-			return ds.ErrNoRevEdge
-		}
-
-		vi.OnTreeEdge(rev)
+		vi.OnTreeEdge(v, node.Parent)
 	}
 
 	return nil

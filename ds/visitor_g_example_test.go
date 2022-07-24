@@ -21,15 +21,15 @@ func (cv *ConsoleVisitor) VisitGraphEnd(G) {
 }
 
 func (cv *ConsoleVisitor) VisitVertex(g G, v GV) {
-	fmt.Println("vertex", v.Item.Label())
+	fmt.Println("vertex", v.Label())
 }
 
 func (cv *ConsoleVisitor) VisitEdge(g G, e GE) {
 	fmt.Println(
 		"edge,",
-		g.V[e.Src].Item.Label(),
+		g.V[e.Src].Label(),
 		"to",
-		g.V[e.Dst].Item.Label(),
+		g.V[e.Dst].Label(),
 	)
 }
 

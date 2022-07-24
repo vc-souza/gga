@@ -41,7 +41,7 @@ type AlgoViz interface {
 
 // ExportViz guides the execution of an AlgoViz implementation and then export its results.
 func ExportViz(vi AlgoViz, w io.Writer) error {
-	ex := NewExporter(vi.GetGraph())
+	ex := NewExporter()
 
 	ResetGraphFmt(vi.GetGraph())
 	SetTheme(ex, vi.GetTheme())
@@ -54,7 +54,7 @@ func ExportViz(vi AlgoViz, w io.Writer) error {
 		ex.AddExtra(vi.GetExtra()...)
 	}
 
-	ex.Export(w)
+	ex.Export(vi.GetGraph(), w)
 
 	return nil
 }

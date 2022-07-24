@@ -35,11 +35,15 @@ type GV struct {
 	E     []GE
 }
 
+func (v *GV) Label() string {
+	return v.Item.Label()
+}
+
 func (v *GV) String() string {
 	b := strings.Builder{}
 	es := []string{}
 
-	b.WriteString(fmt.Sprintf("Vertex '%s' @%d adj [", v.Item.Label(), v.Index))
+	b.WriteString(fmt.Sprintf("Vertex '%s' @%d adj [", v.Label(), v.Index))
 
 	for i := range v.E {
 		es = append(es, v.E[i].String())
