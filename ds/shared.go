@@ -28,20 +28,12 @@ func (z Group) Label() string {
 	return strconv.Itoa(z.Id)
 }
 
-// TODO: docs, based on:
 /*
-?????????????? removes the element at a given index, from a slice of pointers.
-If an element from a slice of pointers is removed using the usual way of deleting an
-element from a slice:
-
-	s = append(s[:idx], s[id+1:]...)
-
-then we risk a memory leak, from the now unreachable reference that sits in
-the underlying array used by the slice, preventing garbage collection.
+Cut removes an element from a slice at a given position. Memory leaks are avoided
+by assigning the zero value for the type of the element to the position that is
+going to be removed.
 
 Source: https://github.com/golang/go/wiki/SliceTricks
-
-???????????????/
 */
 func Cut[T any](s *[]T, idx int) {
 	if idx < 0 || idx >= len(*s) {
