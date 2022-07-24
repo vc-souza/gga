@@ -58,12 +58,6 @@ func addEdges(t *testing.T, g *G, es ...edge) {
 	}
 }
 
-func assertEdge(t *testing.T, g *G, e edge) {
-	iV, iE, ok := g.EdgeIndex(e.src, e.dst)
-	ut.True(t, ok)
-	ut.Equal(t, e.wt, g.V[iV].E[iE].Wt)
-}
-
 func TestGNewGraph(t *testing.T) {
 	g := NewGraph()
 	ut.True(t, g.Undirected())
@@ -425,4 +419,166 @@ func TestGAddEdge(t *testing.T) {
 			})
 		}
 	}
+}
+
+func TestGRemoveVertex_no_vertex(t *testing.T) {
+	for gType, gen := range graphGen {
+		t.Run(gType, func(t *testing.T) {
+			g := gen()
+			err := g.RemoveVertex(vA)
+
+			ut.NotNil(t, err)
+			ut.True(t, errors.Is(err, ErrNoVtx))
+		})
+	}
+}
+
+func TestGRemoveVertex(t *testing.T) {
+	for gType, gen := range graphGen {
+		t.Run(gType, func(t *testing.T) {
+			g := gen()
+
+			addVerts(t, g, vA, vB, vC)
+
+			if g.Directed() {
+				addEdges(t, g, []edge{
+					{vA, vB, 0},
+					{vA, vC, 0},
+					{vB, vA, 0},
+					{vB, vC, 0},
+					{vC, vA, 0},
+					{vC, vB, 0},
+				}...)
+			} else {
+				addEdges(t, g, []edge{
+					{vA, vB, 0},
+					{vA, vC, 0},
+					{vB, vC, 0},
+				}...)
+			}
+
+			err := g.RemoveVertex(vA)
+			ut.Nil(t, err)
+
+			// shifted to the left
+			iV, ok := g.VertexIndex(vB)
+
+			ut.True(t, ok)
+			ut.Equal(t, 0, iV)
+
+			// shifted to the left
+			iV, ok = g.VertexIndex(vC)
+
+			ut.True(t, ok)
+			ut.Equal(t, 1, iV)
+
+			iV, iE, ok := g.EdgeIndex(vB, vC)
+
+			ut.True(t, ok)
+			ut.Equal(t, 0, iV)
+			ut.Equal(t, 0, iE)
+
+			iV, iE, ok = g.EdgeIndex(vC, vB)
+
+			ut.True(t, ok)
+			ut.Equal(t, 1, iV)
+			ut.Equal(t, 0, iE)
+		})
+	}
+}
+
+func TestGRemoveEdge_no_edge(t *testing.T) {
+	for gType, gen := range graphGen {
+		t.Run(gType, func(t *testing.T) {
+			g := gen()
+			err := g.RemoveEdge(vA, vB)
+
+			ut.NotNil(t, err)
+			ut.True(t, errors.Is(err, ErrNoEdge))
+		})
+	}
+}
+
+func TestGRemoveEdge(t *testing.T) {
+	for gType, gen := range graphGen {
+		t.Run(gType, func(t *testing.T) {
+			var err error
+
+			g := gen()
+
+			addVerts(t, g, vA, vB, vC, vD)
+			addEdges(t, g, []edge{
+				{vA, vB, 0},
+				{vA, vC, 0},
+				{vA, vD, 0},
+			}...)
+
+			err = g.RemoveEdge(vA, vB)
+			ut.Nil(t, err)
+
+			if g.Directed() {
+				ut.Equal(t, 2, g.EdgeCount())
+			} else {
+				ut.Equal(t, 5, g.EdgeCount())
+			}
+
+			iV, iE, ok := g.EdgeIndex(vA, vC)
+
+			ut.True(t, ok)
+			ut.Equal(t, 0, iV)
+			ut.Equal(t, 0, iE)
+
+			iV, iE, ok = g.EdgeIndex(vA, vD)
+
+			ut.True(t, ok)
+			ut.Equal(t, 0, iV)
+			ut.Equal(t, 1, iE)
+		})
+	}
+}
+
+func TestTranspose_undirected(t *testing.T) {
+	g := NewGraph()
+
+	_, err := Transpose(g)
+
+	ut.NotNil(t, err)
+	ut.True(t, errors.Is(err, ErrUndirected))
+}
+
+func TestTranspose_directed(t *testing.T) {
+	g := NewDigraph()
+
+	addVerts(t, g, vA, vB, vC, vD)
+	addEdges(t, g, []edge{
+		{vA, vA, 0},
+		{vA, vB, 0},
+		{vA, vC, 0},
+		{vA, vD, 0},
+	}...)
+
+	tp, err := Transpose(g)
+
+	ut.Nil(t, err)
+
+	_, _, ok := tp.EdgeIndex(vA, vA)
+	ut.True(t, ok)
+
+	_, _, ok = tp.EdgeIndex(vA, vB)
+	ut.False(t, ok)
+
+	_, _, ok = tp.EdgeIndex(vB, vA)
+	ut.True(t, ok)
+
+	_, _, ok = tp.EdgeIndex(vA, vC)
+	ut.False(t, ok)
+
+	_, _, ok = tp.EdgeIndex(vC, vA)
+	ut.True(t, ok)
+
+	_, _, ok = tp.EdgeIndex(vA, vD)
+	ut.False(t, ok)
+
+	_, _, ok = tp.EdgeIndex(vD, vA)
+	ut.True(t, ok)
 }
