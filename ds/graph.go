@@ -287,7 +287,7 @@ func (g *G) GetEdgeIndex(src Item, dst Item) (int, int, bool) {
 	return 0, 0, false
 }
 
-// AddEdge adds a new weighted edge between the given Items.
+// AddEdge adds a new weighted edge between the given Items, but only if their vertices have already been added.
 func (g *G) AddEdge(src Item, dst Item, wt float64) (int, int, error) {
 	if g.Undirected() && src == dst {
 		return 0, 0, ErrInvLoop

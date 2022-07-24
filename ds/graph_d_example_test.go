@@ -1,27 +1,31 @@
 package ds
 
-// func ExampleG_directed() {
-// 	si := Text("initialization")
-// 	sm := Text("maintenance")
-// 	st := Text("termination")
-// 	u1 := Text("unrelated1")
-// 	u2 := Text("unrelated2")
+import "fmt"
 
-// 	g := NewDirectedGraph[Text]()
+func ExampleG_directed() {
+	si := Text("initialization")
+	sm := Text("maintenance")
+	st := Text("termination")
+	u1 := Text("unrelated1")
+	u2 := Text("unrelated2")
 
-// 	g.AddVertex(&u1)
-// 	g.AddVertex(&u2)
+	g := NewDigraph()
 
-// 	g.AddUnweightedEdge(&si, &sm)
-// 	g.AddUnweightedEdge(&sm, &sm)
-// 	g.AddUnweightedEdge(&sm, &st)
+	g.AddVertex(&si)
+	g.AddVertex(&sm)
+	g.AddVertex(&st)
+	g.AddVertex(&u1)
+	g.AddVertex(&u2)
 
-// 	fmt.Println(g.VertexCount())
+	g.AddEdge(&si, &sm, 0)
+	g.AddEdge(&sm, &sm, 0)
+	g.AddEdge(&sm, &st, 0)
 
-// 	// directed graphs report the number of actual edges
-// 	fmt.Println(g.EdgeCount())
+	fmt.Println(g.VertexCount())
 
-// 	// Output:
-// 	// 5
-// 	// 3
-// }
+	fmt.Println(g.EdgeCount())
+
+	// Output:
+	// 5
+	// 3
+}

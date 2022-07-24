@@ -1,33 +1,34 @@
 package ds
 
-// func ExampleG_undirected() {
-// 	wt := Text("Whiterun")
-// 	dt := Text("Dawnstar")
-// 	mt := Text("Markarth")
-// 	rt := Text("Riften")
+import "fmt"
 
-// 	g := NewUndirectedGraph[Text]()
+func ExampleG_undirected() {
+	wt := Text("Whiterun")
+	dt := Text("Dawnstar")
+	mt := Text("Markarth")
+	rt := Text("Riften")
 
-// 	// explicitly adding a vertex that does not participate in any edges
-// 	g.AddVertex(&rt)
+	g := NewGraph()
 
-// 	// vertices that are part of an edge do not have to be added explicitly
-// 	// since this is an undirected graph, reverse edges have to be added
-// 	g.AddUnweightedEdge(&wt, &dt)
-// 	g.AddUnweightedEdge(&dt, &wt)
+	g.AddVertex(&wt)
+	g.AddVertex(&dt)
+	g.AddVertex(&mt)
+	g.AddVertex(&rt)
 
-// 	g.AddUnweightedEdge(&wt, &mt)
-// 	g.AddUnweightedEdge(&mt, &wt)
+	g.AddEdge(&wt, &dt, 0)
+	g.AddEdge(&dt, &wt, 0)
 
-// 	g.AddUnweightedEdge(&dt, &mt)
-// 	g.AddUnweightedEdge(&mt, &dt)
+	g.AddEdge(&wt, &mt, 0)
+	g.AddEdge(&mt, &wt, 0)
 
-// 	fmt.Println(g.VertexCount())
+	g.AddEdge(&dt, &mt, 0)
+	g.AddEdge(&mt, &dt, 0)
 
-// 	// undirected graphs report half the numbers of actual edges, since reverse edges are excluded
-// 	fmt.Println(g.EdgeCount())
+	fmt.Println(g.VertexCount())
 
-// 	// Output:
-// 	// 4
-// 	// 6
-// }
+	fmt.Println(g.EdgeCount())
+
+	// Output:
+	// 4
+	// 6
+}
