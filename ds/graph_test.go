@@ -1,6 +1,7 @@
 package ds
 
 import (
+	"errors"
 	"testing"
 
 	ut "github.com/vc-souza/gga/internal/testutils"
@@ -294,6 +295,131 @@ func TestGEdgeIndex(t *testing.T) {
 				v, e, ok := g.EdgeIndex(tc.input.src, tc.input.dst)
 
 				ut.Equal(t, tc.expectOK, ok)
+				ut.Equal(t, tc.expectV, v)
+				ut.Equal(t, tc.expectE, e)
+			})
+		}
+	}
+}
+
+func TestGAddVertex(t *testing.T) {
+	cases := []struct {
+		desc      string
+		verts     []Item
+		item      Item
+		expectV   int
+		expectErr error
+	}{
+		{
+			desc: "new vertex",
+			item: vA,
+		},
+		{
+			desc:      "duplicated vertex",
+			verts:     []Item{vA},
+			item:      vA,
+			expectV:   0,
+			expectErr: ErrExists,
+		},
+	}
+
+	for _, tc := range cases {
+		for gType, gen := range graphGen {
+			t.Run(tagGraphTest(gType, tc.desc), func(t *testing.T) {
+				g := gen()
+
+				addVerts(t, g, tc.verts...)
+
+				v, err := g.AddVertex(tc.item)
+
+				if tc.expectErr == nil {
+					ut.Nil(t, err)
+				} else {
+					ut.True(t, errors.Is(err, tc.expectErr))
+				}
+
+				ut.Equal(t, tc.expectV, v)
+			})
+		}
+	}
+}
+
+func TestGAddEdge(t *testing.T) {
+	cases := []struct {
+		desc        string
+		digraphOnly bool
+		graphOnly   bool
+		verts       []Item
+		edges       []edge
+		input       edge
+		expectV     int
+		expectE     int
+		expectErr   error
+	}{
+		{
+			desc:  "zero edges",
+			verts: []Item{vA, vB},
+			input: edge{vA, vB, 0},
+		},
+		{
+			desc:    "one more edge",
+			verts:   []Item{vA, vB, vC},
+			edges:   []edge{{vA, vB, 0}},
+			input:   edge{vA, vC, 0},
+			expectV: 0,
+			expectE: 1,
+		},
+		{
+			desc:      "src does not exist",
+			verts:     []Item{vB},
+			input:     edge{vA, vB, 0},
+			expectV:   0,
+			expectE:   0,
+			expectErr: ErrNoVtx,
+		},
+		{
+			desc:      "dst does not exist",
+			verts:     []Item{vA},
+			input:     edge{vA, vB, 0},
+			expectV:   0,
+			expectE:   0,
+			expectErr: ErrNoVtx,
+		},
+		{
+			desc:      "invalid loop",
+			graphOnly: true,
+			verts:     []Item{vA},
+			input:     edge{vA, vA, 0},
+			expectV:   0,
+			expectE:   0,
+			expectErr: ErrInvLoop,
+		},
+	}
+
+	for _, tc := range cases {
+		for gType, gen := range graphGen {
+			if tc.digraphOnly && gType == undirectedGraphKey {
+				continue
+			}
+
+			if tc.graphOnly && gType == directedGraphKey {
+				continue
+			}
+
+			t.Run(tagGraphTest(gType, tc.desc), func(t *testing.T) {
+				g := gen()
+
+				addVerts(t, g, tc.verts...)
+				addEdges(t, g, tc.edges...)
+
+				v, e, err := g.AddEdge(tc.input.src, tc.input.dst, tc.input.wt)
+
+				if tc.expectErr == nil {
+					ut.Nil(t, err)
+				} else {
+					ut.True(t, errors.Is(err, tc.expectErr))
+				}
+
 				ut.Equal(t, tc.expectV, v)
 				ut.Equal(t, tc.expectE, e)
 			})
