@@ -11,47 +11,41 @@ that discovers connected components. The output of the algorithm is traversed, a
 hooks are provided so that custom formatting can be applied to the graph, its
 vertices and edges.
 */
-type CCViz[T ds.Item] struct {
-	ThemedGraphViz[T]
+type CCViz struct {
+	ThemedGraphViz
 
-	CCs []algo.CC[T]
+	CCs []algo.CC
 
 	// OnCCVertex is called for every vertex, along with the index of its CC.
-	OnCCVertex func(*ds.GV[T], int)
+	OnCCVertex func(int, int)
 
 	// OnCCEdge is called for any edge connecting vertices in the same CC.
-	OnCCEdge func(*ds.GE[T], int)
+	OnCCEdge func(int, int, int)
 }
 
 // NewCCViz initializes a new CCViz with NOOP hooks.
-func NewCCViz[T ds.Item](g *ds.G[T], ccs []algo.CC[T], t Theme) *CCViz[T] {
-	res := &CCViz[T]{}
+func NewCCViz(g *ds.G, ccs []algo.CC, t Theme) *CCViz {
+	res := &CCViz{}
 
 	res.CCs = ccs
 
 	res.Graph = g
 	res.Theme = t
 
-	res.OnCCVertex = func(*ds.GV[T], int) {}
-	res.OnCCEdge = func(*ds.GE[T], int) {}
+	res.OnCCVertex = func(int, int) {}
+	res.OnCCEdge = func(int, int, int) {}
 
 	return res
 }
 
 // Traverse iterates over the results of any CC algorithm, calling its hooks when appropriate.
-func (vi *CCViz[T]) Traverse() error {
-	for i, cc := range vi.CCs {
-		for _, v := range cc {
-			vtx, _, ok := vi.Graph.GetVertex(v)
+func (vi *CCViz) Traverse() error {
+	for i := range vi.CCs {
+		for _, v := range vi.CCs[i] {
+			vi.OnCCVertex(v, i)
 
-			if !ok {
-				return ds.ErrNoVtx
-			}
-
-			vi.OnCCVertex(vtx, i)
-
-			for _, e := range vi.Graph.E[v] {
-				vi.OnCCEdge(e, i)
+			for j := range vi.Graph.V[v].E {
+				vi.OnCCEdge(v, j, i)
 			}
 		}
 	}
