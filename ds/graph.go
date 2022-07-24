@@ -12,6 +12,8 @@ type GE struct {
 	Src int
 	Dst int
 	Wt  float64
+
+	Index int
 }
 
 // TODO: docs
@@ -22,7 +24,8 @@ type GEIdx struct {
 
 func (e *GE) String() string {
 	return fmt.Sprintf(
-		"%d -> %d <%.2f>",
+		"@%d %d -> %d <%.2f>",
+		e.Index,
 		e.Src,
 		e.Dst,
 		e.Wt,
@@ -90,14 +93,13 @@ func (g *G) String() string {
 	b := strings.Builder{}
 
 	if g.Undirected() {
-		b.WriteString("Undirected Graph\n")
+		b.WriteString("Graph")
 	} else {
-		b.WriteString("Directed Graph\n")
+		b.WriteString("Digraph")
 	}
 
-	b.WriteString(fmt.Sprintf("%d map entries\n", len(g.sat)))
-	b.WriteString(fmt.Sprintf("%d vertices\n", g.VertexCount()))
-	b.WriteString(fmt.Sprintf("%d edges\n", g.EdgeCount()))
+	b.WriteString(fmt.Sprintf(" |V| = %d", g.VertexCount()))
+	b.WriteString(fmt.Sprintf(" |E| = %d\n", g.EdgeCount()))
 
 	for i := range g.V {
 		b.WriteString(g.V[i].String())
@@ -161,12 +163,14 @@ func (g *G) RemoveVertex(i Item) error {
 			}
 
 			toDel := []int{}
+			dec := 0
 
 			for j := range g.V[i].E {
 				edge := &g.V[i].E[j]
 
 				if edge.Dst == iDel {
 					toDel = append(toDel, j)
+					dec++
 					continue
 				}
 
@@ -179,6 +183,9 @@ func (g *G) RemoveVertex(i Item) error {
 				if edge.Dst > iDel {
 					edge.Dst--
 				}
+
+				// TODO: explain fix
+				edge.Index -= dec
 			}
 
 			for _, eIdx := range toDel {
@@ -260,7 +267,15 @@ func (g *G) AddEdge(src Item, dst Item, wt float64) (int, error) {
 		}
 	}
 
-	g.V[iSrc].E = append(g.V[iSrc].E, GE{Src: iSrc, Dst: iDst, Wt: wt})
+	g.V[iSrc].E = append(
+		g.V[iSrc].E,
+		GE{
+			Index: len(g.V[iSrc].E),
+			Src:   iSrc,
+			Dst:   iDst,
+			Wt:    wt,
+		},
+	)
 
 	g.eCount++
 
@@ -276,6 +291,10 @@ func (g *G) RemoveEdge(src Item, dst Item) error {
 	}
 
 	Cut(&g.V[vIdx].E, idx)
+
+	for i := idx; i < len(g.V[vIdx].E); i++ {
+		g.V[vIdx].E[i].Index--
+	}
 
 	g.eCount--
 
