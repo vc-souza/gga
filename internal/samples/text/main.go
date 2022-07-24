@@ -18,7 +18,7 @@ func export(src string) {
 		panic(err)
 	}
 
-	viz.NewExporter(g).Export(os.Stdout)
+	viz.NewExporter().Export(g, os.Stdout)
 }
 
 func main() {
