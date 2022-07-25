@@ -48,8 +48,8 @@ func NewTSortViz(g *ds.G, ord []int, t Theme) *TSortViz {
 // Traverse iterates over the results of a Topological Sort execution, calling its hooks when appropriate.
 func (vi *TSortViz) Traverse() error {
 	var rank int
+	var next int
 	prev := -1
-	next := -1
 
 	for _, v := range vi.Order {
 		rank++
