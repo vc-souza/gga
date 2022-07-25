@@ -11,7 +11,7 @@ A BFNode represents a node in a Breadth-First tree, holding the attributes produ
 for a particular vertex. At the end of the BFS, nodes with a distance < infinity are a part
 of a BF tree, rooted at the source vertex.
 */
-type BFNode[T ds.Item] struct {
+type BFNode struct {
 	/*
 		Distance is the length of the shortest path (edge count), from the source to this vertex.
 		If the vertex is unreachable from the source, this value will be math.Inf(1).
@@ -25,7 +25,7 @@ type BFNode[T ds.Item] struct {
 
 		After a BFS, both the source and all unreachable vertices have a nil Parent.
 	*/
-	Parent *T
+	Parent int
 
 	visited bool
 }
@@ -42,7 +42,7 @@ either vertices or edges is changed, but the optimal distances are guaranteed to
 The gga graph implementation guarantees both vertex and edge traversal in insertion order,
 so repeated BFS calls always produce the same BF tree.
 */
-type BFTree[T ds.Item] map[*T]*BFNode[T]
+type BFTree []BFNode
 
 /*
 BFS implements the Breadth-First Search (BFS) algorithm.
@@ -59,14 +59,13 @@ Complexity:
 	- Time:  Θ(V + E)
 	- Space: Θ(V)
 */
-func BFS[T ds.Item](g *ds.G[T], src *T) (BFTree[T], error) {
-	queue := ds.NewQueue[*T]()
-	tree := BFTree[T]{}
+func BFS(g *ds.G, src int) (BFTree, error) {
+	tree := make(BFTree, g.VertexCount())
+	queue := ds.NewQueue[int]()
 
-	for v := range g.E {
-		tree[v] = &BFNode[T]{
-			Distance: math.Inf(1),
-		}
+	for v := range g.V {
+		tree[v].Distance = math.Inf(1)
+		tree[v].Parent = -1
 	}
 
 	tree[src].Distance = 0
@@ -77,7 +76,7 @@ func BFS[T ds.Item](g *ds.G[T], src *T) (BFTree[T], error) {
 	for !queue.Empty() {
 		curr, _ := queue.Dequeue()
 
-		for _, edge := range g.E[curr] {
+		for _, edge := range g.V[curr].E {
 			if tree[edge.Dst].visited {
 				continue
 			}

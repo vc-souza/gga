@@ -150,7 +150,7 @@ func TestTextParser(t *testing.T) {
 					input = tc.input
 				}
 
-				g, vars, err := Parse(input)
+				g, _, err := Parse(input)
 
 				if len(tc.err) != 0 {
 					ut.True(t, errors.As(err, new(ErrInvalidSer)))
@@ -165,7 +165,6 @@ func TestTextParser(t *testing.T) {
 				}
 
 				ut.Equal(t, tc.vertCount, g.VertexCount())
-				ut.Equal(t, tc.vertCount, len(vars))
 
 				// expected order by the test case
 				expectVerts := strings.Split(tc.vertOrder, ",")

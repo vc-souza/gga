@@ -3,10 +3,10 @@ package algo
 import "github.com/vc-souza/gga/ds"
 
 // EdgeTypes stores edges classified by a graph algorithm.
-type EdgeTypes[T ds.Item] struct {
-	Forward []*ds.GE[T]
-	Back    []*ds.GE[T]
-	Cross   []*ds.GE[T]
+type EdgeTypes struct {
+	Forward []ds.GE
+	Back    []ds.GE
+	Cross   []ds.GE
 }
 
 // min returns the minimum value between its integer inputs.

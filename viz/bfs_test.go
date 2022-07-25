@@ -40,11 +40,11 @@ func TestBFSViz(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
-			g, vars, err := ds.Parse(tc.input)
+			g, idx, err := ds.Parse(tc.input)
 
 			ut.Nil(t, err)
 
-			src := vars[tc.src]
+			src := idx(tc.src)
 
 			tree, err := algo.BFS(g, src)
 
@@ -57,15 +57,17 @@ func TestBFSViz(t *testing.T) {
 
 			vi := NewBFSViz(g, tree, src, nil)
 
-			vi.OnUnVertex = func(*ds.GV[ds.Text], *algo.BFNode[ds.Text]) { uvCount++ }
+			vi.OnUnVertex = func(int, algo.BFNode) { uvCount++ }
 
-			vi.OnTreeVertex = func(*ds.GV[ds.Text], *algo.BFNode[ds.Text]) { tvCount++ }
+			vi.OnTreeVertex = func(int, algo.BFNode) { tvCount++ }
 
-			vi.OnSourceVertex = func(*ds.GV[ds.Text], *algo.BFNode[ds.Text]) { svCount++ }
+			vi.OnSourceVertex = func(int, algo.BFNode) { svCount++ }
 
-			vi.OnTreeEdge = func(*ds.GE[ds.Text]) { teCount++ }
+			vi.OnTreeEdge = func(int, int) { teCount++ }
 
-			ExportViz[ds.Text](vi, ut.DummyWriter{})
+			err = ExportViz(vi, ut.DummyWriter{})
+
+			ut.Nil(t, err)
 
 			ut.Equal(t, tc.expectUV, uvCount)
 			ut.Equal(t, tc.expectTV, tvCount)

@@ -5,16 +5,16 @@ A GraphVisitor implements the Visitor pattern (https://en.wikipedia.org/wiki/Vis
 A Visitor declares methods that are executed at specific points during the traversal of a data structure.
 This way, multiple behaviors can be attached to the data structure without having to modify it directly.
 */
-type GraphVisitor[T Item] interface {
+type GraphVisitor interface {
 	// VisitGraphStart is called at the beginning of the graph visit.
-	VisitGraphStart(g *G[T])
+	VisitGraphStart(g G)
 
 	// VisitGraphEnd is called at the end of the graph visit.
-	VisitGraphEnd(g *G[T])
+	VisitGraphEnd(g G)
 
 	// VisitVertex is called when visiting a graph vertex.
-	VisitVertex(v *GV[T])
+	VisitVertex(g G, v GV)
 
 	// VisitEdge is called when visiting a graph edge.
-	VisitEdge(e *GE[T])
+	VisitEdge(g G, e GE)
 }

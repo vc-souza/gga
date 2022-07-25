@@ -9,18 +9,20 @@ func ExampleG_directed() {
 	u1 := Text("unrelated1")
 	u2 := Text("unrelated2")
 
-	g := NewDirectedGraph[Text]()
+	g := NewDigraph()
 
+	g.AddVertex(&si)
+	g.AddVertex(&sm)
+	g.AddVertex(&st)
 	g.AddVertex(&u1)
 	g.AddVertex(&u2)
 
-	g.AddUnweightedEdge(&si, &sm)
-	g.AddUnweightedEdge(&sm, &sm)
-	g.AddUnweightedEdge(&sm, &st)
+	g.AddEdge(&si, &sm, 0)
+	g.AddEdge(&sm, &sm, 0)
+	g.AddEdge(&sm, &st, 0)
 
 	fmt.Println(g.VertexCount())
 
-	// directed graphs report the number of actual edges
 	fmt.Println(g.EdgeCount())
 
 	// Output:

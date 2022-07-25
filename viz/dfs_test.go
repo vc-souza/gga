@@ -60,15 +60,17 @@ func TestDFSViz(t *testing.T) {
 
 			vi := NewDFSViz(g, fst, tps, nil)
 
-			vi.OnTreeVertex = func(*ds.GV[ds.Text], *algo.DFNode[ds.Text]) { tvCount++ }
-			vi.OnRootVertex = func(*ds.GV[ds.Text], *algo.DFNode[ds.Text]) { rvCount++ }
+			vi.OnTreeVertex = func(int, algo.DFNode) { tvCount++ }
+			vi.OnRootVertex = func(int, algo.DFNode) { rvCount++ }
 
-			vi.OnTreeEdge = func(*ds.GE[ds.Text]) { teCount++ }
-			vi.OnForwardEdge = func(*ds.GE[ds.Text]) { feCount++ }
-			vi.OnBackEdge = func(*ds.GE[ds.Text]) { beCount++ }
-			vi.OnCrossEdge = func(*ds.GE[ds.Text]) { ceCount++ }
+			vi.OnTreeEdge = func(int, int) { teCount++ }
+			vi.OnForwardEdge = func(int, int) { feCount++ }
+			vi.OnBackEdge = func(int, int) { beCount++ }
+			vi.OnCrossEdge = func(int, int) { ceCount++ }
 
-			ExportViz[ds.Text](vi, ut.DummyWriter{})
+			err = ExportViz(vi, ut.DummyWriter{})
+
+			ut.Nil(t, err)
 
 			ut.Equal(t, tc.expectTV, tvCount)
 			ut.Equal(t, tc.expectRV, rvCount)

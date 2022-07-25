@@ -9,10 +9,10 @@ SCCAlgo describes the signature of an algorithm that can discover all
 strongly connected components in a directed graph. If such an algorithm is
 called on an undirected graph, the ds.ErrUndefOp error is returned.
 */
-type SCCAlgo[T ds.Item] func(*ds.G[T]) ([]SCC[T], error)
+type SCCAlgo func(*ds.G) ([]SCC, error)
 
 // An SCC holds the vertices in a strongly connected component of a directed graph.
-type SCC[T ds.Item] []*T
+type SCC []int
 
 /*
 SCCKosaraju implements Kosaraju's algorithm for finding the strongly connected
@@ -43,20 +43,16 @@ Complexity:
 	- Time:  Θ(V + E)
 	- Space: Θ(V)
 */
-func SCCKosaraju[T ds.Item](g *ds.G[T]) ([]SCC[T], error) {
+func SCCKosaraju(g *ds.G) ([]SCC, error) {
 	if g.Undirected() {
 		return nil, ds.ErrUndirected
 	}
 
-	var visit func(*T)
-	var scc *SCC[T]
+	var visit func(int)
+	var scc *SCC
 
-	sccs := []SCC[T]{}
-	visited := map[*T]bool{}
-
-	for v := range g.E {
-		visited[v] = false
-	}
+	visited := make([]bool, g.VertexCount())
+	sccs := []SCC{}
 
 	// Θ(V + E)
 	ord, err := TSort(g)
@@ -66,22 +62,22 @@ func SCCKosaraju[T ds.Item](g *ds.G[T]) ([]SCC[T], error) {
 	}
 
 	// Θ(V + E)
-	tg, err := g.Transpose()
+	tg, err := ds.Transpose(g)
 
 	if err != nil {
 		return nil, err
 	}
 
-	visit = func(vtx *T) {
-		visited[vtx] = true
+	visit = func(v int) {
+		visited[v] = true
 
-		for _, e := range tg.E[vtx] {
+		for _, e := range tg.V[v].E {
 			if !visited[e.Dst] {
 				visit(e.Dst)
 			}
 		}
 
-		*scc = append(*scc, vtx)
+		*scc = append(*scc, v)
 	}
 
 	for _, v := range ord {
@@ -89,7 +85,7 @@ func SCCKosaraju[T ds.Item](g *ds.G[T]) ([]SCC[T], error) {
 			continue
 		}
 
-		scc = &SCC[T]{}
+		scc = &SCC{}
 
 		visit(v)
 
@@ -150,56 +146,52 @@ Complexity:
 	- Time:  Θ(V + E)
 	- Space: Θ(V)
 */
-func SCCTarjan[T ds.Item](g *ds.G[T]) ([]SCC[T], error) {
+func SCCTarjan(g *ds.G) ([]SCC, error) {
 	if g.Undirected() {
 		return nil, ds.ErrUndirected
 	}
 
-	var visit func(*T)
+	var visit func(int)
 
-	stack := ds.NewStack[*T]()
-	att := map[*T]*tjSCCAttrs{}
-	sccs := []SCC[T]{}
-
-	for v := range g.E {
-		att[v] = &tjSCCAttrs{}
-	}
+	att := make([]tjSCCAttrs, g.VertexCount())
+	stack := ds.NewStack[int]()
+	sccs := []SCC{}
 
 	// using 1 as the starting point so that the zero-value
 	// of tjAttrs.index (0) can indicate an unvisited vertex
 	i := 1
 
-	visit = func(vtx *T) {
-		att[vtx].index = i
-		att[vtx].lowIndex = i
+	visit = func(v int) {
+		att[v].index = i
+		att[v].lowIndex = i
 
-		stack.Push(vtx)
-		att[vtx].onStack = true
+		stack.Push(v)
+		att[v].onStack = true
 
 		i++
 
-		for _, e := range g.E[vtx] {
+		for _, e := range g.V[v].E {
 			if att[e.Dst].index == 0 {
 				visit(e.Dst)
 
-				att[vtx].lowIndex = min(
-					att[vtx].lowIndex,
+				att[v].lowIndex = min(
+					att[v].lowIndex,
 					att[e.Dst].lowIndex,
 				)
 			} else if att[e.Dst].onStack {
 				// can't use the low index of e.Dst since it is on the stack,
 				// and as such, not in vtx's subtree: using the index
 				// is the best we can do since we know vtx can reach e.Dst
-				att[vtx].lowIndex = min(
-					att[vtx].lowIndex,
+				att[v].lowIndex = min(
+					att[v].lowIndex,
 					att[e.Dst].index,
 				)
 			}
 		}
 
 		// root of an SCC, otherwise do not pop anything
-		if att[vtx].lowIndex == att[vtx].index {
-			scc := SCC[T]{}
+		if att[v].lowIndex == att[v].index {
+			scc := SCC{}
 
 			// every vertex that is currently on the stack
 			// is a part of the SCC where vtx is the root,
@@ -210,7 +202,7 @@ func SCCTarjan[T ds.Item](g *ds.G[T]) ([]SCC[T], error) {
 
 				scc = append(scc, w)
 
-				if w == vtx {
+				if w == v {
 					break
 				}
 			}
@@ -219,9 +211,9 @@ func SCCTarjan[T ds.Item](g *ds.G[T]) ([]SCC[T], error) {
 		}
 	}
 
-	for _, vert := range g.V {
-		if att[vert.Ptr].index == 0 {
-			visit(vert.Ptr)
+	for v := range g.V {
+		if att[v].index == 0 {
+			visit(v)
 		}
 	}
 

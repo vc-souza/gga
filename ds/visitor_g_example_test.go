@@ -12,20 +12,25 @@ func (p person) Label() string {
 
 type ConsoleVisitor struct{}
 
-func (cv *ConsoleVisitor) VisitGraphStart(g *G[person]) {
+func (cv *ConsoleVisitor) VisitGraphStart(G) {
 	fmt.Println("graph start")
 }
 
-func (cv *ConsoleVisitor) VisitGraphEnd(*G[person]) {
+func (cv *ConsoleVisitor) VisitGraphEnd(G) {
 	fmt.Println("graph end")
 }
 
-func (cv *ConsoleVisitor) VisitVertex(v *GV[person]) {
+func (cv *ConsoleVisitor) VisitVertex(g G, v GV) {
 	fmt.Println("vertex", v.Label())
 }
 
-func (cv *ConsoleVisitor) VisitEdge(e *GE[person]) {
-	fmt.Println("edge,", e.Src.Label(), "to", e.Dst.Label())
+func (cv *ConsoleVisitor) VisitEdge(g G, e GE) {
+	fmt.Println(
+		"edge,",
+		g.V[e.Src].Label(),
+		"to",
+		g.V[e.Dst].Label(),
+	)
 }
 
 func ExampleGraphVisitor() {
@@ -33,13 +38,15 @@ func ExampleGraphVisitor() {
 	jane := &person{"Jane"}
 	jonas := &person{"Jonas"}
 
-	g := NewDirectedGraph[person]()
+	g := NewDigraph()
 
-	g.AddUnweightedEdge(john, jane)
-	g.AddUnweightedEdge(jane, john)
-	g.AddUnweightedEdge(jane, jane)
-
+	g.AddVertex(john)
+	g.AddVertex(jane)
 	g.AddVertex(jonas)
+
+	g.AddEdge(john, jane, 0)
+	g.AddEdge(jane, john, 0)
+	g.AddEdge(jane, jane, 0)
 
 	g.Accept(&ConsoleVisitor{})
 

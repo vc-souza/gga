@@ -24,11 +24,11 @@ func TestTSortViz(t *testing.T) {
 	eCount := 0
 	vCount := 0
 
-	vi.OnVertexRank = func(*ds.GV[ds.Text], int) {
+	vi.OnVertexRank = func(int, int) {
 		vCount++
 	}
 
-	vi.OnOrderEdge = func(_ *ds.GE[ds.Text], b bool) {
+	vi.OnOrderEdge = func(_ int, _ int, _ int, b bool) {
 		if b {
 			eExitsCount++
 		} else {
@@ -38,7 +38,9 @@ func TestTSortViz(t *testing.T) {
 		eCount++
 	}
 
-	ExportViz[ds.Text](vi, ut.DummyWriter{})
+	err = ExportViz(vi, ut.DummyWriter{})
+
+	ut.Nil(t, err)
 
 	ut.Equal(t, g.VertexCount(), vCount)
 	ut.Equal(t, g.VertexCount()-1, eCount)

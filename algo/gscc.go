@@ -30,7 +30,7 @@ Complexity:
 	- Time:  Θ(V + E)
 	- Space: Θ(V)
 */
-func GSCC[T ds.Item](g *ds.G[T]) (*ds.G[ds.Group[T]], []SCC[T], error) {
+func GSCC(g *ds.G) (*ds.G, []SCC, error) {
 	if g.Undirected() {
 		return nil, nil, ds.ErrUndirected
 	}
@@ -46,7 +46,7 @@ func GSCC[T ds.Item](g *ds.G[T]) (*ds.G[ds.Group[T]], []SCC[T], error) {
 	// query time later, when the SCC that a vertex
 	// belongs to will need to be queried Θ(E) times,
 	// when building the adjacency list of the GSCC.
-	vtxSCC := map[*T]int{}
+	vtxSCC := make([]int, g.VertexCount())
 
 	for id, scc := range sccs {
 		for _, v := range scc {
@@ -54,7 +54,7 @@ func GSCC[T ds.Item](g *ds.G[T]) (*ds.G[ds.Group[T]], []SCC[T], error) {
 		}
 	}
 
-	gscc := ds.NewDirectedGraph[ds.Group[T]]()
+	gscc := ds.NewDigraph()
 
 	// By aligning the SCC id with the id of their
 	// vertex in the GSCC we can get the Group
@@ -62,12 +62,16 @@ func GSCC[T ds.Item](g *ds.G[T]) (*ds.G[ds.Group[T]], []SCC[T], error) {
 	// to use any extra space to map SCC ids to their
 	// respective Group.
 	for id := range sccs {
-		gscc.UnsafeAddVertex(
-			&ds.Group[T]{
-				Items: sccs[id],
-				Id:    id,
-			},
-		)
+		items := make([]ds.Item, len(sccs[id]))
+
+		for i, v := range sccs[id] {
+			items[i] = g.V[v].Item
+		}
+
+		gscc.AddVertex(&ds.Group{
+			Items: items,
+			Id:    id,
+		})
 	}
 
 	// Using O(V) space to keep trap of the adjacency
@@ -81,7 +85,7 @@ func GSCC[T ds.Item](g *ds.G[T]) (*ds.G[ds.Group[T]], []SCC[T], error) {
 	// skipped, since it is the last one in that order.
 	for srcId := len(sccs) - 1; srcId > 0; srcId-- {
 		for _, v := range sccs[srcId] {
-			for _, e := range g.E[v] {
+			for _, e := range g.V[v].E {
 				dstId := vtxSCC[e.Dst]
 
 				// vertices in the same SCC, skip.
@@ -108,9 +112,9 @@ func GSCC[T ds.Item](g *ds.G[T]) (*ds.G[ds.Group[T]], []SCC[T], error) {
 				// Since the SCC list and the GSCC vertex list are aligned,
 				// we can find the Group assigned to SCC x by looking
 				// at the vertex of GSCC at index x.
-				gscc.UnsafeAddWeightedEdge(
-					gscc.V[srcId].Ptr,
-					gscc.V[dstId].Ptr,
+				gscc.AddEdge(
+					gscc.V[srcId].Item,
+					gscc.V[dstId].Item,
 					0,
 				)
 

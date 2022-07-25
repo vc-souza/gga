@@ -17,12 +17,12 @@ const (
 	fileOut = "CC-after.dot"
 )
 
-var algos = map[string]algo.CCAlgo[ds.Text]{
-	"union-find": algo.CCUnionFind[ds.Text],
-	"dfs":        algo.CCDFS[ds.Text],
+var algos = map[string]algo.CCAlgo{
+	"union-find": algo.CCUnionFind,
+	"dfs":        algo.CCDFS,
 }
 
-func input() *ds.G[ds.Text] {
+func input() *ds.G {
 	g, _, err := ds.Parse(ut.UUGDisc)
 
 	if err != nil {
@@ -32,7 +32,7 @@ func input() *ds.G[ds.Text] {
 	return g
 }
 
-func exportStart(g *ds.G[ds.Text]) {
+func exportStart(g *ds.G) {
 	fIn, err := os.Create(fileIn)
 
 	if err != nil {
@@ -44,7 +44,7 @@ func exportStart(g *ds.G[ds.Text]) {
 	viz.Snapshot(g, fIn, viz.Themes.LightBreeze)
 }
 
-func exportEnd(v viz.AlgoViz[ds.Text]) {
+func exportEnd(v viz.AlgoViz) {
 	fOut, err := os.Create(fileOut)
 
 	if err != nil {
@@ -85,12 +85,13 @@ func main() {
 
 	vi := viz.NewCCViz(g, ccs, viz.Themes.LightBreeze)
 
-	vi.OnCCVertex = func(v *ds.GV[ds.Text], c int) {
-		v.SetFmtAttr("label", fmt.Sprintf(`{ %s | cc #%d }`, v.Label(), c))
+	vi.OnCCVertex = func(v int, c int) {
+		label := fmt.Sprintf(`{ %s | cc #%d }`, vi.Graph.V[v].Label(), c)
+		vi.Graph.V[v].SetFmtAttr("label", label)
 	}
 
-	vi.OnCCEdge = func(e *ds.GE[ds.Text], c int) {
-		e.SetFmtAttr("penwidth", "2.0")
+	vi.OnCCEdge = func(v int, e int, _ int) {
+		vi.Graph.V[v].E[e].SetFmtAttr("penwidth", "2.0")
 	}
 
 	exportEnd(vi)

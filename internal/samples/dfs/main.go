@@ -17,7 +17,7 @@ const (
 	fileOut = "DFS-after.dot"
 )
 
-func input() *ds.G[ds.Text] {
+func input() *ds.G {
 	g, _, err := ds.Parse(ut.UDGSimple + "\n7#")
 
 	if err != nil {
@@ -27,7 +27,7 @@ func input() *ds.G[ds.Text] {
 	return g
 }
 
-func exportStart(g *ds.G[ds.Text]) {
+func exportStart(g *ds.G) {
 	fIn, err := os.Create(fileIn)
 
 	if err != nil {
@@ -39,7 +39,7 @@ func exportStart(g *ds.G[ds.Text]) {
 	viz.Snapshot(g, fIn, viz.Themes.LightBreeze)
 }
 
-func exportEnd(v viz.AlgoViz[ds.Text]) {
+func exportEnd(v viz.AlgoViz) {
 	fOut, err := os.Create(fileOut)
 
 	if err != nil {
@@ -66,29 +66,30 @@ func main() {
 
 	vi := viz.NewDFSViz(g, fst, edges, viz.Themes.LightBreeze)
 
-	vi.OnTreeVertex = func(v *ds.GV[ds.Text], n *algo.DFNode[ds.Text]) {
-		v.SetFmtAttr("label", fmt.Sprintf(`%s | { d = %d | f = %d }`, v.Label(), n.Discovery, n.Finish))
+	vi.OnTreeVertex = func(v int, n algo.DFNode) {
+		label := fmt.Sprintf(`%s | { d = %d | f = %d }`, vi.Graph.V[v].Label(), n.Discovery, n.Finish)
+		vi.Graph.V[v].SetFmtAttr("label", label)
 	}
 
-	vi.OnRootVertex = func(v *ds.GV[ds.Text], n *algo.DFNode[ds.Text]) {
-		v.SetFmtAttr("penwidth", "1.7")
-		v.SetFmtAttr("color", "#000000")
+	vi.OnRootVertex = func(v int, n algo.DFNode) {
+		vi.Graph.V[v].SetFmtAttr("penwidth", "1.7")
+		vi.Graph.V[v].SetFmtAttr("color", "#000000")
 	}
 
-	vi.OnTreeEdge = func(e *ds.GE[ds.Text]) {
-		e.SetFmtAttr("penwidth", "3.0")
+	vi.OnTreeEdge = func(v int, e int) {
+		vi.Graph.V[v].E[e].SetFmtAttr("penwidth", "3.0")
 	}
 
-	vi.OnForwardEdge = func(e *ds.GE[ds.Text]) {
-		e.SetFmtAttr("label", "F")
+	vi.OnForwardEdge = func(v int, e int) {
+		vi.Graph.V[v].E[e].SetFmtAttr("label", "F")
 	}
 
-	vi.OnBackEdge = func(e *ds.GE[ds.Text]) {
-		e.SetFmtAttr("label", "B")
+	vi.OnBackEdge = func(v int, e int) {
+		vi.Graph.V[v].E[e].SetFmtAttr("label", "B")
 	}
 
-	vi.OnCrossEdge = func(e *ds.GE[ds.Text]) {
-		e.SetFmtAttr("label", "C")
+	vi.OnCrossEdge = func(v int, e int) {
+		vi.Graph.V[v].E[e].SetFmtAttr("label", "C")
 	}
 
 	exportEnd(vi)

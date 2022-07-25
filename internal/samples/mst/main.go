@@ -17,12 +17,12 @@ const (
 	fileOut = "MST-after.dot"
 )
 
-var algos = map[string]algo.MSTAlgo[ds.Text]{
-	"kruskal": algo.MSTKruskal[ds.Text],
-	"prim":    algo.MSTPrim[ds.Text],
+var algos = map[string]algo.MSTAlgo{
+	"kruskal": algo.MSTKruskal,
+	"prim":    algo.MSTPrim,
 }
 
-func input() *ds.G[ds.Text] {
+func input() *ds.G {
 	g, _, err := ds.Parse(ut.WUGSimple)
 
 	if err != nil {
@@ -32,7 +32,7 @@ func input() *ds.G[ds.Text] {
 	return g
 }
 
-func exportStart(g *ds.G[ds.Text]) {
+func exportStart(g *ds.G) {
 	fIn, err := os.Create(fileIn)
 
 	if err != nil {
@@ -44,7 +44,7 @@ func exportStart(g *ds.G[ds.Text]) {
 	viz.Snapshot(g, fIn, customTheme{})
 }
 
-func exportEnd(v viz.AlgoViz[ds.Text]) {
+func exportEnd(v viz.AlgoViz) {
 	fOut, err := os.Create(fileOut)
 
 	if err != nil {
@@ -100,8 +100,8 @@ func main() {
 
 	vi := viz.NewMSTViz(g, mst, customTheme{})
 
-	vi.OnMSTEdge = func(e *ds.GE[ds.Text]) {
-		e.SetFmtAttr("penwidth", "3.0")
+	vi.OnMSTEdge = func(v int, e int) {
+		vi.Graph.V[v].E[e].SetFmtAttr("penwidth", "3.0")
 	}
 
 	exportEnd(vi)

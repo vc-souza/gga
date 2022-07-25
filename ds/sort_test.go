@@ -10,13 +10,13 @@ import (
 var size int = 100
 
 func TestByEdgeWeight(t *testing.T) {
-	edges := make([]*GE[Text], size)
+	edges := make([]GE, size)
 
 	for i := 0; i < size; i++ {
-		edges[i] = &GE[Text]{Wt: float64(100 - i - 1)}
+		edges[i] = GE{Wt: float64(100 - i - 1)}
 	}
 
-	sort.Sort(ByEdgeWeight[Text](edges))
+	sort.Sort(ByEdgeWeight(edges))
 
 	for i := 0; i < size; i++ {
 		ut.Equal(t, float64(i), edges[i].Wt)

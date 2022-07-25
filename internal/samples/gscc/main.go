@@ -19,7 +19,7 @@ const (
 	fileOut    = "GSCC-after.dot"
 )
 
-func input() *ds.G[ds.Text] {
+func input() *ds.G {
 	g, _, err := ds.Parse(ut.UDGDeps)
 
 	if err != nil {
@@ -29,7 +29,7 @@ func input() *ds.G[ds.Text] {
 	return g
 }
 
-func exportStart(g *ds.G[ds.Text]) {
+func exportStart(g *ds.G) {
 	fIn, err := os.Create(fileIn)
 
 	if err != nil {
@@ -41,7 +41,7 @@ func exportStart(g *ds.G[ds.Text]) {
 	viz.Snapshot(g, fIn, viz.Themes.LightBreeze)
 }
 
-func exportEnd[T ds.Item](v viz.AlgoViz[T], path string) {
+func exportEnd(v viz.AlgoViz, path string) {
 	fOut, err := os.Create(path)
 
 	if err != nil {
@@ -77,31 +77,36 @@ func main() {
 
 	viSCC := viz.NewSCCViz(g, sccs, viz.Themes.LightBreeze)
 
-	viSCC.OnSCCVertex = func(v *ds.GV[ds.Text], c int) {
-		v.SetFmtAttr("label", fmt.Sprintf(`{ %s | cc #%d }`, v.Label(), c))
+	viSCC.OnSCCVertex = func(v int, c int) {
+		label := fmt.Sprintf(`{ %s | cc #%d }`, viSCC.Graph.V[v].Label(), c)
+		viSCC.Graph.V[v].SetFmtAttr("label", label)
 	}
 
-	viSCC.OnSCCEdge = func(e *ds.GE[ds.Text], c int) {
-		e.SetFmtAttr("penwidth", "2.0")
+	viSCC.OnSCCEdge = func(v int, e int, c int) {
+		viSCC.Graph.V[v].E[e].SetFmtAttr("penwidth", "2.0")
 	}
 
-	viSCC.OnCrossSCCEdge = func(e *ds.GE[ds.Text], cSrc, cDst int) {
-		e.SetFmtAttr("penwidth", "0.5")
-		e.SetFmtAttr("style", "dotted")
+	viSCC.OnCrossSCCEdge = func(v int, e int, cSrc, cDst int) {
+		viSCC.Graph.V[v].E[e].SetFmtAttr("penwidth", "0.5")
+		viSCC.Graph.V[v].E[e].SetFmtAttr("style", "dotted")
 	}
 
 	vi := viz.NewGSCCViz(gscc, customTheme{})
 
-	vi.OnGSCCVertex = func(v *ds.GV[ds.Group[ds.Text]]) {
-		s := make([]string, 0, len(v.Ptr.Items))
+	vi.OnGSCCVertex = func(v int) {
+		items := vi.Graph.V[v].Item.(*ds.Group).Items
 
-		for _, item := range v.Ptr.Items {
+		s := make([]string, 0, len(items))
+
+		for _, item := range items {
 			s = append(s, item.Label())
 		}
 
-		v.SetFmtAttr("label", fmt.Sprintf("{ %s }", strings.Join(s, " | ")))
+		label := fmt.Sprintf("{ %s }", strings.Join(s, " | "))
+
+		vi.Graph.V[v].SetFmtAttr("label", label)
 	}
 
-	exportEnd[ds.Text](viSCC, fileOutSCC)
-	exportEnd[ds.Group[ds.Text]](vi, fileOut)
+	exportEnd(viSCC, fileOutSCC)
+	exportEnd(vi, fileOut)
 }

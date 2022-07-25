@@ -11,64 +11,57 @@ that discovers strongly connected components. The output of the algorithm is
 traversed, and hooks are provided so that custom formatting can be applied to
 the graph, its vertices and edges.
 */
-type SCCViz[T ds.Item] struct {
-	ThemedGraphViz[T]
+type SCCViz struct {
+	ThemedGraphViz
 
-	SCCs []algo.SCC[T]
+	SCCs []algo.SCC
 
 	// OnSCCVertex is called for every vertex, along with the index of its SCC.
-	OnSCCVertex func(*ds.GV[T], int)
+	OnSCCVertex func(int, int)
 
 	// OnSCCEdge is called for any edge connecting vertices in the same SCC.
-	OnSCCEdge func(*ds.GE[T], int)
+	OnSCCEdge func(int, int, int)
 
 	// OnCrossSCCEdge is called for any edge connecting vertices in different SCCs.
-	OnCrossSCCEdge func(*ds.GE[T], int, int)
+	OnCrossSCCEdge func(int, int, int, int)
 }
 
 // NewSCCViz initializes a new SCCViz with NOOP hooks.
-func NewSCCViz[T ds.Item](g *ds.G[T], sccs []algo.SCC[T], t Theme) *SCCViz[T] {
-	res := &SCCViz[T]{}
+func NewSCCViz(g *ds.G, sccs []algo.SCC, t Theme) *SCCViz {
+	res := &SCCViz{}
 
 	res.SCCs = sccs
 
 	res.Graph = g
 	res.Theme = t
 
-	res.OnSCCVertex = func(*ds.GV[T], int) {}
-	res.OnSCCEdge = func(*ds.GE[T], int) {}
-	res.OnCrossSCCEdge = func(*ds.GE[T], int, int) {}
+	res.OnSCCVertex = func(int, int) {}
+	res.OnSCCEdge = func(int, int, int) {}
+	res.OnCrossSCCEdge = func(int, int, int, int) {}
 
 	return res
 }
 
 // Traverse iterates over the results of any SCC algorithm, calling its hooks when appropriate.
-func (vi *SCCViz[T]) Traverse() error {
-	sets := map[*T]int{}
+func (vi *SCCViz) Traverse() error {
+	sets := make([]int, vi.Graph.VertexCount())
 
-	for i, scc := range vi.SCCs {
-		for _, v := range scc {
+	for i := range vi.SCCs {
+		for _, v := range vi.SCCs[i] {
+			vi.OnSCCVertex(v, i)
 			sets[v] = i
-
-			vtx, _, ok := vi.Graph.GetVertex(v)
-
-			if !ok {
-				return ds.ErrNoVtx
-			}
-
-			vi.OnSCCVertex(vtx, i)
 		}
 	}
 
-	for _, es := range vi.Graph.E {
-		for _, e := range es {
-			cSrc := sets[e.Src]
-			cDst := sets[e.Dst]
+	for v := range vi.Graph.V {
+		for e := range vi.Graph.V[v].E {
+			cSrc := sets[vi.Graph.V[v].E[e].Src]
+			cDst := sets[vi.Graph.V[v].E[e].Dst]
 
 			if cSrc == cDst {
-				vi.OnSCCEdge(e, cSrc)
+				vi.OnSCCEdge(v, e, cSrc)
 			} else {
-				vi.OnCrossSCCEdge(e, cSrc, cDst)
+				vi.OnCrossSCCEdge(v, e, cSrc, cDst)
 			}
 		}
 	}

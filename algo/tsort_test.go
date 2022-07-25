@@ -9,28 +9,28 @@ import (
 )
 
 func TestTSort_directed(t *testing.T) {
-	expect := []string{
-		"shirt",
-		"tie",
-		"watch",
-		"socks",
-		"undershorts",
-		"pants",
-		"belt",
-		"jacket",
-		"shoes",
-	}
-
-	g, vars, err := ds.Parse(ut.UDGDress)
+	g, idx, err := ds.Parse(ut.UDGDress)
 
 	ut.Nil(t, err)
+
+	expect := []int{
+		idx("shirt"),
+		idx("tie"),
+		idx("watch"),
+		idx("socks"),
+		idx("undershorts"),
+		idx("pants"),
+		idx("belt"),
+		idx("jacket"),
+		idx("shoes"),
+	}
 
 	ord, err := TSort(g)
 
 	ut.Nil(t, err)
 
 	for i, v := range ord {
-		ut.Equal(t, vars[expect[i]], v)
+		ut.Equal(t, expect[i], v)
 	}
 }
 

@@ -6,22 +6,18 @@ import (
 	ut "github.com/vc-souza/gga/internal/testutils"
 )
 
-func TestRemoveFromPointersSlice(t *testing.T) {
-	var v1 = 1
-	var v2 = 2
-	var v3 = 3
-
+func TestCut(t *testing.T) {
 	cases := []struct {
 		desc   string
-		slice  []*int
+		slice  []int
 		calls  []int
-		expect []*int
+		expect []int
 	}{
 		{
 			desc:   "empty slice",
-			slice:  []*int{},
+			slice:  []int{},
 			calls:  []int{0},
-			expect: []*int{},
+			expect: []int{},
 		},
 		{
 			desc:   "nil slice",
@@ -31,39 +27,39 @@ func TestRemoveFromPointersSlice(t *testing.T) {
 		},
 		{
 			desc:   "index too low",
-			slice:  []*int{&v1},
+			slice:  []int{1},
 			calls:  []int{-1},
-			expect: []*int{&v1},
+			expect: []int{1},
 		},
 		{
 			desc:   "index too high",
-			slice:  []*int{&v1},
+			slice:  []int{1},
 			calls:  []int{1},
-			expect: []*int{&v1},
+			expect: []int{1},
 		},
 		{
 			desc:   "first index",
-			slice:  []*int{&v1, &v2, &v3},
+			slice:  []int{1, 2, 3},
 			calls:  []int{0},
-			expect: []*int{&v2, &v3},
+			expect: []int{2, 3},
 		},
 		{
 			desc:   "middle index",
-			slice:  []*int{&v1, &v2, &v3},
+			slice:  []int{1, 2, 3},
 			calls:  []int{1},
-			expect: []*int{&v1, &v3},
+			expect: []int{1, 3},
 		},
 		{
 			desc:   "last index",
-			slice:  []*int{&v1, &v2, &v3},
+			slice:  []int{1, 2, 3},
 			calls:  []int{2},
-			expect: []*int{&v1, &v2},
+			expect: []int{1, 2},
 		},
 		{
 			desc:   "remove all",
-			slice:  []*int{&v1, &v2, &v3},
-			calls:  []int{2, 1, 0},
-			expect: []*int{},
+			slice:  []int{1, 2, 3},
+			calls:  []int{1, 1, 0},
+			expect: []int{},
 		},
 	}
 
@@ -72,7 +68,7 @@ func TestRemoveFromPointersSlice(t *testing.T) {
 			s := tc.slice
 
 			for _, idx := range tc.calls {
-				s = RemoveFromPointersSlice(s, idx)
+				Cut(&s, idx)
 			}
 
 			ut.Equal(t, len(tc.expect), len(s))

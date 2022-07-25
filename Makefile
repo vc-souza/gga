@@ -17,6 +17,7 @@ cov:
 clean:
 	$(call rmftype,dot)
 	$(call rmftype,out)
+	$(call rmftype,test)
 	@rm -f *.svg
 
 parse-dot:

@@ -7,10 +7,10 @@ CCAlgo describes the signature of an algorithm that can discover all
 connected components in an undirected graph. If such an algorithm
 is called on a directed graph, the ds.ErrUndefOp error is returned.
 */
-type CCAlgo[T ds.Item] func(*ds.G[T]) ([]CC[T], error)
+type CCAlgo func(*ds.G) ([]CC, error)
 
 // A CC holds the vertices in a connected component of an undirected graph.
-type CC[T ds.Item] []*T
+type CC []int
 
 /*
 CCDFS implements an algorithm for finding the connected components of an undirected graph
@@ -34,41 +34,37 @@ Complexity:
 	- Time:  Θ(V + E)
 	- Space: Θ(V)
 */
-func CCDFS[T ds.Item](g *ds.G[T]) ([]CC[T], error) {
+func CCDFS(g *ds.G) ([]CC, error) {
 	if g.Directed() {
 		return nil, ds.ErrDirected
 	}
 
-	var visit func(*T)
-	var cc *CC[T]
+	var visit func(int)
+	var cc *CC
 
-	visited := map[*T]bool{}
-	ccs := []CC[T]{}
+	visited := make([]bool, g.VertexCount())
+	ccs := []CC{}
 
-	for v := range g.E {
-		visited[v] = false
-	}
+	visit = func(v int) {
+		visited[v] = true
 
-	visit = func(vtx *T) {
-		visited[vtx] = true
-
-		for _, e := range g.E[vtx] {
+		for _, e := range g.V[v].E {
 			if !visited[e.Dst] {
 				visit(e.Dst)
 			}
 		}
 
-		*cc = append(*cc, vtx)
+		*cc = append(*cc, v)
 	}
 
-	for _, vert := range g.V {
-		if visited[vert.Ptr] {
+	for v := range g.V {
+		if visited[v] {
 			continue
 		}
 
-		cc = &CC[T]{}
+		cc = &CC{}
 
-		visit(vert.Ptr)
+		visit(v)
 
 		// DF tree == connected component
 		ccs = append(ccs, *cc)
@@ -99,32 +95,32 @@ Complexity:
 	- Time:  O((V + E) α(V)), amortized
 	- Space: Θ(V)
 */
-func CCUnionFind[T ds.Item](g *ds.G[T]) ([]CC[T], error) {
+func CCUnionFind(g *ds.G) ([]CC, error) {
 	if g.Directed() {
 		return nil, ds.ErrDirected
 	}
 
-	sets := map[*T]CC[T]{}
-	d := ds.NewDSet[T]()
+	sets := map[int]CC{}
+	d := ds.NewDSet[int]()
 
-	for v := range g.E {
+	for v := range g.V {
 		d.MakeSet(v)
 	}
 
-	for _, vert := range g.V {
-		for _, e := range g.E[vert.Ptr] {
+	for v := range g.V {
+		for _, e := range g.V[v].E {
 			if d.FindSet(e.Src) != d.FindSet(e.Dst) {
 				d.Union(e.Src, e.Dst)
 			}
 		}
 	}
 
-	for _, vert := range g.V {
-		set := d.FindSet(vert.Ptr)
-		sets[set] = append(sets[set], vert.Ptr)
+	for v := range g.V {
+		set := d.FindSet(v)
+		sets[set] = append(sets[set], v)
 	}
 
-	ccs := make([]CC[T], 0, len(sets))
+	ccs := make([]CC, 0, len(sets))
 
 	// Instead of iterating over the map directly,
 	// we are using the existing vertex order, so
@@ -132,8 +128,8 @@ func CCUnionFind[T ds.Item](g *ds.G[T]) ([]CC[T], error) {
 	// If such consistency is not necessary, we
 	// could just iterate over the map instead.
 	// Asymptotically, it's all O(V) anyway.
-	for _, vert := range g.V {
-		cc, ok := sets[vert.Ptr]
+	for v := range g.V {
+		cc, ok := sets[v]
 
 		if !ok {
 			continue

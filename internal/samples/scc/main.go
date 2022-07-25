@@ -17,12 +17,12 @@ const (
 	fileOut = "SCC-after.dot"
 )
 
-var algos = map[string]algo.SCCAlgo[ds.Text]{
-	"kosaraju": algo.SCCKosaraju[ds.Text],
-	"tarjan":   algo.SCCTarjan[ds.Text],
+var algos = map[string]algo.SCCAlgo{
+	"kosaraju": algo.SCCKosaraju,
+	"tarjan":   algo.SCCTarjan,
 }
 
-func input() *ds.G[ds.Text] {
+func input() *ds.G {
 	g, _, err := ds.Parse(ut.UDGDeps)
 
 	if err != nil {
@@ -32,7 +32,7 @@ func input() *ds.G[ds.Text] {
 	return g
 }
 
-func exportStart(g *ds.G[ds.Text]) {
+func exportStart(g *ds.G) {
 	fIn, err := os.Create(fileIn)
 
 	if err != nil {
@@ -44,7 +44,7 @@ func exportStart(g *ds.G[ds.Text]) {
 	viz.Snapshot(g, fIn, viz.Themes.LightBreeze)
 }
 
-func exportEnd(v viz.AlgoViz[ds.Text]) {
+func exportEnd(v viz.AlgoViz) {
 	fOut, err := os.Create(fileOut)
 
 	if err != nil {
@@ -85,17 +85,18 @@ func main() {
 
 	vi := viz.NewSCCViz(g, sccs, viz.Themes.LightBreeze)
 
-	vi.OnSCCVertex = func(v *ds.GV[ds.Text], c int) {
-		v.SetFmtAttr("label", fmt.Sprintf(`{ %s | cc #%d }`, v.Label(), c))
+	vi.OnSCCVertex = func(v int, c int) {
+		label := fmt.Sprintf(`{ %s | cc #%d }`, vi.Graph.V[v].Label(), c)
+		vi.Graph.V[v].SetFmtAttr("label", label)
 	}
 
-	vi.OnSCCEdge = func(e *ds.GE[ds.Text], c int) {
-		e.SetFmtAttr("penwidth", "2.0")
+	vi.OnSCCEdge = func(v int, e int, c int) {
+		vi.Graph.V[v].E[e].SetFmtAttr("penwidth", "2.0")
 	}
 
-	vi.OnCrossSCCEdge = func(e *ds.GE[ds.Text], cSrc, cDst int) {
-		e.SetFmtAttr("penwidth", "0.5")
-		e.SetFmtAttr("style", "dotted")
+	vi.OnCrossSCCEdge = func(v int, e int, cSrc, cDst int) {
+		vi.Graph.V[v].E[e].SetFmtAttr("penwidth", "0.5")
+		vi.Graph.V[v].E[e].SetFmtAttr("style", "dotted")
 	}
 
 	exportEnd(vi)

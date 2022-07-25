@@ -22,5 +22,6 @@ coverage.html
 /*.svg
 /*.dot
 
-# No main.go file at the root
+# Do not consider the toy files
 /main.go
+/bench_test.go

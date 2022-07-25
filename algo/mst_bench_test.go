@@ -8,12 +8,12 @@ import (
 	ut "github.com/vc-souza/gga/internal/testutils"
 )
 
-func mstBenchGen(n int) *ds.G[ut.BenchItem] {
-	g := ds.NewUndirectedGraph[ut.BenchItem]()
+func mstBenchGen(n int) *ds.G {
+	g := ds.NewGraph()
 
 	for i := 0; i < n; i++ {
 		v := ut.BenchItem(i)
-		g.UnsafeAddVertex(&v)
+		g.AddVertex(&v)
 	}
 
 	for i := 0; i < n; i++ {
@@ -22,9 +22,9 @@ func mstBenchGen(n int) *ds.G[ut.BenchItem] {
 				continue
 			}
 
-			g.UnsafeAddWeightedEdge(
-				g.V[i].Ptr,
-				g.V[j].Ptr,
+			g.AddEdge(
+				g.V[i].Item,
+				g.V[j].Item,
 				float64(i+j),
 			)
 		}
