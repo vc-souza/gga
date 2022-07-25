@@ -2,7 +2,6 @@ package algo
 
 import (
 	"errors"
-	"fmt"
 	"testing"
 
 	"github.com/vc-souza/gga/ds"
@@ -97,10 +96,7 @@ func TestMSTPrim_disconnected(t *testing.T) {
 
 	ut.Nil(t, err)
 
-	mst, err := MSTPrim(g)
-
-	fmt.Println(mst)
-	fmt.Println(err)
+	_, err = MSTPrim(g)
 
 	ut.NotNil(t, err)
 	ut.True(t, errors.Is(err, ds.ErrDisconnected))
